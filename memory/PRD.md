@@ -113,3 +113,38 @@ Explicit choices: on-screen directional controls for free riding; many building-
 - Removed the full-width survival warning banner. Critical indicators use small attention dots and one-time transition toasts; no repeated fixed panel.
 - Care stats are now a noninteractive detail card, not a self-linking button.
 - Verified390x844and360x740:44ptHUDheight, no energy/hunger/condition bars on road, each health/fuel button opens the complete Carecard, no horizontaloverflow. TypeScriptandtargetedJS lintpassed. No backend or save-schema changes.
+
+## Five-Town Regional Expansion — 2026-09-08
+
+### User request and explicit choices
+- Natural regional shape: irregular town edges, curved roads and a winding river instead of square town cutoffs. Preserve existing Sunnyvale and Pinecrest names and compact health/fuel HUD.
+- Bongaon on the far side of Ichhamati River with a football stadium.
+- Habra Town with railway tracks, platforms, trains and gates that physically stop rider and traffic until the train clears.
+- Three bridges: Ray Bridge, Revenuecat Bridge, Habra Bridge.
+- Petrapole with an amusement park and army barracks.
+- Multi-block Sunnyvale cinema and Pinecrest Diamond Plaza mall with prominent in-world ad displays; more bikes in traffic.
+
+### Implemented
+- Canonical world geometry in `backend/region_map.py`, provided through `/api/world` and `/api/catalog`; frontend `region.ts` consumes the same polylines, landmarks, river and signals for rendering, collision and graph-based GPS routing.
+-6300×4500region with166road segments/polylines, connected graph, rounded outskirts/country lanes, winding Ichhamati River and exactly3named rideable bridges. Water outside bridge roads is not rideable.
+- Existing town cores/save coordinates preserved. Worldv3 migration snaps only invalid old positions to the nearest valid road without resetting health, money, inventory or progression.
+- Landmarks: Sunnyvale Picturehouse(680×420), Diamond Plaza(700×500), Bongaon Football Stadium, Habra Railway Station/two platforms, Petrapole Amusement Park/animated Ferris wheel/coaster, and fenced Petrapole Army Barracks.
+- Cinema rooftop screen/poster wall and Diamond Plaza LED/ribbon displays retain literalPLACEFORADS text; live ad SDK remains outside scope.
+-74AIvehicles(40bikes,34cars) with distinct sprites, curved routes, following distances, gate queues and rider-aware waiting behavior.
+- Habra five rail gates:3mainstreet crossings plus both curved ring-road crossings.60second cycle; close atphase8, trainactivephase12through35, gatesopen36 aftertrainclears. Renderedtrain/platforms/gatearms/lights and contextualwaitmessage.
+- Rider and AI physically stop at barriers. Rider blockedstate latches untilclear, no collision penalties whilewaiting in closedgateapproachzone, plus2.5secondlocalclearancegrace afteraqueuedrider’sgateopens. Normalroadcollisionrulesresumeafterward.
+- New town services and real delivery offers: Ichhamati Café→Bongaonstadium; PlatformChai→Habragardenhomes; FairgroundSnacks→Petrapolebarracks. Regionalpickupbudgetsuseactualgraphdistance andallowrailgatewaiting.
+- PhoneGPS listsalllandmarks, threebridges, railgates, services and actual route destinations; no destinationteleport. CompactHUD/phone-onlyonlinecontrol/survival systems retained.
+
+### Verification and limitations
+- Full backend suite37/37passed10.92s. Focusedrail retest10/10passed. JS/PythonlintandTypeScriptpassed.
+- Mobile-web390×844/360×740: organicregionalGPS, namedlandmark/bridge/gaterows, compactHUD/Care, actualridefromgaragetocinemadistrict.
+- CriticalrailUI: blockedaty2948(northof2949barrier), blockedstateremainsafterrelease, nohealthlosswhilewaiting,7queuedAIvehicles, trainvisiblephase26.58, reopenallowscrossingandclearsblock. Report`test_reports/iteration_4.json`.
+- SupplementalAPI deliveriesinall3newtownscompleted: Bongaon45coins,Habra45,Petrapole61.
+- Addedshortpost-openlocalgracefollowingretest’soptionaltraffic-proximityobservation. Ordinarycollisionselsewhereareintentionalgameplay.
+- Landmarks are exterior world destinations, not separate playable football/theme-park mini-games. No live ads added. PhysicaliOS/AndroidperformanceQAremainsnext.
+
+### Prioritized next work
+- P0: no identified unresolved core-flow blocker.
+- P1: playerfeedbackonregionaltravel-time/fuelbalance; native-deviceperformanceandcontrolprofiling.
+- P2: landmark-specificmissions, train/city/riverambientaudio and optional venueinteriors/mini-games.

@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { storage } from '@/src/utils/storage';
+import type { WorldData } from './region';
 
 export type Point = { x: number; y: number };
 export type Weather = 'sunny' | 'cloudy' | 'rainy';
@@ -19,7 +20,8 @@ export type Order = {
 };
 export type Dispatch = { orders: Order[]; message: string; region: string; retry_after: number };
 export type Service = Point & { id: string; name: string; kind: 'garage' | 'fuel' | 'repair'; address: string };
-export type Catalog = { foods: Record<string, { name: string; price: number; hunger: number; energy: number; health: number }>; milestones: { deliveries: number; name: string; coins: number; food: Record<string, number> }[]; services: Service[]; recovery_cost: number };
+export type Destination = Point & { id:string; name:string; kind:string; address:string };
+export type Catalog = { foods: Record<string, { name: string; price: number; hunger: number; energy: number; health: number }>; milestones: { deliveries: number; name: string; coins: number; food: Record<string, number> }[]; services: Service[]; recovery_cost: number; world:WorldData; server_time:number };
 const TOKEN_KEY = 'chill-dash-session';
 let token = '';
 // Expo Go reads manifest extras; the browser preview uses Expo's inlined public value.

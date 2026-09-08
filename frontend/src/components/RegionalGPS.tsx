@@ -1,0 +1,29 @@
+import React from 'react';
+import { Pressable, View, useWindowDimensions } from 'react-native';
+import { useGame } from '@/src/game/GameContext';
+import { MAP, getRoute, region } from '@/src/game/world';
+import { makeStyles, useTheme } from '@/src/theme';
+import { MiniMap } from './CityWorld';
+import { Button, Icon, Label } from './ui';
+
+const landmarkIcon:Record<string,string>={cinema:'film-outline',mall:'bag-outline',stadium:'football-outline',station:'train-outline',park:'happy-outline',barracks:'flag-outline'};
+export function RegionalGPS() {
+  const g=useGame(),s=useStyles(),{colors:c}=useTheme(),{width}=useWindowDimensions();
+  const target=g.destination||(g.order?.status==='accepted'?g.order.pickup:g.order?.status==='picked_up'?g.order.dropoff:null);
+  return <View testID="regional-gps-screen"><Label style={s.eyebrow}>FIVE TOWNS. THREE BRIDGES. YOUR OWN PACE.</Label><Label display style={s.title}>The long way around.</Label><Label testID="gps-region-name" style={s.subtitle}>You’re in {region(g.position.current)}.</Label>
+    <View style={s.map}><MiniMap large player={g.position.current} target={target} route={target?getRoute(g.position.current,target):[]} size={Math.min(width-108,320)}/></View>
+    <View style={s.legend}><View style={s.legendItem}><View style={s.dot}/><Label style={s.tiny}>You</Label></View><View style={s.legendItem}><View style={[s.dot,{backgroundColor:c.brand}]}/><Label style={s.tiny}>Bridges / destination</Label></View><Icon name="train-outline" size={13}/><Label style={s.tiny}>Railway</Label></View>
+    {target&&<View style={s.route}><Icon name="navigate-outline" color={c.teal}/><View style={{flex:1}}><Label style={s.placeName}>{target.name}</Label><Label style={s.tiny}>{target.address}</Label></View></View>}
+    <Button testID="gps-back-to-ride-button" title={g.screen==='garage'?'HEAD OUT & EXPLORE':'BACK TO THE RIDE'} icon="arrow-forward" onPress={()=>{g.setPhone(false);if(g.screen==='garage')g.headOut();}}/>
+    {g.destination&&<Button testID="clear-service-route-button" title="CLEAR EXPLORATION ROUTE" secondary onPress={()=>g.setDestination(null)} style={{marginTop:10}}/>}
+    <Label display style={s.section}>Places worth the detour</Label>
+    {MAP.landmarks.map(l=><Pressable testID={`gps-landmark-${l.id}`} key={l.id} style={({pressed})=>[s.place,pressed&&s.pressed]} onPress={()=>g.navigateTo({id:l.id,name:l.name,kind:l.kind,address:`${l.town} · ${l.description}`,...l.entrance})}><View style={s.icon}><Icon name={landmarkIcon[l.kind]} color={c.teal} size={21}/></View><View style={{flex:1}}><Label style={s.placeName}>{l.name}</Label><Label style={s.tiny}>{l.town}</Label></View><Icon name="navigate-outline" size={17} color={c.teal}/></Pressable>)}
+    <Label display style={s.section}>Across Ichhamati River</Label>
+    {MAP.bridges.map(b=><Pressable testID={`gps-bridge-${b.id}`} key={b.id} style={({pressed})=>[s.place,pressed&&s.pressed]} onPress={()=>g.navigateTo({id:b.id,name:b.name,kind:'bridge',address:'Footpath viewpoint · Ichhamati River',x:b.x,y:b.y+48})}><View style={s.icon}><Icon name="git-merge-outline" color={c.teal} size={21}/></View><View style={{flex:1}}><Label style={s.placeName}>{b.name}</Label><Label style={s.tiny}>A safe crossing over the winding river</Label></View><Icon name="navigate-outline" size={17} color={c.teal}/></Pressable>)}
+    <Label display style={s.section}>Habra railway gates</Label><Label style={s.subtitle}>Gates close before trains arrive. Riders, cars and bikes all wait until the train clears.</Label>
+    {MAP.railway.gates.slice(0,3).map(gate=><Pressable testID={`gps-gate-${gate.id}`} key={gate.id} style={s.place} onPress={()=>g.navigateTo({id:gate.id,name:gate.name,kind:'railway',address:'Wait behind the barrier · Habra Town',x:gate.x+48,y:gate.y-135})}><Icon name="train-outline" color={c.teal} size={21}/><View style={{flex:1}}><Label style={s.placeName}>{gate.name}</Label><Label style={s.tiny}>Live crossings · automatic gates</Label></View><Icon name="navigate-outline" size={17}/></Pressable>)}
+    <Label display style={s.section}>Fuel, fixes & a little rest</Label>
+    {g.catalog!.services.map(stop=><Pressable testID={`gps-service-${stop.id}`} key={stop.id} style={s.place} onPress={()=>g.navigateTo(stop)}><View style={s.icon}><Icon name={stop.kind==='garage'?'home-outline':stop.kind==='fuel'?'water-outline':'construct-outline'} color={c.teal} size={21}/></View><View style={{flex:1}}><Label style={s.placeName}>{stop.name}</Label><Label style={s.tiny}>{stop.address}</Label></View><Icon name="navigate-outline" size={17}/></Pressable>)}
+  </View>;
+}
+const useStyles=makeStyles(c=>({eyebrow:{fontSize:8,letterSpacing:1,color:c.teal,fontWeight:'800',marginBottom:7},title:{fontSize:25,marginBottom:4},subtitle:{fontSize:11,lineHeight:18,color:c.muted,marginBottom:12},map:{borderRadius:20,overflow:'hidden',borderWidth:1.5,borderColor:c.onSurface,alignItems:'center',backgroundColor:c.treeLight},legend:{flexDirection:'row',gap:6,alignItems:'center',justifyContent:'space-between',marginVertical:12},legendItem:{flexDirection:'row',gap:5,alignItems:'center'},dot:{width:7,height:7,borderRadius:4,backgroundColor:c.teal},tiny:{fontSize:9,lineHeight:15,color:c.muted},section:{fontSize:21,marginTop:23,marginBottom:9},place:{minHeight:62,flexDirection:'row',gap:10,alignItems:'center',paddingVertical:12,borderBottomWidth:1,borderColor:c.border},placeName:{fontSize:12,fontWeight:'800',marginBottom:3},icon:{height:35,width:35,borderRadius:12,backgroundColor:c.mint,alignItems:'center',justifyContent:'center'},route:{flexDirection:'row',alignItems:'center',gap:10,marginBottom:16},pressed:{opacity:.65}}));

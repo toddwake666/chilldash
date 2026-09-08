@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { api, openSave, Catalog, Dispatch, Order, Point, Profile, Service, Weather } from './api';
-import { GARAGE } from './world';
+import { api, openSave, Catalog, Destination, Dispatch, Order, Point, Profile, Service, Weather } from './api';
+import { configureWorld, GARAGE } from './world';
 import * as Haptics from 'expo-haptics';
 
 export type PhoneTab = 'orders' | 'gps' | 'wallet' | 'food' | 'kit' | 'milestones' | 'care';
@@ -12,7 +12,7 @@ function useGameState() {
   const [order, setOrder] = useState<Order | null>(null), [dispatch, setDispatch] = useState<Dispatch | null>(null);
   const [phone, setPhone] = useState(false), [phoneTab, setPhoneTab] = useState<PhoneTab>('orders');
   const [panel, setPanel] = useState<'help' | 'world' | 'pause' | 'gear' | 'status' | 'service' | null>(null);
-  const [serviceStop, setServiceStop] = useState<Service | null>(null), [destination, setDestination] = useState<Service | null>(null);
+  const [serviceStop, setServiceStop] = useState<Service | null>(null), [destination, setDestination] = useState<Destination | null>(null);
   const [toast, setToast] = useState(''), [reward, setReward] = useState<Order | null>(null), [now, setNow] = useState(Date.now() / 1000);
   const position = useRef<Point>({ ...GARAGE }), clock = useRef(540), weather = useRef<Weather>('sunny'), weatherAuto = useRef(true);
   const pending = useRef({ elapsed: 0, moving: 0, distance: 0 });
@@ -34,7 +34,7 @@ function useGameState() {
       const p = await openSave();
       position.current = p.position; clock.current = p.minutes; weather.current = p.weather;
       applyProfile(p); setScreen(p.at_garage ? 'garage' : 'city');
-      setCatalog(await api<Catalog>('/catalog')); receiveDispatch(await api<Dispatch>('/dispatch'));
+      const loadedCatalog=await api<Catalog>('/catalog'); configureWorld(loadedCatalog.world,loadedCatalog.server_time); setCatalog(loadedCatalog); receiveDispatch(await api<Dispatch>('/dispatch'));
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not connect to your garage.'); }
     finally { setLoading(false); }
   }, [applyProfile, receiveDispatch]);
@@ -111,7 +111,7 @@ function useGameState() {
     notify('Home at last. Health and energy restored.');
   });
   const openPhone = (tab: PhoneTab = 'orders') => { setPanel(null); setPhoneTab(tab); setPhone(true); };
-  const navigateTo = (place: Service) => { setDestination(place); setPhone(false); setPanel(null); if (screen === 'garage') headOut(); notify(`GPS set to ${place.name}.`); };
+  const navigateTo = (place: Destination) => { setDestination(place); setPhone(false); setPanel(null); if (screen === 'garage') headOut(); notify(`GPS set to ${place.name}.`); };
   const openService = (place: Service) => { setServiceStop(place); setPanel('service'); };
   const useService = (action: string) => profileAction('/services/use', { service_id: serviceStop?.id, action }, 'All taken care of. Safe travels!');
   const collision = (kind: 'traffic' | 'wall') => {

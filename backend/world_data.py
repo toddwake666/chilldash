@@ -1,4 +1,5 @@
 import math
+from region_map import can_ride, on_footpath, region, route_distance
 
 COLS = [120, 400, 680, 960]
 ROWS = [120, 400, 680, 960, 1240]
@@ -22,6 +23,12 @@ SERVICES = [
     {'id': 'sunny-repair', 'name': 'Milo’s Bike Workshop', 'kind': 'repair', 'x': 912, 'y': 860, 'address': 'Sunset Road · Sunnyvale'},
     {'id': 'pine-fuel', 'name': 'Pinecrest Fuel & Air', 'kind': 'fuel', 'x': 2512, 'y': 580, 'address': 'Pine Lane · Pinecrest'},
     {'id': 'pine-repair', 'name': 'The Spoke House', 'kind': 'repair', 'x': 2888, 'y': 870, 'address': 'Cedar Way · Pinecrest'},
+    {'id': 'bongaon-fuel', 'name': 'Bongaon Fuel & Air', 'kind': 'fuel', 'x': 4248, 'y': 1260, 'address': 'Stadium Ring · Bongaon'},
+    {'id': 'bongaon-repair', 'name': 'Riverbank Motors', 'kind': 'repair', 'x': 5402, 'y': 590, 'address': 'Garden Road · Bongaon'},
+    {'id': 'habra-fuel', 'name': 'Habra Fuel & Air', 'kind': 'fuel', 'x': 2888, 'y': 3560, 'address': 'Station Road · Habra Town'},
+    {'id': 'habra-repair', 'name': 'Railtown Cycle Works', 'kind': 'repair', 'x': 2232, 'y': 2560, 'address': 'West Road · Habra Town'},
+    {'id': 'petrapole-fuel', 'name': 'Petrapole Fuel & Air', 'kind': 'fuel', 'x': 5888, 'y': 3990, 'address': 'Garden Ring · Petrapole'},
+    {'id': 'petrapole-repair', 'name': 'Fairground Bike Care', 'kind': 'repair', 'x': 4828, 'y': 3990, 'address': 'Fairground Road · Petrapole'},
 ]
 PICKUPS = [
     {'name': 'Sunny Side Café', 'address': '12 Palm Street', 'x': 352, 'y': 580},
@@ -30,6 +37,9 @@ PICKUPS = [
     {'name': 'Corner Noodles', 'address': '36 Sunset Road', 'x': 850, 'y': 632},
     {'name': 'Pine & Pastry', 'address': '4 Pine Lane', 'x': 2512, 'y': 270},
     {'name': 'Cedar Kitchen', 'address': '16 Cedar Way', 'x': 2740, 'y': 632},
+    {'name': 'Ichhamati Café', 'address': 'Riverbank Lane · Bongaon', 'x': 4248, 'y': 580},
+    {'name': 'Platform Chai', 'address': 'Station approach · Habra Town', 'x': 2792, 'y': 2890},
+    {'name': 'Fairground Snacks', 'address': 'Park entrance · Petrapole', 'x': 5290, 'y': 3148},
 ]
 DROPOFFS = [
     {'name': 'Maple Apartments', 'address': '7 Maple Walk', 'x': 590, 'y': 632},
@@ -38,6 +48,9 @@ DROPOFFS = [
     {'name': 'Seaside Offices', 'address': '2 Ocean Drive', 'x': 820, 'y': 168},
     {'name': 'Willow Cottage', 'address': '9 Willow Crescent', 'x': 3000, 'y': 912},
     {'name': 'Cedar Terrace', 'address': '22 Cedar Way', 'x': 2328, 'y': 1080},
+    {'name': 'Bongaon Football Stadium', 'address': 'Stadium north entrance', 'x': 4770, 'y': 788},
+    {'name': 'Habra Garden Homes', 'address': 'South Station Road', 'x': 3060, 'y': 3428},
+    {'name': 'Petrapole Army Barracks', 'address': 'Visitor gate · Petrapole', 'x': 4488, 'y': 3630},
 ]
 
 
@@ -45,28 +58,7 @@ def dist(a, b):
     return math.hypot(a['x'] - b['x'], a['y'] - b['y'])
 
 
-def region(p):
-    return 'Sunnyvale' if p['x'] < 1060 else 'Pinecrest' if p['x'] > 2220 else 'Whispering Pines'
-
-
 def road_distance(a, b):
-    if region(a) != region(b):
-        return abs(a['y'] - 680) + abs(a['x'] - b['x']) + abs(b['y'] - 680)
-    return abs(a['x'] - b['x']) + abs(a['y'] - b['y'])
-
-
-def on_footpath(p):
-    offset = 2160 if p['x'] > 2160 else 0
-    dx = min(abs(p['x'] - (x + offset)) for x in COLS)
-    dy = min(abs(p['y'] - y) for y in ROWS)
-    return (39 <= dx <= 59 and dy > 37) or (39 <= dy <= 59 and dx > 37)
-
-
-def can_ride(p):
-    x, y = p['x'], p['y']
-    if not (55 < x < 3225 and 55 < y < 1305):
-        return False
-    if 1015 < x < 2225:
-        return abs(y - 680) < 58
-    offset = 2160 if x > 2160 else 0
-    return min(abs(x - (c + offset)) for c in COLS) < 59 or min(abs(y - r) for r in ROWS) < 59
+    if region(a) == region(b) and region(a) in ['Sunnyvale', 'Pinecrest']:
+        return abs(a['x'] - b['x']) + abs(a['y'] - b['y'])
+    return route_distance(a, b)

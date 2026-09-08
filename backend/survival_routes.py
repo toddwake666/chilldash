@@ -5,13 +5,24 @@ from game_models import CarryAction, Collision, FoodAction, Profile, Recovery, R
 from game_store import alive, db, die, get_record, locks, player, profile_for, spend
 from order_routes import dispatch_for
 from world_data import FOODS, GARAGE, MILESTONES, SERVICES, can_ride, dist
+from region_map import WORLD, railway_state
 
 router = APIRouter(prefix='/api')
 
 
 @router.get('/catalog')
 async def catalog():
-    return {'foods': FOODS, 'milestones': MILESTONES, 'services': SERVICES, 'recovery_cost': 15}
+    return {'foods': FOODS, 'milestones': MILESTONES, 'services': SERVICES, 'recovery_cost': 15, 'world': WORLD, 'server_time': time.time()}
+
+
+@router.get('/world')
+async def world():
+    return {'world': WORLD, 'server_time': time.time()}
+
+
+@router.get('/world/railway')
+async def railway():
+    return {**railway_state(), 'gates': WORLD['railway']['gates'], 'server_time': time.time()}
 
 
 @router.post('/game/tick', response_model=TickResult)

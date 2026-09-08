@@ -10,6 +10,7 @@ from fastapi import Header, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from game_models import Profile
+from region_map import can_ride, nearest_road
 
 load_dotenv(Path(__file__).parent / '.env')
 client = AsyncIOMotorClient(os.environ['MONGO_URL'])
@@ -34,6 +35,12 @@ async def player(authorization: str = Header(default='')):
         additions['schema_version'] = 2
         await db.players.update_one({'id': record['id']}, {'$set': additions})
         record.update(additions)
+    if record.get('world_version') != 3:
+        values = {'world_version': 3}
+        if not can_ride(record['position']):
+            values['position'] = nearest_road(record['position'])[1]
+        await db.players.update_one({'id': record['id']}, {'$set': values})
+        record.update(values)
     return record
 
 

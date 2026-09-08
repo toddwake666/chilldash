@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field
 
 
 class Position(BaseModel):
-    x: float = Field(ge=30, le=3250)
-    y: float = Field(ge=30, le=1450)
+    x: float = Field(ge=30, le=6270)
+    y: float = Field(ge=30, le=4470)
 
 
 class BikeState(BaseModel):
@@ -38,6 +38,7 @@ class Profile(BaseModel):
     dead: bool = False
     at_garage: bool = True
     schema_version: int = 2
+    world_version: int = 3
 
 
 class Session(BaseModel):
