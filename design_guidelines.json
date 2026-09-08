@@ -1,0 +1,152 @@
+{
+  "app_name": "Chill Dash: Delivery Sim",
+  "personality": "4 Tactile / Playful LIGHT",
+  "personality_one_liner": "A vibrant, chunky, and tactile 2D open-city delivery simulator where every action feels like a colorful, interactive comic-book panel.",
+  "color": {
+    "surface": "#FFF9E6",
+    "onSurface": "#11181C",
+    "surfaceSecondary": "#FFFFFF",
+    "onSurfaceSecondary": "#11181C",
+    "surfaceTertiary": "#F2E9D0",
+    "onSurfaceTertiary": "#11181C",
+    "surfaceInverse": "#11181C",
+    "onSurfaceInverse": "#FFF9E6",
+    "brand": "#FFC300",
+    "brandPrimary": "#FFC300",
+    "onBrandPrimary": "#11181C",
+    "brandSecondary": "#1DB954",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#E63946",
+    "onBrandTertiary": "#FFFFFF",
+    "success": "#1DB954",
+    "onSuccess": "#FFFFFF",
+    "warning": "#FFC300",
+    "onWarning": "#11181C",
+    "error": "#E63946",
+    "onError": "#FFFFFF",
+    "info": "#FFC300",
+    "onInfo": "#11181C",
+    "border": "#E5DCC5",
+    "borderStrong": "#11181C",
+    "divider": "#E5DCC5",
+    "muted": "#757B80",
+    "onBrand": "#11181C"
+  },
+  "typography": {
+    "displayFontFamily": "Fredoka",
+    "textFontFamily": "Nunito",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous padding to make the UI feel chunky and touchable. Important controls (joystick, phone) get oversized tap areas and sit clearly in the thumb zone.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "2",
+  "navigation": "stack_only",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use on the in-game smartphone UI over the gameplay background",
+      "Use for floating HUD elements like the mini-map and stats container"
+    ],
+    "dont's": [
+      "Do not use on garage cards",
+      "Do not use on primary CTA buttons"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "GarageScreen",
+      "purpose": "The starting hub where the player selects their bike and gear before heading out.",
+      "states": {
+        "loading": "Chunky spinning wheel icon in the center.",
+        "empty": "N/A",
+        "error": "Failed to load garage data. Playful error icon with retry button."
+      },
+      "layout": "Top 50% is a 2D environment (garage_interior image with gradient scrim at bottom). The selected scooter sits in the center of the image. The bottom 50% is a floating bottom-sheet-style card layout (`surfaceSecondary`, `lg` radius) containing horizontal scrolling shelves for Bikes and Gear. Selected items get a `borderStrong` highlight. A sticky 'HEAD OUT' primary CTA (`brandPrimary`, pill shape) anchors the bottom edge inside safe area."
+    },
+    {
+      "name": "GameHUD",
+      "purpose": "The main playable area overlay containing directional controls, mini-map, in-game phone, and ad placeholders.",
+      "states": {
+        "loading": "Map loading overlay.",
+        "empty": "N/A",
+        "error": "Connection lost. Retry button overlaid on frozen game state."
+      },
+      "layout": "A full-bleed screen for the 2D world. HUD elements sit directly on top. Top-Left: Rounded-square Mini-GPS module with glass background. Top-Right: Stats pill (Earnings) and a chunky Online/Offline toggle. Bottom-Left: On-screen directional joystick (large semi-transparent circle with inner nub). Bottom-Right: Interact/Action buttons + 'Open Phone' button. Mid-screen: Integrated placeholders reading 'PLACE FOR ADS' painted on virtual building walls or hoardings as requested."
+    },
+    {
+      "name": "InGamePhone",
+      "purpose": "A simulated smartphone interface where the player accepts orders, checks messages, and manages earnings.",
+      "states": {
+        "loading": "Phone booting up animation.",
+        "empty": "No active orders. Friendly illustration inside the phone screen.",
+        "error": "No signal illustration."
+      },
+      "layout": "Opens as an overlaid centered modal (or right-side panel) when triggered from the HUD. The phone container uses a heavy `borderStrong` outline or distinct `shadow 2` to feel like an object. Inside the phone: a grid of apps (Orders, GPS, Wallet). When an order arrives, a dynamic notification banner drops from the top of the phone screen with 'Accept' (`brandSecondary`) and 'Decline' (`brandTertiary`) buttons."
+    }
+  ],
+  "images": {
+    "garage_interior": {
+      "url": "https://images.unsplash.com/photo-1770915211878-4d5254840535?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxnYXJhZ2UlMjBpbnRlcmlvciUyMGdyYXBoaWN8ZW58MHx8fHwxNzg4ODc3MDU4fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Comic-style garage interior"
+    },
+    "scooter_asset": {
+      "url": "https://images.unsplash.com/photo-1617018001536-e1a443326d43?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODB8MHwxfHNlYXJjaHwxfHxzY29vdGVyJTIwbW90b3JjeWNsZSUyMGdyYXBoaWN8ZW58MHx8fHwxNzg4ODc3MDU4fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Mint green comic scooter"
+    },
+    "city_street_backdrop": {
+      "url": "https://images.unsplash.com/photo-1482859454392-1b5326395032?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxjb21pYyUyMGJvb2slMjBjaXR5JTIwc3RyZWV0fGVufDB8fHx8MTc4ODg3NzA1OHww&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1482859454392-1b5326395032?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxjb21pYyUyMGJvb2slMjBjaXR5JTIwc3RyZWV0fGVufDB8fHx8MTc4ODg3NzA1OHww&ixlib=rb-4.1.0&q=85",
+      "alt": "Top down city street"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the Tactile/Playful UI rules. Keep elements chunky, rounded (lg to pill), and use high contrast text on the warm background.",
+    "Borders (borderStrong) should be utilized sparsely but effectively to make UI elements pop, matching a comic-book aesthetic.",
+    "Implement the HUD controls (joystick, phone trigger, mini-map) using `react-native-gesture-handler` for smooth, responsive interactions.",
+    "For the 'PLACE FOR ADS', simply design visually distinct billboard/hoarding UI containers within the game world (using View blocks) labeled 'PLACE FOR ADS' with a contrasting background to stand out from the city textures.",
+    "Ensure the in-game phone modal doesn't cover the entire screen; it should look like a device overlaid on the gameplay (approx 80% height, 85% width on mobile).",
+    "Use Phosphor icons heavily (filled versions for active states, outlined for inactive) in the phone's grid and HUD elements.",
+    "For day-night/weather cycles, consider overlaying a full-screen pointer-events-none View with low-opacity dark/blue tint for night and warm/orange for day.",
+    "Haptics: Provide tactile feedback (ImpactFeedbackStyle.Light/Medium) on Joystick direction changes, button presses, and when the phone order modal drops down."
+  ],
+  "haptics": {
+    "joystick_move": "ImpactFeedbackStyle.Light",
+    "button_press": "ImpactFeedbackStyle.Medium",
+    "phone_open": "ImpactFeedbackStyle.Medium",
+    "order_received": "NotificationFeedbackType.Success",
+    "toggle_online": "ImpactFeedbackStyle.Heavy"
+  }
+}
