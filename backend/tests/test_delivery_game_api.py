@@ -4,10 +4,12 @@ from pathlib import Path
 import pytest
 import requests
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
 
 # Module: shared API base URL and client fixtures for Chill Dash backend tests
 load_dotenv(Path('/app/frontend/.env'))
+load_dotenv(Path('/app/backend/.env'))
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
 
 
@@ -30,6 +32,13 @@ def create_session(api_client):
 
 
 def complete_one_delivery(api_client, headers):
+    # Advance ONLY this freshly-created test player's dispatch cooldown. The
+    # cooldown itself is covered separately; avoid waiting45seconds per purchase.
+    test_profile = api_client.get(f'{BASE_URL}/api/profile', headers=headers).json()
+    with MongoClient(os.environ['MONGO_URL']) as mongo:
+        mongo[os.environ['DB_NAME']].players.update_one(
+            {'id': test_profile['id']}, {'$set': {'next_offer_at': 0}}
+        )
     api_client.put(f'{BASE_URL}/api/profile/online', json={'online': True}, headers=headers)
     offer = api_client.get(f'{BASE_URL}/api/orders', headers=headers).json()[0]
     api_client.post(f"{BASE_URL}/api/orders/{offer['id']}/accept", headers=headers)
@@ -113,7 +122,7 @@ def test_accept_pickup_deliver_happy_path_and_persistence(auth_headers, api_clie
     pickup = api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/pickup",
         headers=auth_headers,
-        json={'x': 400, 'y': 580},
+        json={'x': offer['pickup']['x'], 'y': offer['pickup']['y']},
     )
     assert pickup.status_code == 200
     assert pickup.json()['status'] == 'picked_up'
@@ -123,7 +132,7 @@ def test_accept_pickup_deliver_happy_path_and_persistence(auth_headers, api_clie
     deliver = api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/deliver",
         headers=auth_headers,
-        json={'x': 590, 'y': 680},
+        json={'x': offer['dropoff']['x'], 'y': offer['dropoff']['y']},
     )
     assert deliver.status_code == 200
     result = deliver.json()
@@ -162,7 +171,7 @@ def test_distance_validation_deliver(auth_headers, api_client):
     api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/pickup",
         headers=auth_headers,
-        json={'x': 400, 'y': 580},
+        json={'x': offer['pickup']['x'], 'y': offer['pickup']['y']},
     )
     too_far = api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/deliver",
@@ -179,18 +188,18 @@ def test_duplicate_reward_prevention(auth_headers, api_client):
     api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/pickup",
         headers=auth_headers,
-        json={'x': 400, 'y': 580},
+        json={'x': offer['pickup']['x'], 'y': offer['pickup']['y']},
     )
     first = api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/deliver",
         headers=auth_headers,
-        json={'x': 590, 'y': 680},
+        json={'x': offer['dropoff']['x'], 'y': offer['dropoff']['y']},
     )
     assert first.status_code == 200
     second = api_client.post(
         f"{BASE_URL}/api/orders/{offer['id']}/deliver",
         headers=auth_headers,
-        json={'x': 590, 'y': 680},
+        json={'x': offer['dropoff']['x'], 'y': offer['dropoff']['y']},
     )
     assert second.status_code == 409
 

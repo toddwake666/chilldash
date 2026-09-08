@@ -6,13 +6,13 @@ import { Icon, Label } from './ui';
 import type { Point } from '@/src/game/api';
 
 // Keep the gesture instances mounted while the game redraws its world every frame.
-export const RideControls = React.memo(function RideControls({ direction }: { direction: MutableRefObject<Point> }) {
+export const RideControls = React.memo(function RideControls({ direction, disabled = false }: { direction: MutableRefObject<Point>; disabled?: boolean }) {
   const s = useStyles();
   const stop = () => { direction.current = { x: 0, y: 0 }; };
-  const pan = Gesture.Pan().runOnJS(true).onUpdate(e => { direction.current = { x: Math.max(-1, Math.min(1, e.translationX / 25)), y: Math.max(-1, Math.min(1, e.translationY / 25)) }; }).onFinalize(stop);
+  const pan = Gesture.Pan().enabled(!disabled).runOnJS(true).onUpdate(e => { direction.current = { x: Math.max(-1, Math.min(1, e.translationX / 25)), y: Math.max(-1, Math.min(1, e.translationY / 25)) }; }).onFinalize(stop);
   const buttons = [{ id: 'up', x: 0, y: -1, icon: 'chevron-up', style: s.up }, { id: 'down', x: 0, y: 1, icon: 'chevron-down', style: s.down }, { id: 'left', x: -1, y: 0, icon: 'chevron-back', style: s.left }, { id: 'right', x: 1, y: 0, icon: 'chevron-forward', style: s.right }];
   return <View style={s.wrap}><View style={s.pad} testID="directional-controls">
-    {buttons.map(b => <Pressable key={b.id} testID={`ride-${b.id}-button`} accessibilityRole="button" accessibilityLabel={`Ride ${b.id}`} onPressIn={() => { direction.current = { x: b.x, y: b.y }; }} onPressOut={stop} style={({ pressed }) => [s.arrow, b.style, pressed && s.pressed]}><Icon name={b.icon} size={26} /></Pressable>)}
+    {buttons.map(b => <Pressable key={b.id} disabled={disabled} testID={`ride-${b.id}-button`} accessibilityState={{ disabled }} accessibilityRole="button" accessibilityLabel={`Ride ${b.id}`} onPressIn={() => { direction.current = { x: b.x, y: b.y }; }} onPressOut={stop} style={({ pressed }) => [s.arrow, b.style, pressed && s.pressed]}><Icon name={b.icon} size={26} /></Pressable>)}
     <GestureDetector gesture={pan}><View testID="ride-joystick" style={s.center}><View style={s.nub} /></View></GestureDetector>
   </View><Label style={s.label}>HOLD TO RIDE</Label></View>;
 });

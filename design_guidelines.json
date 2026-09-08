@@ -1,4 +1,9 @@
 {
+  "latest_user_hud_override": {
+    "date": "2026-09-08",
+    "requirement": "User explicitly wants only health and fuel on the riding screen; tapping either opens detailed stats in the phone. Use tire air for bicycles.",
+    "implementation": "Two compact 44pt-high icon/percentage buttons. No five-stat panel, balance/level footer or full-width survival warning banner. Full health, energy, hunger, bike condition and resource bars live only in Phone Care. Use tiny attention dots and brief transition warnings instead of permanent extra chrome. This overrides any earlier HUD_HealthMeters blueprint."
+  },
   "app_name": "Chill Dash: Delivery Sim",
   "personality": "4 Tactile / Playful LIGHT",
   "personality_one_liner": "A vibrant, chunky, and tactile 2D open-city delivery simulator where every action feels like a colorful, interactive comic-book panel.",
@@ -98,23 +103,33 @@
     },
     {
       "name": "GameHUD",
-      "purpose": "The main playable area overlay containing directional controls, mini-map, in-game phone, and ad placeholders.",
+      "purpose": "The main playable area overlay containing directional controls, mini-map, in-game phone, survival stats, and ad placeholders.",
       "states": {
         "loading": "Map loading overlay.",
         "empty": "N/A",
         "error": "Connection lost. Retry button overlaid on frozen game state."
       },
-      "layout": "A full-bleed screen for the 2D world. HUD elements sit directly on top. Top-Left: Rounded-square Mini-GPS module with glass background. Top-Right: Stats pill (Earnings) and a chunky Online/Offline toggle. Bottom-Left: On-screen directional joystick (large semi-transparent circle with inner nub). Bottom-Right: Interact/Action buttons + 'Open Phone' button. Mid-screen: Integrated placeholders reading 'PLACE FOR ADS' painted on virtual building walls or hoardings as requested."
+      "layout": "A full-bleed screen for the 2D world. HUD elements sit directly on top. Top-Left: Rounded-square Mini-GPS module with glass background. Top-Right: Stats pill (Earnings) and a read-only Online/Offline indicator beside the weather/time widget. Left/Right margins: Compact survival HUD with visual bars/icons for Health, Energy, Hunger, Bike Condition, Fuel, and Tire Air. Bottom-Left: On-screen directional joystick. Bottom-Right: Interact/Action buttons + 'Open Phone' button. Mid-screen: Integrated placeholders reading 'PLACE FOR ADS' painted on virtual building walls."
     },
     {
       "name": "InGamePhone",
-      "purpose": "A simulated smartphone interface where the player accepts orders, checks messages, and manages earnings.",
+      "purpose": "A simulated smartphone interface where the player accepts orders, checks messages, buys food/rain gear, accesses roadside assistance, and toggles online status.",
       "states": {
         "loading": "Phone booting up animation.",
         "empty": "No active orders. Friendly illustration inside the phone screen.",
         "error": "No signal illustration."
       },
-      "layout": "Opens as an overlaid centered modal (or right-side panel) when triggered from the HUD. The phone container uses a heavy `borderStrong` outline or distinct `shadow 2` to feel like an object. Inside the phone: a grid of apps (Orders, GPS, Wallet). When an order arrives, a dynamic notification banner drops from the top of the phone screen with 'Accept' (`brandSecondary`) and 'Decline' (`brandTertiary`) buttons."
+      "layout": "Opens as an overlaid centered modal (or right-side panel) when triggered from the HUD. The phone container uses a heavy `borderStrong` outline or distinct `shadow 2` to feel like an object. Inside the phone: a grid of apps (Orders, GPS, Wallet, Food Store, Inventory/Rain Kit, Milestones, and Settings where the Online Toggle & Roadside Assistance sit). When an order arrives, a dynamic notification banner drops from the top of the phone screen with 'Accept' (`brandSecondary`) and 'Decline' (`brandTertiary`) buttons."
+    },
+    {
+      "name": "DeathRecoveryOverlay",
+      "purpose": "A modal triggered when the player's health hits zero, offering a choice to respawn.",
+      "states": {
+        "loading": "N/A",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Centered non-dismissible recovery popup. Both choices cancel the active order. Pay 15 coins to recover at the garage while preserving progression, or restart from zero after a second explicit destructive confirmation. Disable paid recovery if balance is insufficient. Use existing comic styling."
     }
   ],
   "images": {
@@ -130,23 +145,46 @@
       "url": "https://images.unsplash.com/photo-1482859454392-1b5326395032?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxjb21pYyUyMGJvb2slMjBjaXR5JTIwc3RyZWV0fGVufDB8fHx8MTc4ODg3NzA1OHww&ixlib=rb-4.1.0&q=85",
       "dark": "https://images.unsplash.com/photo-1482859454392-1b5326395032?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxjb21pYyUyMGJvb2slMjBjaXR5JTIwc3RyZWV0fGVufDB8fHx8MTc4ODg3NzA1OHww&ixlib=rb-4.1.0&q=85",
       "alt": "Top down city street"
+    },
+    "food_item_burger": {
+      "url": "https://images.unsplash.com/photo-1530554764233-e79e16c91d08?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxoYW1idXJnZXIlMjBncmFwaGljfGVufDB8fHx8MTc4ODg4MDI5OHww&ixlib=rb-4.1.0&q=85",
+      "alt": "Hamburger graphic"
+    },
+    "raincoat_kit": {
+      "url": "https://images.unsplash.com/photo-1586428218171-ea970fc87b52?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwxfHxyYWluY29hdCUyMGdyYXBoaWN8ZW58MHx8fHwxNzg4ODgwMjk4fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Raincoat graphic"
+    },
+    "mechanic_tools": {
+      "url": "https://images.unsplash.com/photo-1637640125496-31852f042a60?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxtZWNoYW5pYyUyMHRvb2xzJTIwZ3JhcGhpY3xlbnwwfHx8fDE3ODg4ODAyOTh8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Mechanic tools graphic"
+    },
+    "milestone_coins": {
+      "url": "https://images.unsplash.com/photo-1586974710160-55f48f417990?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxnb2xkJTIwY29pbiUyMHRyZWFzdXJlJTIwZ3JhcGhpY3xlbnwwfHx8fDE3ODg4ODAzMDV8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Gold coin treasure graphic"
     }
   },
   "instructions_to_main_agent": [
     "Strictly follow the Tactile/Playful UI rules. Keep elements chunky, rounded (lg to pill), and use high contrast text on the warm background.",
     "Borders (borderStrong) should be utilized sparsely but effectively to make UI elements pop, matching a comic-book aesthetic.",
-    "Implement the HUD controls (joystick, phone trigger, mini-map) using `react-native-gesture-handler` for smooth, responsive interactions.",
-    "For the 'PLACE FOR ADS', simply design visually distinct billboard/hoarding UI containers within the game world (using View blocks) labeled 'PLACE FOR ADS' with a contrasting background to stand out from the city textures.",
-    "Ensure the in-game phone modal doesn't cover the entire screen; it should look like a device overlaid on the gameplay (approx 80% height, 85% width on mobile).",
-    "Use Phosphor icons heavily (filled versions for active states, outlined for inactive) in the phone's grid and HUD elements.",
-    "For day-night/weather cycles, consider overlaying a full-screen pointer-events-none View with low-opacity dark/blue tint for night and warm/orange for day.",
-    "Haptics: Provide tactile feedback (ImpactFeedbackStyle.Light/Medium) on Joystick direction changes, button presses, and when the phone order modal drops down."
+    "Do NOT redesign the GarageScreen unnecessarily. Keep its current structure.",
+    "World expansion: Ensure the game world map is expanded to include 2 towns connected by a forest road. There should be no houses in the forest.",
+    "Order mechanics: Orders are location-dependent. Pickups are timed and automatically canceled if missed. Drop-offs and pickups should be strictly on footpaths, not in the middle of roads.",
+    "Phone vs HUD: Move the Online/Offline toggle into the phone interface. On the HUD, display a read-only widget showing online/offline status beside the weather/time.",
+    "Survival mechanics HUD: Add compact visual indicators (bars/icons) for Health, Energy, Hunger, Bike Condition, Fuel, and Tire Air.",
+    "In-Game Phone Apps: Implement a Food Store (buy food/manage hunger), Inventory (buy/equip rain kits), Milestones App (coin/food rewards), and Settings (Roadside assistance, Online Toggle).",
+    "Game state events: Apply health drain if hungry/riding in rain without kit. Apply collision damage to bike and energy. Introduce 'slow pushing' mode if fuel/tires are empty, resolved via paying for phone roadside assistance.",
+    "Death mechanics: User clarification overrides previous blueprint: cancel the active order in BOTH recovery paths. Pay 15 coins and respawn in garage keeping progression, or explicitly confirm restart from zero if not paying.",
+    "Haptics: Ensure heavy impact haptics for collision events, success feedback for completing milestones/orders, and medium haptics for buying items."
   ],
   "haptics": {
     "joystick_move": "ImpactFeedbackStyle.Light",
     "button_press": "ImpactFeedbackStyle.Medium",
     "phone_open": "ImpactFeedbackStyle.Medium",
     "order_received": "NotificationFeedbackType.Success",
-    "toggle_online": "ImpactFeedbackStyle.Heavy"
+    "toggle_online": "ImpactFeedbackStyle.Heavy",
+    "eat_food": "ImpactFeedbackStyle.Light",
+    "buy_item": "ImpactFeedbackStyle.Medium",
+    "collision_damage": "ImpactFeedbackStyle.Heavy",
+    "health_zero": "NotificationFeedbackType.Error"
   }
 }

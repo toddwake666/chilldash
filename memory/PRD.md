@@ -64,3 +64,52 @@ Explicit choices: on-screen directional controls for free riding; many building-
 1. User playtest and feedback on ride feel, art and city size.
 2. Native device control/performance pass.
 3. Decide future ad provider/placement behavior before live monetization integration.
+
+## Survival & Two-Town Expansion — 2026-09-08
+
+### User requirements and clarified choices
+- Only the phone toggles online/offline. HUD next to time/weather shows status and opens instructions.
+- Location-dependent intermittent delivery offers; quiet areas invite exploration. Pickup deadline begins on acceptance and auto-cancels if missed; no delivery deadline after collecting.
+- Persistent health, hunger, energy, per-bike condition/fuel/tire air. Collisions hurt rider and vehicle. Starvation/rain drain health; food and garage rest recover it.
+- Paid repair shops and fuel/air stations, slow pushing when empty/broken, paid roadside support.
+- Phone food shop/inventory and claimable delivery milestones awarding coins/food.
+- Pack/leave rain kit at garage; wear/take off on phone. Remote retrieval adds10coins; new kit costs60+10 on road.
+- Death: pay15coins and respawn at garage keeping progression, or explicitly confirm restart from zero. Both cancel the active delivery. Insufficient coins disables paid recovery.
+- Footpath-only pickup/dropoff, larger world with different houses in a second town, building-free forest and connecting road.
+
+### Implemented
+- Split API into game_models/game_store/order_routes/survival_routes/world_data with typed responses, legacy save migration, serialized player actions and background pickup expiry worker.
+- Dispatch radius430, per-shop cooldown180seconds, post-decline35seconds/post-delivery45seconds quiet period. Offers stay in phone when already issued; no new forest offers. Pickup time recalculated from travel distance at accept, minimum65seconds.
+- Heartbeat every3seconds, foreground outdoors survival ticks including phone/panels. Real-world pickup deadlines continue across menus/background. Survival does not advance while app is backgrounded.
+- Hunger drains0.12/sec; hunger<=10 drains health0.38/sec. Unprotected rain drains health0.24/sec. Movement drains energy, fuel/air. Low health/energy/condition reduces speed.
+- Traffic collision: condition-14,health-6,energy-12; walls: condition-5,health-2,energy-5.3second hit cooldown. Bicycle collisions also lower air.
+- Fuel fill12coins; air4; repairs25% of missing condition rounded up(min2). Roadside adds10coins. Empty/broken rides push at23worldunits/sec.
+- Starter bag2apples. Phone foods restore health/energy/hunger. Milestones at1/5/10/25/50deliveries with idempotent claims.
+- Physical garage entry required at its doorway, no pause-menu teleport. Entry restores health/energy and minimum40hunger, not bike resources. Pause offers GPS home.
+- World3280x1480: Sunnyvale plus Pinecrest with pitched-roof homes and shops. Whispering Pines forest contains scenery/pond/trees and Pine Trail at y680, no buildings. Actual rides through the full connection verified.
+- Compact survival HUD, seven horizontally scrolling phone app chips, food/kit/care/milestone screens, station interaction sheets and non-dismissible recovery choice with explicit destructive confirmation.
+- Pickups/dropoffs within35units and on a footpath; road-center attempts reject. GPS avoids unnecessary center-line detours when already sharing a street/footpath.
+- Controls explicitly disabled during pending actions/overlays for input consistency and deterministic automation.
+
+### Updated verification
+- All27backend tests pass after updating5legacy expectations for footpaths/cooldowns (not weakening current rules).
+- Full UI: physicalfootpathpickup→physicalfootpathdelivery→32coins/25XP→claim15coin/2applemilestone→buy/eatsandwich, all passed.
+- UI forest trip: actualride from Sunnyvale through forest to Pinecrest and GPS to Pinecrest station passed.
+- UI empty-air bicycle remained controllable in slowPUSHINGmode;14coinroadsideairandinsufficient-fundsfeedbackpassed.
+- UI death: real rainy tick simulation reacheszero, backdrop cannot bypass recovery, pay15preservesdelivery/balance minus15, confirmedrestartresetscoins/deliveries/XP/food. Both paths passed.
+- API supplemental: packedrainprotection, ownedkit10coinretrieval,newroadkit70coins, fuel12, repairs, bicycleair4/roadsideair14, starvationhealthloss/foodrestore, garagehealthrestore, duplicate-safe milestones.
+-390x844 and360x740phone navigation/layout validated by testing agent; JS/Python lint and TypeScript pass.
+- Remaining: physicalnativeiOS/Android device QA; tuning survival rates/economy from player feedback. No identified unresolved core-flow blocker.
+
+### Prioritized next work (supersedes older backlog)
+- P0: none identified from current checks.
+- P1: native-device control/performance testing and balance tuning; optional clearer service destination marker legends.
+- P2: more food/shops/order stories, ambient forest/city audio, achievements/cosmetics and eventual selected ad SDK integration.
+
+## Phone-first HUD refinement — 2026-09-08
+- User clarified: only show health and fuel while riding; tap either for detailed stats. Bicycle shows tire air in place of fuel.
+- Removed the five-bar ride panel and its balance/level footer. Replaced with two44pt-high, icon-and-percentage controls in a compact row; no on-road stat bars.
+- Tapping either opens Phone→Care with all five detailed stats. Energy/hunger/condition remain fully functional but no longer take permanent map space.
+- Removed the full-width survival warning banner. Critical indicators use small attention dots and one-time transition toasts; no repeated fixed panel.
+- Care stats are now a noninteractive detail card, not a self-linking button.
+- Verified390x844and360x740:44ptHUDheight, no energy/hunger/condition bars on road, each health/fuel button opens the complete Carecard, no horizontaloverflow. TypeScriptandtargetedJS lintpassed. No backend or save-schema changes.

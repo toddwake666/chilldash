@@ -47,6 +47,7 @@ export function Garage() {
         </Pressable>
       </Animated.View>
       <View style={s.progress} testID="rider-progress"><Icon name="sparkles-outline" size={17} color={c.teal} /><Label style={s.progressLabel}>Level {Math.floor(p.xp / 100) + 1} · {p.deliveries ? 'Finding your rhythm' : 'Every great rider starts somewhere'}</Label><Label style={s.xp}>{p.xp % 100}/100 XP</Label></View>
+      <View style={s.supplyRow}>{[{ id: 'food', label: 'Food bag', icon: 'restaurant-outline' }, { id: 'care', label: 'Rider & bike', icon: 'heart-outline' }, { id: 'milestones', label: 'Milestones', icon: 'trophy-outline' }].map(item => <Pressable key={item.id} testID={`garage-${item.id}-button`} style={s.supply} onPress={() => g.openPhone(item.id as 'food' | 'care' | 'milestones')}><Icon name={item.icon} size={20} color={c.teal} /><Label style={s.supplyLabel}>{item.label}</Label></Pressable>)}</View>
     </ScrollView>
     <View style={[s.footer, { paddingBottom: Math.max(inset.bottom, 14) }]}>
       <Button testID="head-out-button" title={g.order && g.order.status !== 'offered' ? 'CONTINUE YOUR DELIVERY' : 'LET’S HIT THE STREETS'} icon="arrow-forward" onPress={g.headOut} loading={g.busy} />
@@ -55,6 +56,7 @@ export function Garage() {
   </SafeAreaView>;
 }
 const useStyles = makeStyles(c => ({
+  supplyRow: { flexDirection: 'row', gap: 8, marginVertical: 15 }, supply: { flex: 1, minHeight: 63, borderRadius: 14, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center', gap: 6 }, supplyLabel: { fontSize: 10, color: c.teal, fontWeight: '800' },
   page: { flex: 1, backgroundColor: c.surface },
   header: { height: 70, paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: c.border },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10 }, brandIcon: { width: 39, height: 37, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-6deg' }], borderWidth: 1.5, borderColor: c.onSurface },
