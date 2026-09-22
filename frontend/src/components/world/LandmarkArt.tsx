@@ -1,21 +1,30 @@
 import React from 'react';
-import { Circle, Ellipse, G, Line, Path, Rect, Text as T } from 'react-native-svg';
+import { Circle, Ellipse, G, Line, Path, Rect, Text as T, Image as SvgImage } from 'react-native-svg';
 import { useTheme } from '@/src/theme';
 import type { Landmark } from '@/src/game/region';
 
+const STATION_HABRA = require('@/assets/images/station_habra.png');
+const STATION_PETRAPOLE = require('@/assets/images/station_petrapole.png');
+const STATION_BONGAON = require('@/assets/images/station_bongaon.png');
+const FOREST_DEPT = require('@/assets/images/forestdept.png');
+
 export function AdScreen({ x,y,w,h,id,variant=0 }: {x:number;y:number;w:number;h:number;id:string;variant?:number}) {
   const {colors:c}=useTheme();
-  return <G testID={`ad-${id}`}><Rect x={x+5} y={y+7} width={w} height={h} rx="7" fill={c.shadow}/><Rect x={x} y={y} width={w} height={h} rx="7" fill={variant?c.teal:c.onSurface} stroke={c.brand} strokeWidth="3"/>
-    <Path d={`M${x+8} ${y+h-8}L${x+w*.3} ${y+8}L${x+w*.53} ${y+h-8}Z`} fill={variant?c.sky:c.coral} opacity=".55"/><Circle cx={x+w*.84} cy={y+h*.3} r={h*.23} fill={c.brand} opacity=".55"/>
-    <T x={x+w/2} y={y+h*.43} fontSize={Math.min(w/12,18)} textAnchor="middle" fill={c.butter} letterSpacing="2">{variant?'YOUR NEXT BIG THING':'THE SPOTLIGHT IS YOURS'}</T>
-    <T x={x+w/2} y={y+h*.72} fontSize={Math.min(w/10,26)} textAnchor="middle" fill={c.surfaceSecondary} fontWeight="bold">PLACE FOR ADS</T>
-    {Array.from({length:Math.floor(w/24)},(_,i)=><Circle key={i} cx={x+12+i*24} cy={y+h-3} r="2" fill={c.brand}/>)}
+  return <G testID={`ad-${id}`}>
+    <Rect x={x+5} y={y+7} width={w} height={h} rx="7" fill={c.shadow}/>
+    <Rect x={x} y={y} width={w} height={h} rx="7" fill={variant?c.teal:c.onSurface} stroke={c.brand} strokeWidth="3"/>
+    <Path d={`M${x+8} ${y+h-8}L${x+w*.3} ${y+8}L${x+w*.53} ${y+h-8}Z`} fill={variant?c.sky:c.coral} opacity=".35"/>
+    <Circle cx={x+w*.84} cy={y+h*.3} r={h*.23} fill={c.brand} opacity=".4"/>
+    <Rect x={x+10} y={y+8} width={w-20} height={h-16} rx="5" fill="none" stroke={c.butter} strokeWidth="1" strokeDasharray="6 4"/>
+    <T x={x+w/2} y={y+h*.38} fontSize={Math.min(w/14,14)} textAnchor="middle" fill={c.butter} letterSpacing="1.5" fontWeight="bold">★ CITY SPONSOR ★</T>
+    <Line x1={x+10} y1={y+h-4} x2={x+w-10} y2={y+h-4} stroke={c.butter} strokeWidth="3" strokeDasharray="4 16" strokeLinecap="round"/>
   </G>;
 }
-export function LandmarkArt({landmark:l, elapsed=0}:{landmark:Landmark;elapsed?:number}) {
+export function LandmarkArt({landmark:l, elapsed=0, cx, cy}:{landmark:Landmark;elapsed?:number;cx?:number;cy?:number}) {
   const {colors:c}=useTheme(); const {x,y,width:w,height:h}=l;
+  const isNear = cx === undefined || cy === undefined || (Math.abs(x + w / 2 - cx) < 1100 && Math.abs(y + h / 2 - cy) < 1200);
   return <G testID={`landmark-${l.id}`}>
-    <Rect x={x-15} y={y-17} width={w+30} height={h+42} rx="28" fill={c.pavement}/>
+    {l.kind !== 'station' && l.kind !== 'forest_dept' && <Rect x={x-15} y={y-17} width={w+30} height={h+42} rx="28" fill={c.pavement}/>}
     {l.kind==='cinema'?<>
       <Rect x={x+14} y={y+16} width={w} height={h} rx="24" fill={c.shadow}/><Rect x={x} y={y} width={w} height={h} rx="22" fill={c.coral} stroke={c.onSurface} strokeWidth="3"/>
       <Rect x={x+20} y={y+20} width={w-40} height={h-140} rx="13" fill={c.wood}/><AdScreen x={x+70} y={y+50} w={w-140} h={165} id="cinema-rooftop"/>
@@ -42,13 +51,50 @@ export function LandmarkArt({landmark:l, elapsed=0}:{landmark:Landmark;elapsed?:
       <Circle cx={x+w/2+15} cy={y+h/2+14} r="5" fill={c.surface}/>
       <T x={x+w/2} y={y-30} fontSize="25" textAnchor="middle" fontWeight="bold" fill={c.teal}>BONGAON FOOTBALL STADIUM</T>
       {[[-5,-5],[w+5,-5],[-5,h+5],[w+5,h+5]].map(([dx,dy],i)=><G key={i}><Rect x={x+dx-3} y={y+dy-20} width="6" height="42" fill={c.onSurface}/><Rect x={x+dx-23} y={y+dy-30} width="46" height="15" rx="3" fill={c.butter} stroke={c.onSurface}/></G>)}
-    </>:l.kind==='station'?<>
-      <Rect x={x} y={y} width={w} height="140" rx="12" fill={c.peach} stroke={c.wood} strokeWidth="2"/><Path d={`M${x-10} ${y+42}L${x+w/2} ${y-22}L${x+w+10} ${y+42}Z`} fill={c.teal}/>
-      <T x={x+w/2} y={y+74} textAnchor="middle" fontSize="27" fill={c.teal} fontWeight="bold">HABRA TOWN</T><T x={x+w/2} y={y+101} textAnchor="middle" fontSize="14" fill={c.wood}>RAILWAY STATION</T>
-      <Rect x={x} y="2970" width={w} height="42" rx="5" fill={c.butter} stroke={c.wood}/><Rect x={x} y="3100" width={w} height="42" rx="5" fill={c.butter} stroke={c.wood}/>
-      <T x={x+15} y="2998" fontSize="17" fill={c.teal}>PLATFORM 1</T><T x={x+15} y="3128" fontSize="17" fill={c.teal}>PLATFORM 2</T>
-      {[0,1,2,3,4].map(i=><Rect key={i} x={x+12+i*70} y="3150" width="43" height="9" rx="3" fill={c.wood}/>)}
-    </>:l.kind==='park'?<>
+    </>:l.kind==='station'?<G testID={`station-art-${l.id}`}>
+      {/* Drop shadow under the station building */}
+      <Rect x={x + 10} y={y + 14} width={w - 10} height={h - 10} rx="18" fill={c.shadow} />
+
+      {/* Paved Forecourt Plaza connecting to road */}
+      {l.id === 'bongaon-junction' ? (
+        <Rect x={x + w - 20} y={y + h / 2 - 45} width="70" height="90" rx="14" fill={c.pavement} stroke={c.treeLight} strokeWidth="4" />
+      ) : (
+        <Rect x={x + w / 2 - 90} y={y - 35} width="180" height="50" rx="14" fill={c.pavement} stroke={c.treeLight} strokeWidth="4" />
+      )}
+
+      {/* Illustrated Station Building Asset (Frustum Culled) */}
+      {isNear && (
+        <SvgImage
+          href={l.id === 'habra-station' ? STATION_HABRA : l.id === 'petrapole-station' ? STATION_PETRAPOLE : STATION_BONGAON}
+          x={x}
+          y={y}
+          width={w}
+          height={h}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      )}
+      <T x={x + w / 2} y={l.id === 'bongaon-junction' ? y + h + 24 : y - 12} textAnchor="middle" fontSize="18" fontWeight="bold" fill={c.teal}>
+        {l.name.toUpperCase()}
+      </T>
+    </G>:l.kind==='forest_dept'?<G testID={`forest-dept-art-${l.id}`}>
+      {/* Paved approach apron connecting front entrance gate (bottom center) to the forest access road */}
+      <Rect x={x + w / 2 - 28} y={y + h - 8} width={56} height={50} rx={4} fill={c.pavement} />
+
+      {/* Illustrated Forest Department Compound Asset (Frustum Culled, transparent borders blend naturally into grass) */}
+      {isNear && (
+        <SvgImage
+          href={FOREST_DEPT}
+          x={x}
+          y={y}
+          width={w}
+          height={h}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      )}
+      <T x={x + w / 2} y={y - 14} textAnchor="middle" fontSize={16} fontWeight="bold" fill={c.teal} letterSpacing={0.8}>
+        {l.name.toUpperCase()}
+      </T>
+    </G>:l.kind==='park'?<>
       <Rect x={x} y={y} width={w} height={h} rx="60" fill={c.mint} stroke={c.teal} strokeWidth="3"/><Path d={`M${x+w/2} ${y}V${y+h} M${x} ${y+h/2}H${x+w}`} stroke={c.pavement} strokeWidth="35"/>
       <Ellipse cx={x+w*.74} cy={y+h*.53} rx="180" ry="160" fill="none" stroke={c.coral} strokeWidth="17"/><Ellipse cx={x+w*.74} cy={y+h*.53} rx="180" ry="160" fill="none" stroke={c.butter} strokeWidth="3" strokeDasharray="9 14"/>
       <G transform={`translate(${x+215},${y+245})`}><Path d="M0 0L-90 175H90Z" fill="none" stroke={c.wood} strokeWidth="9"/><G transform={`rotate(${elapsed*4})`}><Circle r="148" fill="none" stroke={c.teal} strokeWidth="8"/>{Array.from({length:10},(_,i)=>{const a=i*Math.PI/5,px=Math.cos(a)*148,py=Math.sin(a)*148;return <G key={i}><Line x2={px} y2={py} stroke={c.teal} strokeWidth="4"/><Rect x={px-20} y={py-9} width="40" height="30" rx="9" fill={i%2?c.brand:c.coral} stroke={c.onSurface} strokeWidth="2"/></G>;})}</G><Circle r="15" fill={c.brand}/></G>

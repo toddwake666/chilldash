@@ -86,3 +86,8 @@ android-sdk/
 credentials.json
 *.key
 .credentials
+
+# Mobile binaries & builds
+LATEST_BUILD/
+*.apk
+*.aab

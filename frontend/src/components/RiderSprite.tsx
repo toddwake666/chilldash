@@ -13,6 +13,19 @@ export function RiderSprite({ player, heading, bike, gear }: { player: Point; he
       <Path d="M0 -16V19 M-8 7H8 M-12 -14H12" stroke={c.teal} strokeWidth="4" />
       <Rect x="-8" y="6" width="4" height="9" rx="2" fill={c.onSurface} />
       <Rect x="4" y="-2" width="4" height="9" rx="2" fill={c.onSurface} />
+    </> : (bike === 'ninja' || bike === 'viper') ? <>
+      {/* Sportbike: Long slim tires & aerodynamic fairings */}
+      <Rect x="-3" y="-26" width="6" height="17" rx="3" fill={c.onSurface} />
+      <Rect x="-3.5" y="13" width="7" height="17" rx="3.5" fill={c.onSurface} />
+      <Path
+        d="M0 -22 L9 -12 L7 4 L5 23 L0 27 L-5 23 L-7 4 L-9 -12 Z"
+        fill={bike === 'viper' ? '#DC2626' : '#059669'}
+        stroke={c.onSurface}
+        strokeWidth="1.5"
+      />
+      {bike === 'viper' && <Path d="M-13 -9 L-8 -11 M13 -9 L8 -11" stroke="#111827" strokeWidth="2.5" strokeLinecap="round" />}
+      <Path d="M-6 -17 L-2 -19 M2 -19 L6 -17" stroke={bike === 'viper' ? '#FDE047' : '#6EE7B7'} strokeWidth="1.5" strokeLinecap="round" />
+      <Rect x="6" y="8" width="3.5" height="13" rx="1.5" fill={c.onSurface} />
     </> : <>
       <Rect x="-4" y="-23" width="8" height="43" rx="4" fill={c.onSurface} />
       <Rect x="-9" y="-16" width="18" height="31" rx="8" fill={bike === 'express' ? c.coral : c.brand} stroke={c.onSurface} strokeWidth="1.5" />

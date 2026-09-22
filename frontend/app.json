@@ -1,22 +1,26 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
-    "version": "1.0.0",
+    "name": "Chill Dash",
+    "slug": "chill-dash",
+    "version": "1.0.57",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
-    "userInterfaceStyle": "automatic",
+    "scheme": ["chilldash", "rc-71fcbf5689"],
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.emergent.sunnydispatchgame.kq3qug"
+      "bundleIdentifier": "com.toddwake.chilldash"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#FDD602"
       },
-      "package": "com.emergent.sunnydispatchgame.kq3qug"
+      "package": "com.toddwake.chilldash",
+      "versionCode": 57
+
+
+
     },
     "web": {
       "bundler": "metro",
@@ -38,7 +42,14 @@
       "expo-image",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1245254576744368~6447332692"
+        }
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

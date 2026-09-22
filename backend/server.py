@@ -82,8 +82,8 @@ async def purchase(body: Purchase, p=Depends(player)):
     async with locks[p['id']]:
         p = await get_record(p['id'])
         alive(p)
-        cost = 180 if body.item == 'express' else 60
-        field = 'owned_bikes' if body.item == 'express' else 'owned_gear'
+        cost = 180 if body.item == 'express' else 700 if body.item == 'ninja' else 1200 if body.item == 'viper' else 60
+        field = 'owned_bikes' if body.item in ('express', 'ninja', 'viper') else 'owned_gear'
         if body.item in p[field]:
             return Profile(**p)
         if not p['at_garage']:

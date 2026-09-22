@@ -8,4 +8,6 @@ export const BIKES=[
   {id:'scooter',name:'The Daydream',note:'Your trusty starter',speed:115,stat:'Easy rider',cost:0},
   {id:'bicycle',name:'The Pedaler',note:'Slow. Simple. Sweet.',speed:86,stat:'Eco friendly',cost:0},
   {id:'express',name:'The Express',note:'A little more zip',speed:153,stat:'Fast & fun',cost:180},
+  {id:'ninja',name:'Shadow Ninja',note:'Aerodynamic sport bike',speed:195,stat:'500cc Twin',cost:700},
+  {id:'viper',name:'Viper RR',note:'High-revving superbike',speed:240,stat:'1000cc Racing',cost:1200},
 ];

@@ -35,7 +35,7 @@ async def tick(body: Tick, p=Depends(player)):
         if not p['dead'] and not p['at_garage']:
             elapsed = body.elapsed
             moving = min(elapsed, body.moving)
-            traveled = min(body.distance, moving * 180)
+            traveled = min(body.distance, moving * 520)
             hunger = max(0, p['hunger'] - elapsed * .12)
             energy = max(0, min(100, p['energy'] - moving * .09 + (elapsed - moving) * .015))
             damage = (elapsed * .38 if hunger <= 10 else 0) + (elapsed * .24 if body.weather == 'rainy' and p['gear'] != 'raincoat' else 0)
@@ -43,7 +43,18 @@ async def tick(body: Tick, p=Depends(player)):
             bike = p['bike']
             values.update({'hunger': hunger, 'energy': energy, 'health': health})
             resource = 'air' if bike == 'bicycle' else 'fuel'
-            values[f'bikes.{bike}.{resource}'] = max(0, p['bikes'][bike][resource] - traveled * (.008 if bike == 'bicycle' else .014))
+            BIKE_RATES = {
+                'bicycle': 0.0035,
+                'scooter': 0.0095,
+                'express': 0.0125,
+                'ninja': 0.0160,
+                'viper': 0.0220,
+            }
+            bike_stats = p.get('bikes', {}).get(bike, {})
+            tank_level = bike_stats.get('tank_level', 1)
+            capacity_mult = 1.0 if bike == 'bicycle' else (1.0 + (tank_level - 1) * 0.5)
+            rate = BIKE_RATES.get(bike, 0.0095) / capacity_mult
+            values[f'bikes.{bike}.{resource}'] = max(0, p['bikes'][bike][resource] - traveled * rate)
         await db.players.update_one({'id': p['id']}, {'$set': values})
         if values.get('health', 100) <= 0:
             await die(p['id'])
@@ -142,7 +153,9 @@ def service_values(p, action, remote=False):
         raise HTTPException(400, 'Bicycles use tire air; motorbikes use fuel.')
     if stats[key] >= 99.9:
         raise HTTPException(400, f'Your {key} is already full.')
-    cost = math.ceil((100 - stats[key]) * .25) if action == 'repair' else 12 if action == 'refuel' else 4
+    tank_level = stats.get('tank_level', 1)
+    full_cost = (12 + (tank_level - 1) * 6) if action == 'refuel' else 4
+    cost = math.ceil((100 - stats[key]) * .25) if action == 'repair' else full_cost
     return max(2, cost) + (10 if remote else 0), {f'bikes.{bike}.{key}': 100}
 
 

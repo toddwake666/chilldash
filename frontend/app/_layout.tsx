@@ -6,16 +6,30 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
 import { GameProvider } from '@/src/game/GameContext';
+import { initMonetization } from '@/src/game/monetization';
+import { checkAndPromptPlayUpdate } from '@/src/game/playUpdates';
 
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { queryClient } from "@/src/query-client";
+import { PostHogProvider } from "posthog-react-native";
+import { posthog } from "@/src/game/analytics";
+
+import * as SplashScreen from 'expo-splash-screen';
+
+// Hold native splash screen for instant, seamless transition into gameplay
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Disable logbox errors etc so that users can see the app
 // and agent works as expected.
-LogBox.ignoreAllLogs(true)
+LogBox.ignoreAllLogs(true);
 
 export default function RootLayout() {
+  useEffect(() => {
+    initMonetization();
+    checkAndPromptPlayUpdate();
+  }, []);
   // Prewarm icon assets before the first screen, including Expo Go on Android.
   const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font, ...MaterialCommunityIcons.font,
@@ -30,9 +44,11 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <QueryClientProvider client={queryClient}>
-            <GameProvider><Stack screenOptions={{ headerShown: false, animation: 'fade' }} /></GameProvider>
-          </QueryClientProvider>
+          <PostHogProvider client={posthog} autocapture={{ captureScreens: true, captureTouches: false }}>
+            <QueryClientProvider client={queryClient}>
+              <GameProvider><Stack screenOptions={{ headerShown: false, animation: 'fade' }} /></GameProvider>
+            </QueryClientProvider>
+          </PostHogProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>

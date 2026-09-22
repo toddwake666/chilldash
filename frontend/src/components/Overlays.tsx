@@ -8,6 +8,9 @@ import { Button, Coin, Icon, IconButton, Label } from './ui';
 import { Phone } from './Phone';
 import { KitView } from './PhoneLife';
 import { RecoveryPanel, ServicePanel, StatusPanel } from './SurvivalPanels';
+import { HouseAdModal } from './HouseAdModal';
+import { SpeedBoostModal } from './SpeedBoostModal';
+import { gameTime } from '@/src/game/world';
 
 export function Toast() {
   const g = useGame(); const s = useStyles(); const inset = useSafeAreaInsets(); const { colors: c } = useTheme();
@@ -16,25 +19,112 @@ export function Toast() {
 }
 function PanelContent() {
   const g = useGame(); const s = useStyles(); const { colors: c } = useTheme(); const [, update] = useState(0);
+  if (g.panel === 'boost') return <SpeedBoostModal onClose={() => g.setPanel(null)} />;
   if (g.panel === 'status') return <StatusPanel />;
   if (g.panel === 'service') return <ServicePanel />;
   if (g.panel === 'gear') return <KitView />;
-  if (g.panel === 'world') return <>
-    <Label style={s.eyebrow}>MAKE YOURSELF AT HOME</Label><Label display style={s.title}>A city for every mood.</Label><Label style={s.subtitle}>Time passes as you ride. A full day takes 12 minutes.</Label>
-    <Label display style={s.sectionTitle}>The time of day</Label><View style={s.optionRow}>{[{ id: 'morning', label: 'Morning', time: 540, icon: 'sunny-outline' }, { id: 'sunset', label: 'Sunset', time: 1080, icon: 'partly-sunny-outline' }, { id: 'night', label: 'Night', time: 1260, icon: 'moon-outline' }].map(t => <Pressable testID={`time-${t.id}-button`} key={t.id} style={({ pressed }) => [s.option, pressed && s.selected]} onPress={() => { g.clock.current = t.time; update(v => v + 1); g.notify(`${t.label} in Sunnyvale. Looking good.`); }}><Icon name={t.icon} size={28} color={c.teal} /><Label style={s.optionLabel}>{t.label}</Label></Pressable>)}</View>
-    <Label display style={s.sectionTitle}>A little change in the air</Label><View style={s.optionRow}>{(['sunny', 'cloudy', 'rainy'] as const).map((w, i) => <Pressable testID={`weather-${w}-button`} key={w} onPress={() => { g.weather.current = w; g.weatherAuto.current = false; update(v => v + 1); }} style={[s.option, g.weather.current === w && s.selected]}><Icon name={['sunny-outline', 'cloud-outline', 'rainy-outline'][i]} size={28} color={c.teal} /><Label style={s.optionLabel}>{w}</Label></Pressable>)}</View>
-    <Pressable testID="auto-weather-toggle" onPress={() => { g.weatherAuto.current = !g.weatherAuto.current; update(v => v + 1); }} style={s.autoWeather}><Icon name={g.weatherAuto.current ? 'checkbox' : 'square-outline'} color={c.teal} /><View style={{ flex: 1 }}><Label style={s.rowTitle}>Let the weather surprise me</Label><Label style={s.rowNote}>Changes naturally throughout the day</Label></View></Pressable><View style={s.tip}><Icon name="water-outline" color={c.teal} /><Label style={s.tipText}>Rain makes the roads a little slower. A raincoat keeps your ride comfortable.</Label></View><Button testID="world-done-button" title="BACK TO MY LITTLE WORLD" onPress={() => { g.setPanel(null); g.save().catch(e => g.notify(e.message)); }} icon="checkmark" />
-  </>;
-  if (g.panel === 'pause') return <><Label style={s.eyebrow}>PARK IT FOR A MINUTE</Label><Label display style={s.title}>Take a little breather.</Label><Label style={s.subtitle}>Your pickup deadline keeps ticking. Look after your hunger and stay dry, even when stopped outdoors.</Label><View style={s.pauseArt}><Icon name="cafe-outline" size={66} color={c.teal} /></View><Button testID="resume-ride-button" title="KEEP ON ROLLING" onPress={() => g.setPanel(null)} icon="play" /><Button testID="return-garage-button" title="GPS TO MY GARAGE" secondary onPress={() => g.navigateTo(g.catalog!.services.find(stop => stop.id === 'garage')!)} loading={g.busy} style={{ marginTop: 14 }} icon="home-outline" /><Label style={s.centerNote}>Ride to the garage doorway, then enter to recover health and energy for free.</Label><Pressable testID="pause-help-button" style={s.helpLink} onPress={() => g.setPanel('help')}><Label style={s.helpText}>A quick reminder of the controls?</Label></Pressable></>;
+  if (g.panel === 'world') {
+    const currentMins = Math.floor(g.clock.current);
+    const hour = Math.floor(currentMins / 60) % 24;
+    const phaseName = hour >= 18 || hour < 5 ? 'Night' : hour >= 16 ? 'Sunset' : hour >= 12 ? 'Afternoon' : 'Morning';
+    const isRain = g.weather.current === 'rainy';
+    const isCloudy = g.weather.current === 'cloudy';
+
+    return (
+      <View testID="world-panel">
+        <Label style={s.eyebrow}>ATMOSPHERIC TELEMETRY</Label>
+        <Label display style={s.title}>Weather & Daylight</Label>
+        <Label style={s.subtitle}>
+          Daylight and atmospheric weather evolve naturally as you ride across towns and forests.
+        </Label>
+
+        <View style={s.weatherReportCard}>
+          <View style={s.weatherReportRow}>
+            <View style={s.weatherReportIcon}>
+              <Icon name={hour >= 18 || hour < 5 ? 'moon-outline' : hour >= 16 ? 'partly-sunny-outline' : 'sunny-outline'} size={26} color={c.teal} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Label style={s.weatherReportHeading}>NATURAL DAY & NIGHT CYCLE</Label>
+              <Label style={s.weatherReportText}>Current Time: {gameTime(currentMins)} · {phaseName}</Label>
+              <Label style={s.weatherReportSub}>
+                1 in-game day = 12 real minutes of active riding. Time advances naturally while on the road.
+              </Label>
+            </View>
+          </View>
+        </View>
+
+        <View style={s.weatherReportCard}>
+          <View style={s.weatherReportRow}>
+            <View style={s.weatherReportIcon}>
+              <Icon name={isRain ? 'rainy-outline' : isCloudy ? 'cloud-outline' : 'sunny-outline'} size={26} color={c.teal} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Label style={s.weatherReportHeading}>ATMOSPHERIC CONDITIONS</Label>
+              <Label style={s.weatherReportText}>Current Weather: {g.weather.current.toUpperCase()}</Label>
+              <Label style={s.weatherReportSub}>
+                {isRain
+                  ? 'Wet asphalt. Road friction is reduced; equip a raincoat to stay dry and comfortable.'
+                  : isCloudy
+                  ? 'Overcast skies with mild breeze. Grip is stable and engine runs cool.'
+                  : 'Clear skies and dry tarmac. Optimal riding conditions across all regions.'}
+              </Label>
+            </View>
+          </View>
+        </View>
+
+        <View style={s.tip}>
+          <Icon name="information-circle-outline" color={c.teal} />
+          <Label style={s.tipText}>
+            Daylight progression and weather conditions are autonomous and cannot be manually overridden.
+          </Label>
+        </View>
+
+        <Button
+          testID="world-done-button"
+          title="BACK TO THE ROAD"
+          onPress={() => g.setPanel(null)}
+          icon="checkmark"
+        />
+      </View>
+    );
+  }
+  if (g.panel === 'pause') return <><Label style={s.eyebrow}>PARK IT FOR A MINUTE</Label><Label display style={s.title}>Take a little breather.</Label><Label style={s.subtitle}>Your pickup deadline keeps ticking. Look after your hunger and stay dry, even when stopped outdoors.</Label><View style={s.pauseArt}><Icon name="cafe-outline" size={66} color={c.teal} /></View><Button testID="resume-ride-button" title="KEEP ON ROLLING" onPress={() => g.setPanel(null)} icon="play" /><Button testID="pause-profile-button" title={g.user ? "ACCOUNT & CLOUD SAVE" : "LOG IN / SIGN UP (+100 BOOST)"} secondary onPress={() => { g.setPanel(null); g.openPhone('profile'); }} style={{ marginTop: 10 }} icon={g.user ? "person-circle-outline" : "sparkles"} /><Button testID="pause-wallet-button" title="OPEN WALLET & COIN SHOP" secondary onPress={() => { g.setPanel(null); g.openPhone('wallet'); }} style={{ marginTop: 10 }} icon="wallet-outline" /><Button testID="return-garage-button" title="ENTER GARAGE" secondary onPress={() => g.returnGarage()} loading={g.busy} style={{ marginTop: 10 }} icon="home-outline" /><Label style={s.centerNote}>Recover health and energy for free at home sweet garage.</Label><Pressable testID="pause-help-button" style={s.helpLink} onPress={() => g.setPanel('help')}><Label style={s.helpText}>A quick reminder of the controls?</Label></Pressable></>;
   return <><Label style={s.eyebrow}>WELCOME TO CHILL DASH</Label><Label display style={s.title}>Small deliveries.{ '\n' }A bigger adventure.</Label><Label style={s.subtitle}>Two towns, a forest road, and a rider to look after.</Label>{[{ icon: 'game-controller-outline', title: 'Ride, don’t rush', text: 'Hold arrows or drag the joystick. Collisions damage your bike, health and energy. Empty fuel or flat tires means slow pushing.' }, { icon: 'phone-portrait-outline', title: 'Your phone runs dispatch', text: 'Toggle online inside your phone. Shops don’t always have orders—explore other neighborhoods when it’s quiet.' }, { icon: 'timer-outline', title: 'Pickup has a deadline', text: 'The pickup timer starts when you accept. Miss it and the shop cancels automatically. Once collected, delivery has no time limit. Stop on the footpath.' }, { icon: 'heart-outline', title: 'Care for yourself', text: 'Eat food, claim milestone rewards and wear your rain kit. Hunger and rain can drain health. Drive home to rest before health reaches zero.' }, { icon: 'construct-outline', title: 'Keep your ride rolling', text: 'Find repairs, fuel and bicycle air pumps on your GPS. Roadside help costs 10 extra coins. Pack a rain kit at home to avoid its 10-coin delivery fee.' }].map(t => <View key={t.title} style={s.helpRow}><View style={s.helpIcon}><Icon name={t.icon} color={c.teal} size={23} /></View><View style={{ flex: 1 }}><Label style={s.rowTitle}>{t.title}</Label><Label style={s.helpBody}>{t.text}</Label></View></View>)}<Button testID="help-done-button" title="GOT IT. LET’S ROLL." onPress={() => g.setPanel(null)} icon="arrow-forward" /></>;
 }
 export function Overlays() {
   const g = useGame(); const s = useStyles(); const { colors: c } = useTheme(); const inset = useSafeAreaInsets(); const { height, width } = useWindowDimensions();
-  const visible = !!(g.phone || g.panel || g.reward || g.profile?.dead);
-  const close = () => { if (g.profile?.dead) return; if (g.reward) g.dismissReward(); else if (g.panel) g.setPanel(null); else g.setPhone(false); };
+  const showParthoReturnModal = !g.reward && !!g.profile?.partho_borrowed_express && (g.profile?.deliveries ?? 0) >= 1;
+  const visible = !!(g.phone || g.panel || g.reward || g.houseAd || g.profile?.dead || showParthoReturnModal);
+  const close = () => {
+    if (g.profile?.dead || g.houseAd || showParthoReturnModal) return;
+    if (g.reward) g.dismissReward();
+    else if (g.panel) g.setPanel(null);
+    else g.setPhone(false);
+  };
   return <>{!visible && <Toast />}<Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
     <View pointerEvents={visible ? 'auto' : 'none'} style={s.modalRoot}><Pressable testID="modal-backdrop" accessibilityLabel="Close panel" style={s.backdrop} onPress={close} />
-      {g.profile?.dead ? <RecoveryPanel /> : g.reward ? <Animated.View entering={ZoomIn.springify()} style={[s.reward, { width: Math.min(width - 44, 400) }]} testID="delivery-success-modal"><View style={s.rewardArt}><Icon name="checkmark-done" size={58} color={c.teal} /><View style={s.rewardStar}><Icon name="sparkles" color={c.brand} size={34} /></View></View><Label style={s.eyebrow}>ONE MORE SMILE IN THE NEIGHBORHOOD</Label><Label display style={s.rewardTitle}>You made their day.</Label><Label style={s.rewardSubtitle}>{g.reward.customer} loved the delivery. Nice riding!</Label><View style={s.earnings}><Coin amount={`+${g.reward.reward}`} /><View style={s.earningsDivider} /><Label display style={s.rewardXP}>+{g.reward.xp} XP</Label></View><Label style={s.centerNote}>{g.profile!.deliveries} deliveries down. Check Goals in your phone for rewards.</Label><Button testID="delivery-success-continue-button" title="KEEP ON ROLLING" onPress={g.dismissReward} icon="arrow-forward" /></Animated.View> : g.panel ? <Animated.View entering={FadeInDown.duration(250)} style={[s.sheet, { width: Math.min(width, 520), maxHeight: height - inset.top - 34, minHeight: height * .52, paddingBottom: Math.max(inset.bottom, 20) }]} testID={`${g.panel}-panel`}><View style={s.sheetHandle} /><View style={s.sheetClose}><IconButton testID="panel-close-button" label="Close panel" name="close" onPress={close} /></View><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.sheetContent}><PanelContent /></ScrollView></Animated.View> : g.phone ? <Phone /> : null}
+      {g.profile?.dead ? <RecoveryPanel /> : g.houseAd ? <HouseAdModal /> : g.reward ? <Animated.View entering={ZoomIn.springify()} style={[s.reward, { width: Math.min(width - 44, 400) }]} testID="delivery-success-modal"><View style={s.rewardArt}><Icon name="checkmark-done" size={58} color={c.teal} /><View style={s.rewardStar}><Icon name="sparkles" color={c.brand} size={34} /></View></View><Label style={s.eyebrow}>ONE MORE SMILE IN THE NEIGHBORHOOD</Label><Label display style={s.rewardTitle}>You made their day.</Label><Label style={s.rewardSubtitle}>{g.reward.customer} loved the delivery. Nice riding!</Label><View style={s.earnings}><Coin amount={`+${g.reward.reward}`} /><View style={s.earningsDivider} /><Label display style={s.rewardXP}>+{g.reward.xp} XP</Label></View><Label style={s.centerNote}>{g.profile!.deliveries} deliveries down. Check Goals in your phone for rewards.</Label><Button testID="delivery-success-continue-button" title="KEEP ON ROLLING" onPress={g.dismissReward} icon="arrow-forward" /></Animated.View> : showParthoReturnModal ? (
+        <Animated.View entering={ZoomIn.springify()} style={[s.reward, { width: Math.min(width - 44, 400), paddingVertical: 28 }]} testID="partho-illness-modal">
+          <View style={[s.rewardArt, { backgroundColor: c.butter, width: 90, height: 90, borderRadius: 45, marginBottom: 18 }]}>
+            <Icon name="call" size={44} color={c.teal} />
+          </View>
+          <Label style={s.eyebrow}>MESSAGE FROM PARTHO</Label>
+          <Label display style={[s.rewardTitle, { fontSize: 20, lineHeight: 26, textAlign: 'center', marginTop: 4 }]}>
+            Partho's father got ill. he must go to his hometown and he is taking back his bike.
+          </Label>
+          <Label style={{ fontSize: 13, color: c.muted, textAlign: 'center', marginTop: 12, marginBottom: 22, lineHeight: 18 }}>
+            you'll continue with your own bike The Daydream .
+          </Label>
+          <Button
+            testID="partho-illness-ok-button"
+            title="OK"
+            icon="checkmark"
+            onPress={async () => {
+              await g.returnParthoExpress();
+            }}
+          />
+        </Animated.View>
+      ) : g.panel ? <Animated.View entering={FadeInDown.duration(250)} style={[s.sheet, { width: Math.min(width, 520), maxHeight: height - inset.top - 34, minHeight: height * .52, paddingBottom: Math.max(inset.bottom, 20) }]} testID={`${g.panel}-panel`}><View style={s.sheetHandle} />{g.panel !== 'boost' && <View style={s.sheetClose}><IconButton testID="panel-close-button" label="Close panel" name="close" onPress={close} /></View>}<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[s.sheetContent, g.panel === 'boost' && { paddingTop: 8 }]}><PanelContent /></ScrollView></Animated.View> : g.phone ? <Phone /> : null}
       <Toast />
     </View>
   </Modal></>;
@@ -42,7 +132,14 @@ export function Overlays() {
 const useStyles = makeStyles(c => ({
   modalRoot: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: c.overlay }, backdrop: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   sheet: { position: 'absolute', bottom: 0, backgroundColor: c.surface, borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden' }, sheetHandle: { width: 37, height: 4, borderRadius: 2, backgroundColor: c.border, alignSelf: 'center', marginTop: 11 }, sheetClose: { alignItems: 'flex-end', paddingRight: 18, paddingTop: 5 }, sheetContent: { paddingHorizontal: 25, paddingTop: 0, paddingBottom: 12 },
-  eyebrow: { fontSize: 9, letterSpacing: 1.4, color: c.teal, fontWeight: '800', marginBottom: 10 }, title: { fontSize: 30, letterSpacing: -.5, marginBottom: 10 }, subtitle: { color: c.muted, fontSize: 13, lineHeight: 20, marginBottom: 21 }, sectionTitle: { fontSize: 20, marginBottom: 13, marginTop: 8 }, optionRow: { flexDirection: 'row', gap: 10, marginBottom: 18 }, option: { flex: 1, minHeight: 84, alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: c.surfaceSecondary, borderWidth: 1.5, borderColor: c.border, borderRadius: 16 }, selected: { backgroundColor: c.butter, borderColor: c.onSurface }, optionLabel: { textTransform: 'capitalize', fontSize: 12, fontWeight: '800' }, autoWeather: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54 }, rowTitle: { fontSize: 13, fontWeight: '800' }, rowNote: { fontSize: 10, color: c.muted, marginTop: 5, lineHeight: 15 }, tip: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, backgroundColor: c.mint, borderRadius: 14, marginTop: 10, marginBottom: 20 }, tipText: { flex: 1, fontSize: 11, color: c.teal, lineHeight: 17 }, gearCard: { borderWidth: 1.5, borderColor: c.border, borderRadius: 19, padding: 16, marginBottom: 16, backgroundColor: c.surfaceSecondary }, gearHeader: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 16 }, gearIcon: { width: 54, height: 57, borderRadius: 17, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center' }, gearTitle: { fontSize: 21 }, kitBalance: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 15 }, pauseArt: { alignSelf: 'center', alignItems: 'center', justifyContent: 'center', height: 132, width: 132, borderRadius: 70, backgroundColor: c.butter, marginBottom: 25 }, centerNote: { textAlign: 'center', fontSize: 10, color: c.muted, lineHeight: 17, marginVertical: 15 }, helpLink: { minHeight: 44, justifyContent: 'center', alignItems: 'center' }, helpText: { fontSize: 11, color: c.teal, textDecorationLine: 'underline' }, helpRow: { flexDirection: 'row', gap: 13, marginBottom: 22 }, helpIcon: { height: 44, width: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: c.mint }, helpBody: { fontSize: 12, color: c.muted, lineHeight: 19, marginTop: 5 },
+  eyebrow: { fontSize: 9, letterSpacing: 1.4, color: c.teal, fontWeight: '800', marginBottom: 10 }, title: { fontSize: 30, letterSpacing: -.5, marginBottom: 10 }, subtitle: { color: c.muted, fontSize: 13, lineHeight: 20, marginBottom: 21 }, sectionTitle: { fontSize: 20, marginBottom: 13, marginTop: 8 }, optionRow: { flexDirection: 'row', gap: 10, marginBottom: 18 }, option: { flex: 1, minHeight: 84, alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: c.surfaceSecondary, borderWidth: 1.5, borderColor: c.border, borderRadius: 16 }, selected: { backgroundColor: c.butter, borderColor: c.onSurface }, optionLabel: { textTransform: 'capitalize', fontSize: 12, fontWeight: '800' }, autoWeather: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54 }, rowTitle: { fontSize: 13, fontWeight: '800' }, rowNote: { fontSize: 10, color: c.muted, marginTop: 5, lineHeight: 15 },  tip: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, backgroundColor: c.mint, borderRadius: 14, marginTop: 10, marginBottom: 20 }, tipText: { flex: 1, fontSize: 11, color: c.teal, lineHeight: 17 },
+  weatherReportCard: { backgroundColor: c.surfaceSecondary, borderWidth: 1.5, borderColor: c.border, borderRadius: 18, padding: 14, marginBottom: 12 },
+  weatherReportRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  weatherReportIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center' },
+  weatherReportHeading: { fontSize: 10, fontWeight: '800', letterSpacing: 1.1, color: c.teal, marginBottom: 3 },
+  weatherReportText: { fontSize: 13, fontWeight: '800', marginBottom: 2 },
+  weatherReportSub: { fontSize: 11, color: c.muted, lineHeight: 16 },
+  gearCard: { borderWidth: 1.5, borderColor: c.border, borderRadius: 19, padding: 16, marginBottom: 16, backgroundColor: c.surfaceSecondary }, gearHeader: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 16 }, gearIcon: { width: 54, height: 57, borderRadius: 17, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center' }, gearTitle: { fontSize: 21 }, kitBalance: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 15 }, pauseArt: { alignSelf: 'center', alignItems: 'center', justifyContent: 'center', height: 132, width: 132, borderRadius: 70, backgroundColor: c.butter, marginBottom: 25 }, centerNote: { textAlign: 'center', fontSize: 10, color: c.muted, lineHeight: 17, marginVertical: 15 }, helpLink: { minHeight: 44, justifyContent: 'center', alignItems: 'center' }, helpText: { fontSize: 11, color: c.teal, textDecorationLine: 'underline' }, helpRow: { flexDirection: 'row', gap: 13, marginBottom: 22 }, helpIcon: { height: 44, width: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: c.mint }, helpBody: { fontSize: 12, color: c.muted, lineHeight: 19, marginTop: 5 },
   reward: { padding: 25, borderRadius: 28, backgroundColor: c.surface, borderWidth: 2, borderBottomWidth: 6, borderColor: c.onSurface, alignItems: 'center' }, rewardArt: { width: 120, height: 120, borderRadius: 60, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center', marginTop: 7, marginBottom: 25 }, rewardStar: { position: 'absolute', right: -10, top: -1 }, rewardTitle: { fontSize: 31, letterSpacing: -.6, textAlign: 'center' }, rewardSubtitle: { fontSize: 11, color: c.muted, marginTop: 9, textAlign: 'center' }, earnings: { flexDirection: 'row', gap: 25, alignItems: 'center', backgroundColor: c.butter, borderRadius: 14, paddingVertical: 17, paddingHorizontal: 30, marginTop: 25 }, earningsDivider: { height: 23, width: 1, backgroundColor: c.border }, rewardXP: { fontSize: 21, color: c.teal },
   toast: { position: 'absolute', alignSelf: 'center', maxWidth: '90%', backgroundColor: c.surfaceInverse, borderRadius: 13, paddingVertical: 12, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', gap: 9, shadowColor: c.onSurface, shadowRadius: 7, shadowOpacity: .2, shadowOffset: { width: 0, height: 3 } }, toastText: { flexShrink: 1, color: c.onSurfaceInverse, fontSize: 11, lineHeight: 17 },
 }));
