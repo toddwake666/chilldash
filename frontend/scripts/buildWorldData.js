@@ -274,7 +274,7 @@ const DROPOFFS = [
   { name: 'Bongaon Football Stadium', address: 'Stadium north entrance', x: 4960, y: 700 },
   { name: 'Bongaon Junction Station', address: 'Passenger Lounge · Bongaon', x: 4000, y: 1020 },
   { name: 'Bongaon Forest Department', address: 'Jessore Forest Highway', x: 5235, y: 2300 },
-  { name: 'Abhirup Residency', address: '12 Jessore Road · Habra Town', x: 2680, y: 2840 },
+  { name: 'Abhirup Residency', address: '12 Jessore Road · Habra Town', x: 2700, y: 2660 },
   { name: 'Habra Town Colony', address: 'South Station Road', x: 3060, y: 3428 },
   { name: 'Petrapole Railway Station', address: 'Platform 1 · Petrapole', x: 5080, y: 2920 },
   { name: 'Petrapole Army Barracks', address: 'Visitor gate · Petrapole', x: 4488, y: 3630 }

@@ -318,6 +318,7 @@ const BUILDING_NAMES: Record<string, string> = {
   'habra-0-3': 'HABRA GREEN TERRACE',
   'habra-0-4': 'JESSORE ROAD ENCLAVE',
   'habra-1-0': 'STATION ROAD HOMES',
+  'habra-1-2': 'HABRA ARCADE',
   'habra-1-3': 'HABRA RESIDENCY',
   'habra-1-4': 'NORTH COLONY',
   'habra-2-0': 'RAILWAY PLAZA',
