@@ -79,37 +79,28 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY}:{chunkX?:n
             <Line x1={b.start} y1={b.y - 58} x2={b.end} y2={b.y - 58} stroke="#E84A5F" strokeWidth="18" strokeDasharray="16 36" />
             <Line x1={b.start} y1={b.y + 58} x2={b.end} y2={b.y + 58} stroke="#E84A5F" strokeWidth="18" strokeDasharray="16 36" />
 
-            {/* West Bridge Entrance Pylon */}
-            <Rect x={b.start - 24} y={b.y - 80} width="32" height="160" rx="6" fill={c.onSurface} stroke="#E84A5F" strokeWidth="3" />
-            <SvgImage href={RC_LOGO} x={b.start - 20} y={b.y - 68} width="24" height="24" preserveAspectRatio="xMidYMid meet" />
+            {/* West Bridge Entrance Ground Footing Pads */}
+            <Rect x={b.start - 24} y={b.y - 82} width="32" height="30" rx="5" fill={c.onSurface} stroke="#E84A5F" strokeWidth="2.5" />
+            <Rect x={b.start - 24} y={b.y + 52} width="32" height="30" rx="5" fill={c.onSurface} stroke="#E84A5F" strokeWidth="2.5" />
 
-            {/* East Bridge Entrance Pylon */}
-            <Rect x={b.end - 8} y={b.y - 80} width="32" height="160" rx="6" fill={c.onSurface} stroke="#E84A5F" strokeWidth="3" />
-            <SvgImage href={RC_LOGO} x={b.end - 4} y={b.y - 68} width="24" height="24" preserveAspectRatio="xMidYMid meet" />
+            {/* East Bridge Entrance Ground Footing Pads */}
+            <Rect x={b.end - 8} y={b.y - 82} width="32" height="30" rx="5" fill={c.onSurface} stroke="#E84A5F" strokeWidth="2.5" />
+            <Rect x={b.end - 8} y={b.y + 52} width="32" height="30" rx="5" fill={c.onSurface} stroke="#E84A5F" strokeWidth="2.5" />
 
-            {/* Center Overhead Gantry & Signboard */}
-            <Line x1={b.x - 170} y1={b.y - 130} x2={b.x - 170} y2={b.y - 53} stroke={c.onSurface} strokeWidth="8" />
-            <Line x1={b.x + 170} y1={b.y - 130} x2={b.x + 170} y2={b.y - 53} stroke={c.onSurface} strokeWidth="8" />
-            <Rect x={b.x - 164} y={b.y - 138} width="328" height="52" rx="12" fill={c.shadow} />
-            <Rect x={b.x - 168} y={b.y - 142} width="336" height="52" rx="12" fill="#E84A5F" stroke={c.surface} strokeWidth="3" />
-
-            {/* Official RevenueCat Logo */}
-            <SvgImage href={RC_LOGO} x={b.x - 156} y={b.y - 136} width="40" height="40" preserveAspectRatio="xMidYMid meet" />
-
-            {/* Gantry Typography */}
-            <T x={b.x - 104} y={b.y - 114} fontSize="20" fontWeight="bold" fill={c.surface} letterSpacing="1.2">REVENUECAT BRIDGE</T>
-            <T x={b.x - 104} y={b.y - 99} fontSize="10" fontWeight="bold" fill={c.butter} letterSpacing="1.8">ICHHAMATI EXPRESSWAY</T>
+            {/* Center Gantry Road Deck Shadow (ground-level indicator of overhead structure) */}
+            <Rect x={b.x - 168} y={b.y - 28} width="336" height="56" rx="12" fill={c.shadow} opacity=".25" />
           </G>
         );
       }
       return (
         <G key={b.id} testID={`bridge-${b.id}`}>
-          <Line x1={b.start} y1={b.y-53} x2={b.end} y2={b.y-53} stroke={c.surface} strokeWidth="5"/>
-          <Line x1={b.start} y1={b.y+53} x2={b.end} y2={b.y+53} stroke={c.surface} strokeWidth="5"/>
-          <Line x1={b.start} y1={b.y-58} x2={b.end} y2={b.y-58} stroke={c.wood} strokeWidth="18" strokeDasharray="12 44"/>
-          <Line x1={b.start} y1={b.y+58} x2={b.end} y2={b.y+58} stroke={c.wood} strokeWidth="18" strokeDasharray="12 44"/>
-          <Rect x={b.x-132} y={b.y-113} width="264" height="41" rx="7" fill={c.teal} stroke={c.surface} strokeWidth="2"/>
-          <T x={b.x} y={b.y-87} textAnchor="middle" fontSize="21" fontWeight="bold" fill={c.surface}>{b.name}</T>
+          <Line x1={b.start} y1={b.y - 53} x2={b.end} y2={b.y - 53} stroke={c.surface} strokeWidth="5" />
+          <Line x1={b.start} y1={b.y + 53} x2={b.end} y2={b.y + 53} stroke={c.surface} strokeWidth="5" />
+          <Line x1={b.start} y1={b.y - 58} x2={b.end} y2={b.y - 58} stroke={c.wood} strokeWidth="18" strokeDasharray="12 44" />
+          <Line x1={b.start} y1={b.y + 58} x2={b.end} y2={b.y + 58} stroke={c.wood} strokeWidth="18" strokeDasharray="12 44" />
+          {/* Ray Bridge Ground Footings */}
+          <Rect x={b.x - 16} y={b.y - 80} width="32" height="28" rx="4" fill={c.wood} />
+          <Rect x={b.x - 16} y={b.y + 52} width="32" height="28" rx="4" fill={c.wood} />
         </G>
       );
     })}
@@ -492,3 +483,105 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
     {MAP.landmarks.filter(l=>l.kind!=='park'&&near(l.x,l.y,Math.max(l.width,l.height))).map(l=><LandmarkArt key={l.id} landmark={l} cx={cx} cy={cy}/>)}
   </G>;
 }, (prev, next) => prev.chunkX === next.chunkX && prev.chunkY === next.chunkY);
+
+export const OverheadBridges = memo(function OverheadBridges({ cx, cy }: { cx?: number; cy?: number }) {
+  const { colors: c } = useTheme();
+
+  // Viewport frustum culling: only render bridges if camera is in proximity
+  const nearRC = cx === undefined || cy === undefined || (Math.abs(cx - 3700) < 1400 && Math.abs(cy - 1160) < 1300);
+  const nearRay = cx === undefined || cy === undefined || (Math.abs(cx - 3630) < 1400 && Math.abs(cy - 400) < 1300);
+
+  if (!nearRC && !nearRay) return null;
+
+  const rcBridge = MAP?.bridges?.find(b => b.id === 'revenuecat-bridge');
+  const rayBridge = MAP?.bridges?.find(b => b.id === 'ray-bridge');
+
+  return (
+    <G testID="overhead-bridge-structures">
+      {/* RevenueCat Bridge Overhead Architecture (Rendered in foreground OVER rider) */}
+      {nearRC && rcBridge && (() => {
+        const b = rcBridge;
+        return (
+          <G key="rc-overhead" testID="overhead-revenuecat-bridge">
+            {/* Grand Main Suspension Cables (curving high above the bridge deck) */}
+            <Path
+              d={`M${b.start} ${b.y - 72} Q${b.x} ${b.y - 146} ${b.end} ${b.y - 72}`}
+              fill="none"
+              stroke="#E84A5F"
+              strokeWidth="5"
+            />
+            <Path
+              d={`M${b.start} ${b.y + 72} Q${b.x} ${b.y + 146} ${b.end} ${b.y + 72}`}
+              fill="none"
+              stroke="#E84A5F"
+              strokeWidth="5"
+            />
+            {/* Vertical Suspension Dropper Cables */}
+            {[b.x - 260, b.x - 180, b.x - 100, b.x + 100, b.x + 180, b.x + 260].map(xPos => (
+              <G key={xPos}>
+                <Line x1={xPos} y1={b.y - 120} x2={xPos} y2={b.y - 60} stroke="#E84A5F" strokeWidth="2" strokeDasharray="4 2" />
+                <Line x1={xPos} y1={b.y + 60} x2={xPos} y2={b.y + 120} stroke="#E84A5F" strokeWidth="2" strokeDasharray="4 2" />
+              </G>
+            ))}
+
+            {/* West Bridge Entrance Overhead Portal Arch (Spans high across the road) */}
+            <G testID="rc-portal-west">
+              <Rect x={b.start - 24} y={b.y - 82} width="32" height="164" rx="7" fill={c.onSurface} stroke="#E84A5F" strokeWidth="3" opacity=".96" />
+              {/* Overhead Portal Header & Accent Trim */}
+              <Rect x={b.start - 28} y={b.y - 40} width="40" height="80" rx="8" fill="#E84A5F" stroke={c.surface} strokeWidth="2" />
+              <SvgImage href={RC_LOGO} x={b.start - 20} y={b.y - 20} width="24" height="24" preserveAspectRatio="xMidYMid meet" />
+              <Circle cx={b.start - 8} cy={b.y - 28} r="3" fill={c.butter} />
+              <Circle cx={b.start - 8} cy={b.y + 28} r="3" fill={c.butter} />
+            </G>
+
+            {/* East Bridge Entrance Overhead Portal Arch */}
+            <G testID="rc-portal-east">
+              <Rect x={b.end - 8} y={b.y - 82} width="32" height="164" rx="7" fill={c.onSurface} stroke="#E84A5F" strokeWidth="3" opacity=".96" />
+              {/* Overhead Portal Header & Accent Trim */}
+              <Rect x={b.end - 12} y={b.y - 40} width="40" height="80" rx="8" fill="#E84A5F" stroke={c.surface} strokeWidth="2" />
+              <SvgImage href={RC_LOGO} x={b.end - 4} y={b.y - 20} width="24" height="24" preserveAspectRatio="xMidYMid meet" />
+              <Circle cx={b.end + 8} cy={b.y - 28} r="3" fill={c.butter} />
+              <Circle cx={b.end + 8} cy={b.y + 28} r="3" fill={c.butter} />
+            </G>
+
+            {/* Center Overhead Gantry: Heavy Truss Arch spanning across the entire bridge roadway */}
+            <G testID="rc-center-gantry">
+              <Line x1={b.x} y1={b.y - 86} x2={b.x} y2={b.y + 86} stroke={c.onSurface} strokeWidth="16" />
+              <Line x1={b.x} y1={b.y - 82} x2={b.x} y2={b.y + 82} stroke="#E84A5F" strokeWidth="8" strokeDasharray="14 10" />
+
+              {/* Overhead Signboard & Badge: Suspended in the foreground OVER the rider */}
+              <Rect x={b.x - 164} y={b.y - 138} width="328" height="52" rx="12" fill={c.shadow} />
+              <Rect x={b.x - 168} y={b.y - 142} width="336" height="52" rx="12" fill="#E84A5F" stroke={c.surface} strokeWidth="3" />
+
+              {/* Official RevenueCat Logo */}
+              <SvgImage href={RC_LOGO} x={b.x - 156} y={b.y - 136} width="40" height="40" preserveAspectRatio="xMidYMid meet" />
+
+              {/* Gantry Typography */}
+              <T x={b.x - 104} y={b.y - 114} fontSize="20" fontWeight="bold" fill={c.surface} letterSpacing="1.2">REVENUECAT BRIDGE</T>
+              <T x={b.x - 104} y={b.y - 99} fontSize="10" fontWeight="bold" fill={c.butter} letterSpacing="1.8">ICHHAMATI EXPRESSWAY</T>
+
+              {/* Decorative Gantry Rivets & Beacon Lights */}
+              {[-150, -75, 0, 75, 150].map(dx => (
+                <Circle key={dx} cx={b.x + dx} cy={b.y - 140} r="3" fill={c.butter} />
+              ))}
+            </G>
+          </G>
+        );
+      })()}
+
+      {/* Ray Bridge Overhead Architecture */}
+      {nearRay && rayBridge && (() => {
+        const b = rayBridge;
+        return (
+          <G key="ray-overhead" testID="overhead-ray-bridge">
+            {/* Overhead Cross-Truss Beam */}
+            <Line x1={b.x} y1={b.y - 78} x2={b.x} y2={b.y + 78} stroke={c.wood} strokeWidth="12" />
+            <Line x1={b.x} y1={b.y - 74} x2={b.x} y2={b.y + 74} stroke={c.teal} strokeWidth="6" strokeDasharray="10 8" />
+            <Rect x={b.x - 132} y={b.y - 113} width="264" height="41" rx="7" fill={c.teal} stroke={c.surface} strokeWidth="2" />
+            <T x={b.x} y={b.y - 87} textAnchor="middle" fontSize="21" fontWeight="bold" fill={c.surface}>{b.name.toUpperCase()}</T>
+          </G>
+        );
+      })()}
+    </G>
+  );
+});

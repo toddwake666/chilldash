@@ -2,7 +2,7 @@
   "expo": {
     "name": "Chill Dash",
     "slug": "chill-dash",
-    "version": "1.0.58",
+    "version": "1.0.59",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": ["chilldash", "rc-71fcbf5689"],
@@ -17,7 +17,7 @@
         "backgroundColor": "#FDD602"
       },
       "package": "com.toddwake.chilldash",
-      "versionCode": 58
+      "versionCode": 59
 
 
 

@@ -7,7 +7,7 @@ import type { Point, Weather } from '@/src/game/api';
 import type { Vehicle } from '@/src/game/traffic';
 import { RiderSprite } from './RiderSprite';
 import worldData from '@/src/game/worldData.json';
-import { points, RegionGround, RegionScenery } from './world/RegionTerrain';
+import { points, RegionGround, RegionScenery, OverheadBridges } from './world/RegionTerrain';
 import { LandmarkArt } from './world/LandmarkArt';
 import { RailwayArt } from './world/RailwayArt';
 import { TrafficArt } from './world/TrafficArt';
@@ -221,6 +221,11 @@ export const CityWorld = React.memo(function CityWorld({
         {/* Screen-Space Player Rider: Perfectly anchored focal point with zero subpixel flutter */}
         <G testID="player-rider-screen-anchor" transform={riderTransform}>
           <RiderSprite player={{ x: 0, y: 0 }} heading={activeHeading} bike={bike} gear={gear} />
+        </G>
+
+        {/* Overhead World-Space Foreground: Bridges, gantries & overhead arches OVER rider */}
+        <G transform={worldTransform} testID="overhead-world-foreground">
+          <OverheadBridges cx={cx} cy={cy} />
         </G>
 
         {/* Screen Space Ambient Lighting & Weather Overlays */}
