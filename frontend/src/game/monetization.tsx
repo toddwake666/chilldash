@@ -52,28 +52,17 @@ export const ADMOB_CONFIG = {
   BANNER_AD_UNIT_ID: 'ca-app-pub-1245254576744368/4449523618',
   REWARDED_AD_UNIT_ID: 'ca-app-pub-1245254576744368/3092692413',
   NATIVE_AD_UNIT_ID: 'ca-app-pub-1245254576744368/5397974901',
-  // Official Google AdMob test IDs for safe debugging without policy violation
-  TEST_BANNER_ID: 'ca-app-pub-3940256099942544/6300978111',
-  TEST_REWARDED_ID: 'ca-app-pub-3940256099942544/5224354917',
 };
 
 export function getBannerAdUnitId(): string {
   if (process.env.EXPO_PUBLIC_ADMOB_BANNER_ID) return process.env.EXPO_PUBLIC_ADMOB_BANNER_ID;
-  if (__DEV__ && process.env.EXPO_PUBLIC_USE_PROD_ADS !== 'true') return ADMOB_CONFIG.TEST_BANNER_ID;
   return ADMOB_CONFIG.BANNER_AD_UNIT_ID;
 }
 
 export function getRewardedAdUnitId(): string {
   if (process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID) return process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID;
-  if (__DEV__ && process.env.EXPO_PUBLIC_USE_PROD_ADS !== 'true') return ADMOB_CONFIG.TEST_REWARDED_ID;
   return ADMOB_CONFIG.REWARDED_AD_UNIT_ID;
 }
-
-let AdTestIds: Record<string, string> = {
-  REWARDED: ADMOB_CONFIG.REWARDED_AD_UNIT_ID,
-  BANNER: ADMOB_CONFIG.BANNER_AD_UNIT_ID,
-  NATIVE: ADMOB_CONFIG.NATIVE_AD_UNIT_ID,
-};
 
 if (hasNativeAdMob) {
   try {
@@ -84,12 +73,6 @@ if (hasNativeAdMob) {
     BannerAdComponent = gma.BannerAd;
     BannerAdSizeEnum = gma.BannerAdSize;
     AdEventTypeEnum = gma.AdEventType;
-    if (gma.TestIds) {
-      AdTestIds = {
-        ...AdTestIds,
-        ...gma.TestIds,
-      };
-    }
   } catch {}
 }
 
@@ -599,7 +582,7 @@ export function playRewardedAd(
   const primaryUnitId = getRewardedAdUnitId();
   let rewarded = false;
 
-  function loadAndShow(unitId: string, isFallback: boolean) {
+  function loadAndShow(unitId: string) {
     try {
       const rewardedAd = RewardedAdClass.createForAdRequest(unitId, {
         requestNonPersonalizedAdsOnly: true,
@@ -660,25 +643,14 @@ export function playRewardedAd(
         (err: any) => {
           cleanup();
           console.warn(`[AdMob Rewarded] Notice for ${unitId}:`, err);
-          // If production ad unit failed (e.g. unpublished app NO_FILL), fallback to official test ad
-          if (!isFallback && unitId !== ADMOB_CONFIG.TEST_REWARDED_ID) {
-            console.log('[AdMob Rewarded] Retrying with Google Test Ad Unit...');
-            loadAndShow(ADMOB_CONFIG.TEST_REWARDED_ID, true);
-          } else {
-            onError?.('Sponsor video unavailable right now. Please try again later.');
-          }
+          onError?.('Sponsor video unavailable right now. Please try again later.');
         }
       );
 
       timeoutId = setTimeout(() => {
         cleanup();
         if (!rewarded) {
-          if (!isFallback && unitId !== ADMOB_CONFIG.TEST_REWARDED_ID) {
-            console.log('[AdMob Rewarded] Primary ad load timed out, retrying with Google Test Ad...');
-            loadAndShow(ADMOB_CONFIG.TEST_REWARDED_ID, true);
-          } else {
-            onError?.('Sponsor video took too long to load. Please check your internet connection.');
-          }
+          onError?.('Sponsor video took too long to load. Please check your internet connection.');
         }
       }, 7000);
 
@@ -689,7 +661,7 @@ export function playRewardedAd(
     }
   }
 
-  loadAndShow(primaryUnitId, false);
+  loadAndShow(primaryUnitId);
 }
 
 /**
@@ -739,7 +711,7 @@ export function ChillDashBanner({
 }) {
   if (isPro) return null; // Pro Pass VIP members enjoy a 100% ad-free experience!
 
-  const [currentUnitId, setCurrentUnitId] = React.useState(getBannerAdUnitId());
+  const currentUnitId = getBannerAdUnitId();
   const [loadFailed, setLoadFailed] = React.useState(false);
 
   if (BannerAdComponent && BannerAdSizeEnum && !loadFailed) {
@@ -767,12 +739,7 @@ export function ChillDashBanner({
           }}
           onAdFailedToLoad={(err: any) => {
             console.log('[AdMob Banner] Notice for', currentUnitId, err);
-            // If production unit failed because app is not published yet, try official Google test banner
-            if (currentUnitId !== ADMOB_CONFIG.TEST_BANNER_ID) {
-              setCurrentUnitId(ADMOB_CONFIG.TEST_BANNER_ID);
-            } else {
-              setLoadFailed(true);
-            }
+            setLoadFailed(true);
           }}
         />
       </View>
