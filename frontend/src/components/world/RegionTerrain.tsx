@@ -11,6 +11,63 @@ import type { Point } from '@/src/game/api';
 import { AdScreen, LandmarkArt } from './LandmarkArt';
 import { StaticRailwayTracks } from './RailwayArt';
 
+const FESTIVE_POLES = [
+  { x: 1477, y: 514 },
+  { x: 1531, y: 535 },
+  { x: 1583, y: 571 },
+  { x: 1625, y: 622 },
+  { x: 1660, y: 677 },
+  { x: 1691, y: 726 },
+  { x: 1720, y: 759 },
+  { x: 1750, y: 775 },
+  { x: 1789, y: 786 },
+  { x: 1834, y: 790 },
+  { x: 1881, y: 790 },
+  { x: 1930, y: 787 },
+  { x: 1980, y: 778 },
+];
+
+const FESTIVE_CABLE_PATH_D = "M1477 484Q1504 502 1531 505 M1531 505Q1557 530.5 1583 541 M1583 541Q1604 574 1625 592 M1625 592Q1642.5 627 1660 647 M1660 647Q1675.5 679 1691 696 M1691 696Q1705.5 720 1720 729 M1720 729Q1735 744.5 1750 745 M1750 745Q1769.5 758 1789 756 M1789 756Q1811.5 765.5 1834 760 M1834 760Q1857.5 767.5 1881 760 M1881 760Q1905.5 766 1930 757 M1930 757Q1955 760 1980 748";
+
+const FESTIVE_BULBS = [
+  { x: 1490.5, y: 492.1, col: "#EF4444" },
+  { x: 1504, y: 498.3, col: "#F59E0B" },
+  { x: 1517.5, y: 502.6, col: "#10B981" },
+  { x: 1544, y: 516.8, col: "#06B6D4" },
+  { x: 1557, y: 526.8, col: "#EC4899" },
+  { x: 1570, y: 534.8, col: "#8B5CF6" },
+  { x: 1593.5, y: 556.6, col: "#FBBF24" },
+  { x: 1604, y: 570.3, col: "#EF4444" },
+  { x: 1614.5, y: 582.1, col: "#F59E0B" },
+  { x: 1633.8, y: 608.6, col: "#10B981" },
+  { x: 1642.5, y: 623.3, col: "#06B6D4" },
+  { x: 1651.3, y: 636.1, col: "#EC4899" },
+  { x: 1667.8, y: 662.1, col: "#8B5CF6" },
+  { x: 1675.5, y: 675.3, col: "#FBBF24" },
+  { x: 1683.3, y: 686.6, col: "#EF4444" },
+  { x: 1698.3, y: 707.1, col: "#F59E0B" },
+  { x: 1705.5, y: 716.3, col: "#10B981" },
+  { x: 1712.8, y: 723.6, col: "#06B6D4" },
+  { x: 1727.5, y: 735.8, col: "#EC4899" },
+  { x: 1735, y: 740.8, col: "#8B5CF6" },
+  { x: 1742.5, y: 743.8, col: "#FBBF24" },
+  { x: 1759.8, y: 750.6, col: "#EF4444" },
+  { x: 1769.5, y: 754.3, col: "#F59E0B" },
+  { x: 1779.3, y: 756.1, col: "#10B981" },
+  { x: 1800.3, y: 759.8, col: "#06B6D4" },
+  { x: 1811.5, y: 761.8, col: "#EC4899" },
+  { x: 1822.8, y: 761.8, col: "#8B5CF6" },
+  { x: 1845.8, y: 762.8, col: "#FBBF24" },
+  { x: 1857.5, y: 763.8, col: "#EF4444" },
+  { x: 1869.3, y: 762.8, col: "#F59E0B" },
+  { x: 1893.3, y: 762.1, col: "#10B981" },
+  { x: 1905.5, y: 762.3, col: "#06B6D4" },
+  { x: 1917.8, y: 760.6, col: "#EC4899" },
+  { x: 1942.5, y: 757.6, col: "#8B5CF6" },
+  { x: 1955, y: 756.3, col: "#FBBF24" },
+  { x: 1967.5, y: 753.1, col: "#EF4444" },
+];
+
 export const points = (ps: any[]) => (ps || []).map(p => {
   if (Array.isArray(p)) return `${p[0] || 0},${p[1] || 0}`;
   return `${p?.x ?? 0},${p?.y ?? 0}`;
@@ -125,49 +182,57 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         DURGA PUJA PANDAL
       </T>
 
-      {/* Fuchka Stall Asset along Pine Trail road edge */}
-      <Rect x="1745" y="680" width="36" height="20" rx="4" fill={c.pavement} />
+      {/* Shifted Fuchka Stall Asset along Pine Trail road curve (Marked roadside lawn) */}
+      <Rect x="1898" y="767" width="40" height="20" rx="3" fill={c.pavement} />
       <SvgImage
         href={FUCHKA_STALL_IMG}
-        x="1715"
-        y="600"
+        x="1860"
+        y="665"
         width="116"
         height="102"
         preserveAspectRatio="xMidYMid meet"
       />
-      <T x="1773" y="715" textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
+      <T x="1918" y="776" textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
         FUCHKA STALL
       </T>
 
-      {/* Roadside Ground-Level String LED Lights */}
-      <G testID="roadside-string-leds">
-        <Path
-          d="M1560 642 Q1605 650 1650 642 M1700 642 Q1785 652 1870 642"
-          fill="none"
-          stroke="#4B5563"
-          strokeWidth="1.5"
-        />
-        {[
-          { x: 1570, y: 644, col: '#EF4444' },
-          { x: 1590, y: 647, col: '#F59E0B' },
-          { x: 1610, y: 648, col: '#10B981' },
-          { x: 1630, y: 646, col: '#06B6D4' },
-          { x: 1715, y: 645, col: '#8B5CF6' },
-          { x: 1740, y: 648, col: '#EF4444' },
-          { x: 1765, y: 650, col: '#F59E0B' },
-          { x: 1790, y: 649, col: '#10B981' },
-          { x: 1815, y: 647, col: '#06B6D4' },
-          { x: 1840, y: 645, col: '#EC4899' },
-          { x: 1860, y: 643, col: '#FBBF24' },
-        ].map((led, i) => (
-          <G key={`ground-led-${i}`}>
+      {/* Roadside Bamboo Poles / Sticks along the Pine Trail curb (Following blue lines) */}
+      <G testID="roadside-festive-poles">
+        {FESTIVE_POLES.map((p, idx) => (
+          <G key={`festive-pole-${idx}`}>
+            <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3} ry={1.5} fill={c.shadow} />
+            <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#92400E" strokeWidth={3} strokeLinecap="round" />
+            <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#D97706" strokeWidth={1.3} />
+            <Circle cx={p.x} cy={p.y - 30} r={2.5} fill="#B45309" stroke="#78350F" strokeWidth={0.8} />
+          </G>
+        ))}
+      </G>
+
+      {/* Hanging Wire / Cable between the Bamboo Poles */}
+      <Path
+        d={FESTIVE_CABLE_PATH_D}
+        fill="none"
+        stroke="#1F2937"
+        strokeWidth={1.5}
+      />
+
+      {/* Hanging Festive LED Strips strung along the wire */}
+      <G testID="hanging-festive-led-strips">
+        {FESTIVE_BULBS.map((b, idx) => (
+          <G key={`festive-bulb-${idx}`}>
             {isNight && (
               <>
-                <Circle cx={led.x} cy={led.y} r="7" fill={led.col} opacity={0.35} />
-                <Circle cx={led.x} cy={led.y} r="4" fill={led.col} opacity={0.8} />
+                <Circle cx={b.x} cy={b.y} r={7} fill={b.col} opacity={0.35} />
+                <Circle cx={b.x} cy={b.y} r={4} fill={b.col} opacity={0.85} />
               </>
             )}
-            <Circle cx={led.x} cy={led.y} r={isNight ? 2.2 : 1.8} fill={isNight ? '#FFFFFF' : led.col} opacity={isNight ? 1 : 0.4} />
+            <Circle
+              cx={b.x}
+              cy={b.y}
+              r={isNight ? 2 : 1.6}
+              fill={isNight ? '#FFFFFF' : b.col}
+              opacity={isNight ? 1 : 0.45}
+            />
           </G>
         ))}
       </G>
@@ -558,12 +623,11 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
 export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }: { cx?: number; cy?: number; isNight?: boolean }) {
   const { colors: c } = useTheme();
 
-  // Viewport frustum culling: only render bridges and overhead lights if camera is in proximity
+  // Viewport frustum culling: only render bridges if camera is in proximity
   const nearRC = cx === undefined || cy === undefined || (Math.abs(cx - 3700) < 1400 && Math.abs(cy - 1160) < 1300);
   const nearRay = cx === undefined || cy === undefined || (Math.abs(cx - 3630) < 1400 && Math.abs(cy - 400) < 1300);
-  const nearPandal = cx === undefined || cy === undefined || (Math.abs(cx - 1680) < 1300 && Math.abs(cy - 700) < 1300);
 
-  if (!nearRC && !nearRay && !nearPandal) return null;
+  if (!nearRC && !nearRay) return null;
 
   const rcBridge = MAP?.bridges?.find(b => b.id === 'revenuecat-bridge');
   const rayBridge = MAP?.bridges?.find(b => b.id === 'ray-bridge');
@@ -654,127 +718,6 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
           </G>
         );
       })()}
-
-      {/* Durga Puja Festive Overhead Light Arches spanning across Pine Trail (Rider rides under) */}
-      {nearPandal && (
-        <G key="durga-puja-overhead-leds" testID="overhead-pandal-led-arches">
-          {/* Arch 1: West Approach Catenary LED String */}
-          <Path
-            d="M1535 585 Q1565 635 1605 675"
-            fill="none"
-            stroke="#374151"
-            strokeWidth="2.5"
-          />
-          {[
-            { x: 1540, y: 590, col: '#EF4444' },
-            { x: 1552, y: 605, col: '#F59E0B' },
-            { x: 1565, y: 622, col: '#10B981' },
-            { x: 1578, y: 640, col: '#06B6D4' },
-            { x: 1592, y: 658, col: '#EC4899' },
-            { x: 1602, y: 672, col: '#FBBF24' },
-          ].map((bulb, idx) => (
-            <G key={`arch1-bulb-${idx}`}>
-              {isNight && (
-                <>
-                  <Circle cx={bulb.x} cy={bulb.y} r="8" fill={bulb.col} opacity={0.32} />
-                  <Circle cx={bulb.x} cy={bulb.y} r="4.5" fill={bulb.col} opacity={0.85} />
-                </>
-              )}
-              <Circle
-                cx={bulb.x}
-                cy={bulb.y}
-                r={isNight ? 2.2 : 1.8}
-                fill={isNight ? '#FFFFFF' : bulb.col}
-                opacity={isNight ? 1 : 0.45}
-              />
-            </G>
-          ))}
-
-          {/* Arch 2: Grand Center Torana Gate (Directly between Pandal & Akash Wheels / Fuchka Stall) */}
-          {/* Overhead Heavy Bamboo Support Beams spanning the roadway */}
-          <Line x1="1615" y1="655" x2="1675" y2="765" stroke={c.wood} strokeWidth="6" strokeLinecap="round" />
-          <Line x1="1620" y1="650" x2="1680" y2="760" stroke="#B45309" strokeWidth="2.5" strokeDasharray="8 5" />
-
-          {/* Suspended Overhead Festival Welcome Banner */}
-          <G transform="translate(1645, 710) rotate(58)">
-            <Rect x="-45" y="-10" width="90" height="20" rx="4" fill={c.teal} stroke={c.surface} strokeWidth="1.5" />
-            <T x="0" y="4" textAnchor="middle" fontSize="7" fontWeight="bold" fill={c.surface} letterSpacing="1">
-              DURGA PUJA UTSAV
-            </T>
-          </G>
-
-          {/* Double Droop Overhead Fairy String Lights */}
-          <Path
-            d="M1615 658 Q1642 725 1675 765"
-            fill="none"
-            stroke="#1F2937"
-            strokeWidth="2"
-          />
-          <Path
-            d="M1618 662 Q1645 730 1678 770"
-            fill="none"
-            stroke="#1F2937"
-            strokeWidth="1.5"
-          />
-          {[
-            { x: 1622, y: 668, col: '#EF4444' },
-            { x: 1630, y: 682, col: '#F59E0B' },
-            { x: 1638, y: 698, col: '#10B981' },
-            { x: 1648, y: 718, col: '#06B6D4' },
-            { x: 1656, y: 734, col: '#EC4899' },
-            { x: 1665, y: 748, col: '#FBBF24' },
-            { x: 1672, y: 760, col: '#8B5CF6' },
-          ].map((bulb, idx) => (
-            <G key={`arch2-bulb-${idx}`}>
-              {isNight && (
-                <>
-                  <Circle cx={bulb.x} cy={bulb.y} r="9" fill={bulb.col} opacity={0.35} />
-                  <Circle cx={bulb.x} cy={bulb.y} r="5" fill={bulb.col} opacity={0.88} />
-                </>
-              )}
-              <Circle
-                cx={bulb.x}
-                cy={bulb.y}
-                r={isNight ? 2.4 : 1.8}
-                fill={isNight ? '#FFFFFF' : bulb.col}
-                opacity={isNight ? 1 : 0.45}
-              />
-            </G>
-          ))}
-
-          {/* Arch 3: East Approach Catenary LED String */}
-          <Path
-            d="M1705 750 Q1730 810 1765 850"
-            fill="none"
-            stroke="#374151"
-            strokeWidth="2.5"
-          />
-          {[
-            { x: 1710, y: 758, col: '#10B981' },
-            { x: 1720, y: 775, col: '#F59E0B' },
-            { x: 1732, y: 795, col: '#EF4444' },
-            { x: 1744, y: 816, col: '#06B6D4' },
-            { x: 1754, y: 834, col: '#8B5CF6' },
-            { x: 1762, y: 846, col: '#FBBF24' },
-          ].map((bulb, idx) => (
-            <G key={`arch3-bulb-${idx}`}>
-              {isNight && (
-                <>
-                  <Circle cx={bulb.x} cy={bulb.y} r="8" fill={bulb.col} opacity={0.32} />
-                  <Circle cx={bulb.x} cy={bulb.y} r="4.5" fill={bulb.col} opacity={0.85} />
-                </>
-              )}
-              <Circle
-                cx={bulb.x}
-                cy={bulb.y}
-                r={isNight ? 2.2 : 1.8}
-                fill={isNight ? '#FFFFFF' : bulb.col}
-                opacity={isNight ? 1 : 0.45}
-              />
-            </G>
-          ))}
-        </G>
-      )}
     </G>
   );
 });

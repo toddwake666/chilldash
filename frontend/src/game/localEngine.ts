@@ -76,8 +76,8 @@ let orderCooldownUntil = 0;
 const shopCooldowns: Record<string, number> = {};
 
 export const FUCHKA_STALL_LOCATION: Place = {
-  x: 1730,
-  y: 620,
+  x: 1918,
+  y: 810,
   name: 'Festive Fuchka Stall',
   address: 'Pine Trail · Whispering Pines Pandal Ground',
 };

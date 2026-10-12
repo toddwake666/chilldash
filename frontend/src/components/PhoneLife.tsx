@@ -150,9 +150,9 @@ export function MilestonesView() {
             onPress={() => {
               g.navigateTo({
                 id: 'fuchka_stall',
-                name: 'Maa Durga Fuchka Stall',
-                x: 1730,
-                y: 620,
+                name: 'Festive Fuchka Stall',
+                x: 1918,
+                y: 810,
                 kind: 'stall' as any,
                 address: 'Pine Trail · Whispering Pines',
               });
