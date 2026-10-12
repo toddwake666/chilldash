@@ -179,7 +179,7 @@ export function ProPaywallCard() {
       <View style={s.headerRow}>
         <View style={s.headerLeft}>
           <View style={s.crownBadge}>
-            <Icon name="sparkles" size={16} color="#F59E0B" />
+            <Icon name="star" size={16} color="#F59E0B" />
           </View>
           <View style={s.titleWrap}>
             <Label style={s.cardTitle}>CHILL DASH PRO</Label>

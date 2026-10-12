@@ -445,8 +445,16 @@ export async function getLocalDispatch(): Promise<Dispatch> {
   };
 
   shopCooldowns[selected.idx] = now + 180;
-  offeredOrders = [fuchkaOrder, regularOrder];
-  activeOrder = fuchkaOrder;
+
+  // Fuchka orders spawn randomly (~35% chance), not always
+  const spawnFuchka = Math.random() < 0.35;
+  if (spawnFuchka) {
+    offeredOrders = [fuchkaOrder, regularOrder];
+    activeOrder = regularOrder;
+  } else {
+    offeredOrders = [regularOrder];
+    activeOrder = regularOrder;
+  }
 
   return {
     orders: offeredOrders,

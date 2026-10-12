@@ -434,7 +434,7 @@ function useGameState() {
     changeOrder(await api<Order>(`/orders/${o.id}/accept`, 'POST'));
     if (current.current!.at_garage) applyProfile(await api<Profile>('/garage/leave', 'POST'));
     setPhone(false); setScreen('city'); setDestination(null);
-    notify(o.is_fuchka_order ? '🪔 Durga Puja Fuchka order accepted! Ride to the stall at Whispering Pines!' : 'Pickup clock started. Follow the route to the shop’s footpath.');
+    notify(o.is_fuchka_order ? 'Fuchka order accepted. Head to the stall at Whispering Pines.' : 'Pickup clock started. Follow the route to the shop’s footpath.');
   });
   const decline = (targetOrder?: Order) => act(async () => {
     const o = targetOrder || currentOrder.current;

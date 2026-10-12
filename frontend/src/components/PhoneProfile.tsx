@@ -332,7 +332,7 @@ export function PhoneProfile() {
               title={authMode === 'signup' ? 'SIGN UP (+100 COINS BOOST)' : 'LOG IN TO ACCOUNT'}
               onPress={handleEmailAuth}
               loading={g.authLoading}
-              icon={authMode === 'signup' ? 'sparkles' : 'log-in-outline'}
+              icon={authMode === 'signup' ? 'person-add-outline' : 'log-in-outline'}
               style={{ marginTop: 10 }}
             />
 

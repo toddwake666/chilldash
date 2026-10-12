@@ -113,37 +113,32 @@ export function MilestonesView() {
       const pct = Math.min(100, Math.round((fuchkas / 200) * 100));
 
       return (
-        <View testID="fuchka-event-goal-card" style={[s.card, { borderColor: '#F59E0B', borderWidth: 1.5, backgroundColor: '#FFFBEB' }]}>
+        <View testID="fuchka-event-goal-card" style={s.card}>
           <View style={s.row}>
-            <View style={[s.art, { backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#DC2626' }]}>
-              <Icon name={allDone ? 'trophy' : 'sparkles'} color="#DC2626" size={28} />
+            <View style={[s.art, { backgroundColor: c.mint }]}>
+              <Icon name={allDone ? 'checkmark-done' : 'restaurant-outline'} color={c.teal} size={28} />
             </View>
             <View style={s.grow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <View style={{ backgroundColor: '#DC2626', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 }}>
-                  <Label style={{ fontSize: 7.5, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.5 }}>FESTIVE EVENT</Label>
-                </View>
-                <Label display style={[s.cardTitle, { color: '#991B1B' }]}>Durga Puja Fuchka Rush</Label>
-              </View>
-              <Label style={[s.tiny, { color: '#B45309' }]}>
+              <Label display style={s.cardTitle}>Durga Puja Fuchka Rush</Label>
+              <Label style={s.tiny}>
                 {allDone
-                  ? 'All festival milestones unlocked! Outstanding riding!'
-                  : `${fuchkas} / 200 crispy fuchkas delivered across 5 towns`}
+                  ? 'All event milestones completed'
+                  : `${fuchkas}/200 fuchkas delivered across towns`}
               </Label>
             </View>
           </View>
 
-          <View style={[s.progressTrack, { backgroundColor: '#FEF3C7' }]}>
-            <View style={[s.progressFill, { width: `${pct}%`, backgroundColor: '#DC2626' }]} />
+          <View style={s.progressTrack}>
+            <View style={[s.progressFill, { width: `${pct}%` }]} />
           </View>
 
           <View style={[s.rewardRow, { marginVertical: 10 }]}>
             <View style={{ gap: 2 }}>
-              <Label style={{ fontSize: 9, fontWeight: '800', color: m1Claimed ? '#059669' : '#B45309' }}>
-                {m1Claimed ? '✓ 100 Fuchkas: +200 COINS CLAIMED' : '⭐ Tier 1: 100 Fuchkas = +200 Coins'}
+              <Label style={s.tiny}>
+                {m1Claimed ? '100 Fuchkas: +200 coins claimed' : '100 Fuchkas: +200 coins'}
               </Label>
-              <Label style={{ fontSize: 9, fontWeight: '800', color: m2Claimed ? '#059669' : '#B45309' }}>
-                {m2Claimed ? '✓ 200 Fuchkas: +300 COINS MORE CLAIMED' : '🏆 Tier 2: 200 Fuchkas = +300 Coins More'}
+              <Label style={s.tiny}>
+                {m2Claimed ? '200 Fuchkas: +300 coins claimed' : '200 Fuchkas: +300 coins more'}
               </Label>
             </View>
             <Coin amount={allDone ? '+500' : m1Claimed ? '+300' : '+200'} small />
@@ -163,7 +158,6 @@ export function MilestonesView() {
               });
             }}
             icon="navigate-outline"
-            style={{ backgroundColor: '#DC2626' }}
           />
         </View>
       );

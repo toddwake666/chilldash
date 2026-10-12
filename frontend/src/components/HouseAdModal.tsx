@@ -52,7 +52,7 @@ export function HouseAdModal() {
     >
       <View style={s.topRow}>
         <View style={[s.pill, isReady && s.pillReady]}>
-          <Icon name={isReady ? 'checkmark-circle' : 'sparkles'} size={12} color={c.teal} />
+          <Icon name={isReady ? 'checkmark-circle' : 'play-circle-outline'} size={12} color={c.teal} />
           <Label style={s.pillText}>{isReady ? 'REWARD UNLOCKED' : 'VIRTUAL REAL ESTATE'}</Label>
         </View>
         {isReady ? (

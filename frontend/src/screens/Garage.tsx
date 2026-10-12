@@ -184,7 +184,7 @@ export function Garage() {
           <View style={s.gearIcon}><Icon name="bag-handle-outline" size={23} color={c.teal} /></View><View style={s.gearText}><Label style={s.gearTitle}>{p.gear === 'raincoat' ? 'Rain-ready kit' : 'Everyday kit'}</Label><Label style={s.gearNote}>{p.gear === 'raincoat' ? 'Helmet, thermal bag & raincoat' : 'Helmet on. Delivery bag packed.'}</Label></View><View style={s.equipped}><Label style={s.equippedText}>Equipped</Label></View><Icon name="chevron-forward" size={16} />
         </Pressable>
       </Animated.View>
-      <View style={s.progress} testID="rider-progress"><Icon name="sparkles-outline" size={17} color={c.teal} /><Label style={s.progressLabel}>Level {Math.floor(p.xp / 100) + 1} · {p.deliveries ? 'Finding your rhythm' : 'Every great rider starts somewhere'}</Label><Label style={s.xp}>{p.xp % 100}/100 XP</Label></View>
+      <View style={s.progress} testID="rider-progress"><Icon name="shield-checkmark-outline" size={17} color={c.teal} /><Label style={s.progressLabel}>Level {Math.floor(p.xp / 100) + 1} · {p.deliveries ? 'Finding your rhythm' : 'Every great rider starts somewhere'}</Label><Label style={s.xp}>{p.xp % 100}/100 XP</Label></View>
       <View style={s.supplyRow}>{[{ id: 'food', label: 'Food bag', icon: 'restaurant-outline' }, { id: 'care', label: 'Rider & bike', icon: 'heart-outline' }, { id: 'milestones', label: 'Milestones', icon: 'trophy-outline' }].map(item => <Pressable key={item.id} testID={`garage-${item.id}-button`} disabled={isNewLifeParthoPrompt} style={[s.supply, isNewLifeParthoPrompt && { opacity: 0.4 }]} onPress={() => g.openPhone(item.id as 'food' | 'care' | 'milestones')}><Icon name={item.icon} size={20} color={c.teal} /><Label style={s.supplyLabel}>{item.label}</Label></Pressable>)}</View>
     </ScrollView>
     <View style={[s.footer, { paddingBottom: Math.max(inset.bottom, 14) }]}>
@@ -561,7 +561,7 @@ export function Garage() {
 
                   {isOwned && isMax && (
                     <View style={s.gameMaxedBadge}>
-                      <Icon name="sparkles" size={16} color="#B45309" />
+                      <Icon name="ribbon-outline" size={16} color="#B45309" />
                       <Label style={s.gameMaxedText}>
                         MAX LEVEL REACHED · PEAK PERFORMANCE
                       </Label>

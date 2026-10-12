@@ -109,80 +109,37 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     {/* Durga Puja Festive Ground & Fuchka Stall across Pine Trail (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1200 && Math.abs(cy - 560) < 1250)) && (
     <G testID="durga-puja-festival-ground">
-      {/* Festive Paved Grounds & Plaza */}
-      <Rect x="1560" y="410" width="310" height="230" rx="20" fill={c.pavement} stroke={c.treeLight} strokeWidth="5" />
+      {/* Paved approach apron connecting from Pine Trail footpath */}
+      <Rect x="1650" y="630" width="40" height="32" rx="4" fill={c.pavement} />
 
-      {/* Red Carpet Ceremonial Approach Walkway connecting from Pine Trail footpath */}
-      <Path
-        d="M1650 670 L1700 670 L1730 570 L1680 570 Z"
-        fill="#DC2626"
-        stroke="#F59E0B"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      {/* Decorative Marigold Floral Borders along the Red Carpet */}
-      {[0, 1, 2, 3, 4, 5].map(i => (
-        <G key={`garland-${i}`}>
-          <Circle cx={1655 + i * 14} cy={660 - i * 16} r="3.5" fill="#F59E0B" />
-          <Circle cx={1695 + i * 6} cy={660 - i * 16} r="3.5" fill="#EF4444" />
-        </G>
-      ))}
-
-      {/* Bamboo Perimeter Barricade (Traditional Pandal style) */}
-      <Line x1="1560" y1="635" x2="1650" y2="635" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
-      <Line x1="1700" y1="635" x2="1870" y2="635" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
-      <Line x1="1560" y1="410" x2="1870" y2="410" stroke={c.wood} strokeWidth="5" />
-      <Line x1="1560" y1="410" x2="1560" y2="635" stroke={c.wood} strokeWidth="5" />
-      <Line x1="1870" y1="410" x2="1870" y2="635" stroke={c.wood} strokeWidth="5" />
-
-      {/* Soft Ground Drop Shadow under the Grand Pandal */}
-      <Rect x="1595" y="435" width="270" height="175" rx="16" fill={c.shadow} />
-
-      {/* Grand Durga Puja Pandal Asset */}
+      {/* Durga Puja Pandal Building Asset */}
       <SvgImage
         href={DURGA_PANDAL_IMG}
-        x="1590"
+        x="1580"
         y="420"
         width="280"
         height="186"
         preserveAspectRatio="xMidYMid meet"
       />
+      <T x="1720" y="620" textAnchor="middle" fontSize={11} fontWeight="bold" fill={c.teal}>
+        DURGA PUJA PANDAL
+      </T>
 
-      {/* Festive Welcome Gate / Totem Signboard */}
-      <G transform="translate(1620, 645)">
-        <Line x1="0" y1="0" x2="0" y2="28" stroke={c.wood} strokeWidth="4.5" strokeLinecap="round" />
-        <Rect x="-42" y="-18" width="84" height="24" rx="6" fill="#991B1B" stroke="#F59E0B" strokeWidth="2" />
-        <T x="0" y="-7" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#FDE68A" letterSpacing="0.8">DURGA PUJA UTSAV</T>
-        <T x="0" y="1" textAnchor="middle" fontSize="4.8" fontWeight="bold" fill="#FFFFFF" letterSpacing="0.5">WHISPERING PINES</T>
-      </G>
+      {/* Fuchka Stall Asset along Pine Trail road edge */}
+      <Rect x="1745" y="680" width="36" height="20" rx="4" fill={c.pavement} />
+      <SvgImage
+        href={FUCHKA_STALL_IMG}
+        x="1715"
+        y="600"
+        width="116"
+        height="102"
+        preserveAspectRatio="xMidYMid meet"
+      />
+      <T x="1773" y="715" textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
+        FUCHKA STALL
+      </T>
 
-      {/* Festive Fuchka Stall Decking on Roadside Forecourt */}
-      <G testID="fuchka-stall-forecourt" transform="translate(1730, 615)">
-        {/* Stall Wooden Ground Planks */}
-        <Rect x="-12" y="-6" width="134" height="114" rx="12" fill={c.wood} stroke={c.butter} strokeWidth="2.5" />
-        <Rect x="-4" y="2" width="118" height="98" rx="8" fill={c.butter} opacity={0.15} />
-
-        {/* Fuchka Stall Ground Drop Shadow */}
-        <Rect x="-6" y="8" width="122" height="98" rx="10" fill={c.shadow} />
-
-        {/* The Illustrated Fuchka Stall Cart Asset */}
-        <SvgImage
-          href={FUCHKA_STALL_IMG}
-          x="-5"
-          y="0"
-          width="120"
-          height="104"
-          preserveAspectRatio="xMidYMid meet"
-        />
-
-        {/* Traditional Fuchka Sign Banner */}
-        <G transform="translate(55, 108)">
-          <Rect x="-50" y="-12" width="100" height="18" rx="5" fill="#B45309" stroke="#FDE68A" strokeWidth="1.5" />
-          <T x="0" y="0" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#FEF3C7" letterSpacing="0.6">MAA DURGA FUCHKA</T>
-        </G>
-      </G>
-
-      {/* Roadside Ground-Level String LED Lights along the bamboo barricade */}
+      {/* Roadside Ground-Level String LED Lights */}
       <G testID="roadside-string-leds">
         <Path
           d="M1560 642 Q1605 650 1650 642 M1700 642 Q1785 652 1870 642"
@@ -740,9 +697,9 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
 
           {/* Suspended Overhead Festival Welcome Banner */}
           <G transform="translate(1645, 710) rotate(58)">
-            <Rect x="-45" y="-14" width="90" height="28" rx="6" fill="#991B1B" stroke="#F59E0B" strokeWidth="2" />
-            <T x="0" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#FEF08A" letterSpacing="1">
-              ✨ SHUBHO UTSAV ✨
+            <Rect x="-45" y="-10" width="90" height="20" rx="4" fill={c.teal} stroke={c.surface} strokeWidth="1.5" />
+            <T x="0" y="4" textAnchor="middle" fontSize="7" fontWeight="bold" fill={c.surface} letterSpacing="1">
+              DURGA PUJA UTSAV
             </T>
           </G>
 

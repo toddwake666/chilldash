@@ -192,12 +192,12 @@ export function City() {
         const isFuchka = !!offeredOrder.is_fuchka_order;
         return (
           <Pressable testID="new-order-notification" onPress={() => g.openPhone('orders')} style={s.notification}>
-            <View style={[s.notificationIcon, isFuchka && { backgroundColor: '#FEE2E2' }]}>
-              <Icon name={isFuchka ? 'sparkles' : 'bag-handle-outline'} size={22} color={isFuchka ? '#DC2626' : undefined} />
+            <View style={s.notificationIcon}>
+              <Icon name={isFuchka ? 'restaurant-outline' : 'bag-handle-outline'} size={22} color={c.teal} />
             </View>
             <View style={s.notificationCopy}>
-              <Label style={[s.notificationTitle, isFuchka && { color: '#991B1B' }]}>
-                {isFuchka ? `🪔 Durga Puja Fuchka (${offeredOrder.fuchka_count || 10} pcs)` : 'A little delivery, a little adventure.'}
+              <Label style={s.notificationTitle}>
+                {isFuchka ? `Fuchka Order (${offeredOrder.fuchka_count || 10} pcs)` : 'A little delivery, a little adventure.'}
               </Label>
               <Label style={s.notificationSub}>{offeredOrder.pickup.name} · {offeredOrder.reward} coins</Label>
             </View>
@@ -222,7 +222,7 @@ export function City() {
         <Label style={s.exploreNote}>{ride.pushing ? 'Push to a service stop or call help from your phone.' : g.profile!.online ? 'No requests here yet. Visit other shops and streets.' : 'Open your phone to change your online status.'}</Label>
       </View>
     ) : null}
-    {near ? <View testID={g.order?.status === 'accepted' ? 'pickup-arrived' : 'dropoff-arrived'} style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="delivery-action-button" title={g.order?.status === 'accepted' ? 'PICK UP ORDER' : 'HAND OVER DELIVERY'} icon="bag-check-outline" loading={g.busy} onPress={g.interact} /></View> : nearService ? <View style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="open-service-stop-button" title={nearService.kind === 'garage' ? 'HOME SWEET GARAGE' : nearService.kind === 'fuel' ? 'FUEL & AIR STATION' : nearService.kind === 'bike_shop' ? 'AKASH WHEELS · BIKE SHOWROOM' : 'VISIT REPAIR SHOP'} icon={nearService.kind === 'garage' ? 'home-outline' : nearService.kind === 'bike_shop' ? 'bicycle' : 'construct-outline'} onPress={() => g.openService(nearService)} /></View> : nearBillboard ? <View style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="billboard-sponsor-button" title={`SPONSOR SPOTLIGHT · +15 COINS`} icon="sparkles" loading={g.busy} onPress={() => {
+    {near ? <View testID={g.order?.status === 'accepted' ? 'pickup-arrived' : 'dropoff-arrived'} style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="delivery-action-button" title={g.order?.status === 'accepted' ? 'PICK UP ORDER' : 'HAND OVER DELIVERY'} icon="bag-check-outline" loading={g.busy} onPress={g.interact} /></View> : nearService ? <View style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="open-service-stop-button" title={nearService.kind === 'garage' ? 'HOME SWEET GARAGE' : nearService.kind === 'fuel' ? 'FUEL & AIR STATION' : nearService.kind === 'bike_shop' ? 'AKASH WHEELS · BIKE SHOWROOM' : 'VISIT REPAIR SHOP'} icon={nearService.kind === 'garage' ? 'home-outline' : nearService.kind === 'bike_shop' ? 'bicycle' : 'construct-outline'} onPress={() => g.openService(nearService)} /></View> : nearBillboard ? <View style={[s.action, { bottom: inset.bottom + 222 }]}><Button testID="billboard-sponsor-button" title={`SPONSOR SPOTLIGHT · +15 COINS`} icon="ribbon-outline" loading={g.busy} onPress={() => {
       g.notify('Loading sponsor video…');
       playBillboardSponsorAd(
         billboardName,
