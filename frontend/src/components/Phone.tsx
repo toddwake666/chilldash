@@ -497,7 +497,7 @@ function WalletView() {
 }
 export function Phone() {
   const g = useGame(); const s = useStyles(); const { colors: c } = useTheme(); const { height, width } = useWindowDimensions(); const inset = useSafeAreaInsets();
-  const { soundEnabled, toggleSound } = useSoundFX();
+  const { soundEnabled, toggleSound, musicEnabled, toggleMusic } = useSoundFX();
   const tabs = [{ id: 'orders', label: 'Orders', icon: 'bag-handle-outline' }, { id: 'gps', label: 'GPS', icon: 'navigate-outline' }, { id: 'food', label: 'Food', icon: 'restaurant-outline' }, { id: 'kit', label: 'Rain kit', icon: 'umbrella-outline' }, { id: 'care', label: 'Care', icon: 'construct-outline' }, { id: 'milestones', label: 'Goals', icon: 'trophy-outline' }, { id: 'wallet', label: 'Wallet', icon: 'wallet-outline' }, { id: 'profile', label: 'Profile', icon: 'person-circle-outline' }] as const;
 
   const isNewLifeParthoPrompt =
@@ -564,6 +564,18 @@ export function Phone() {
         </View>
       </View>
       <View style={s.headerActions}>
+        <Pressable
+          testID="phone-music-toggle-button"
+          accessibilityRole="button"
+          accessibilityLabel={musicEnabled ? "Mute music" : "Unmute music"}
+          onPress={async () => {
+            const next = await toggleMusic();
+            g.notify(next ? 'Music: ON 🎵' : 'Music: OFF 🔇');
+          }}
+          style={[s.soundBtn, !musicEnabled && s.soundBtnMuted]}
+        >
+          <Icon name={musicEnabled ? 'musical-notes' : 'musical-note-outline'} size={18} color={musicEnabled ? c.onSurface : c.muted} />
+        </Pressable>
         <Pressable
           testID="phone-sound-toggle-button"
           accessibilityRole="button"

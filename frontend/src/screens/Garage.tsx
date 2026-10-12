@@ -11,7 +11,7 @@ import { BikeArt } from '@/src/components/BikeArt';
 import { ChillDashBanner, checkProEntitlement } from '@/src/game/monetization';
 import * as Haptics from 'expo-haptics';
 import { MAX_TANK_LEVELS, TANK_UPGRADE_COSTS, getFullRefuelCost } from '@/src/game/localEngine';
-import { playDeliverSound } from '@/src/game/sounds';
+import { playDeliverSound, updateMusicPosition } from '@/src/game/sounds';
 
 const GARAGE_ART = require('@/assets/images/garage-art.jpeg');
 export function Garage() {
@@ -20,6 +20,10 @@ export function Garage() {
   const hour = g.clock.current / 60;
   const [isPro, setIsPro] = useState(false);
   const [selectedBikeForModal, setSelectedBikeForModal] = useState<typeof BIKES[number] | null>(null);
+
+  useEffect(() => {
+    updateMusicPosition(undefined, undefined);
+  }, []);
 
   const upgradeScaleAnim = useSharedValue(1);
   const upgradeScaleStyle = useAnimatedStyle(() => ({

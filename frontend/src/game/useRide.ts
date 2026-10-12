@@ -7,6 +7,7 @@ import { recordFrameForWatchdog, registerPerformanceCleanupListener } from './pe
 import type { Point } from './api';
 import type { Segment } from './region';
 import { project } from './region';
+import { updateMusicPosition, playCrashSound } from './sounds';
 
 
 export function useRide() {
@@ -248,7 +249,10 @@ export function useRide() {
       const isBoosted = !!(p.speed_boost_until && p.minutes < p.speed_boost_until);
       const boostSpeed = isBoosted ? 42 : 0;
       const topSpeed = (pushing ? 24 : (bike.speed + boostSpeed) * rain * condition * stamina) * (bump ? .65 : 1);
-      if (bump) game.collision('traffic');
+      if (bump) {
+        game.collision('traffic');
+        playCrashSound();
+      }
 
       // Auto-notify when speed boost expires during active ride
       if (p.speed_boost_until && p.minutes >= p.speed_boost_until) {
@@ -455,6 +459,7 @@ export function useRide() {
 
       if (isEvent || (timeSinceHud >= 320 && (speedDiff >= 3 || distFromReported >= 30 || Math.floor(game.clock.current) !== lastReported.current.minutes))) {
         lastHudUpdate.current = nowMs;
+        updateMusicPosition(currentPos.x, currentPos.y);
         lastReported.current = {
           moving: isMoving,
           pushing,

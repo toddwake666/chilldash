@@ -12,6 +12,7 @@ import { RideControls } from '@/src/components/RideControls';
 import { Button, Icon, IconButton, Label } from '@/src/components/ui';
 import { RideStatus } from '@/src/components/RideStatus';
 import { playBillboardSponsorAd, ChillDashBanner, checkProEntitlement } from '@/src/game/monetization';
+import { updateMusicPosition } from '@/src/game/sounds';
 
 export function City() {
   const g = useGame(); const ride = useRide(); const s = useStyles(); const { colors: c } = useTheme();
@@ -19,6 +20,7 @@ export function City() {
   const [isPro, setIsPro] = React.useState(false);
   React.useEffect(() => {
     checkProEntitlement().then(setIsPro).catch(() => {});
+    updateMusicPosition(ride.player.x, ride.player.y);
   }, []);
 
   const orderTarget = g.order?.status === 'accepted' ? g.order.pickup : g.order?.status === 'picked_up' ? g.order.dropoff : null;

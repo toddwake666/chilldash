@@ -4,7 +4,17 @@ import { useGame } from '@/src/game/GameContext';
 import { makeStyles, useTheme } from '@/src/theme';
 import { Button, Coin, Icon, Label } from './ui';
 import { getSyncId } from '@/src/game/supabase';
-import { useSoundFX, playTapSound, playCoinSound, playHornSound, playDeliverSound } from '@/src/game/sounds';
+import {
+  useSoundFX,
+  playTapSound,
+  playCoinSound,
+  playHornSound,
+  playDeliverSound,
+  playAcceptSound,
+  playCrashSound,
+  playEatSound,
+  playFuelSound,
+} from '@/src/game/sounds';
 import { checkPlayGamesAuth, signInPlayGames, showPlayGamesAchievements, showPlayGamesLeaderboards, PlayGamesPlayer } from '@/src/game/playGames';
 import { executeAutoHealingClean } from '@/src/game/performanceEngine';
 
@@ -13,7 +23,14 @@ export function PhoneProfile() {
   const s = useStyles();
   const { colors: c } = useTheme();
   const p = g.profile!;
-  const { soundEnabled, toggleSound } = useSoundFX();
+  const {
+    soundEnabled,
+    toggleSound,
+    musicEnabled,
+    toggleMusic,
+    currentZone,
+    playMusicPreview,
+  } = useSoundFX();
 
   const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
   const [email, setEmail] = useState('');
@@ -460,8 +477,57 @@ export function PhoneProfile() {
         </View>
       </View>
 
+      {/* Background Music (BGM) Card */}
+      <View testID="profile-music-settings-card" style={s.soundCard}>
+        <View style={s.soundTop}>
+          <View style={s.soundIconBox}>
+            <Icon name={musicEnabled ? 'musical-notes' : 'musical-note-outline'} size={20} color={c.teal} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Label style={s.soundTitle}>Background Music (BGM)</Label>
+            <Label style={s.soundSubtitle}>
+              {!musicEnabled
+                ? 'Background music muted'
+                : currentZone === 'dhak'
+                ? 'Playing: Durga Puja Dhak Drums'
+                : 'Playing: Midday in the Valley'}
+            </Label>
+          </View>
+          <Pressable
+            testID="settings-music-toggle-switch"
+            accessibilityRole="switch"
+            accessibilityState={{ checked: musicEnabled }}
+            onPress={toggleMusic}
+            style={[s.soundToggleBtn, musicEnabled ? s.soundToggleBtnOn : s.soundToggleBtnOff]}
+          >
+            <Label style={[s.soundToggleText, musicEnabled ? s.soundToggleTextOn : s.soundToggleTextOff]}>
+              {musicEnabled ? 'ON' : 'OFF'}
+            </Label>
+          </Pressable>
+        </View>
+
+        {musicEnabled && (
+          <View style={s.soundTestRow}>
+            <Pressable
+              testID="preview-music-valley-button"
+              onPress={() => playMusicPreview('valley')}
+              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+            >
+              <Label style={s.soundTestLabel}>Valley BGM</Label>
+            </Pressable>
+            <Pressable
+              testID="preview-music-dhak-button"
+              onPress={() => playMusicPreview('dhak')}
+              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+            >
+              <Label style={s.soundTestLabel}>Puja Dhak</Label>
+            </Pressable>
+          </View>
+        )}
+      </View>
+
       {/* Game Audio & Sound FX Card */}
-      <View style={s.soundCard}>
+      <View testID="profile-sfx-settings-card" style={s.soundCard}>
         <View style={s.soundTop}>
           <View style={s.soundIconBox}>
             <Icon name={soundEnabled ? 'volume-high-outline' : 'volume-mute-outline'} size={20} color={c.teal} />
@@ -484,32 +550,60 @@ export function PhoneProfile() {
         </View>
 
         {soundEnabled && (
-          <View style={s.soundTestRow}>
-            <Pressable
-              onPress={() => playTapSound()}
-              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
-            >
-              <Label style={s.soundTestLabel}>Tap</Label>
-            </Pressable>
-            <Pressable
-              onPress={() => playCoinSound()}
-              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
-            >
-              <Label style={s.soundTestLabel}>Coin</Label>
-            </Pressable>
-            <Pressable
-              onPress={() => playHornSound()}
-              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
-            >
-              <Label style={s.soundTestLabel}>Horn</Label>
-            </Pressable>
-            <Pressable
-              onPress={() => playDeliverSound()}
-              style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
-            >
-              <Label style={s.soundTestLabel}>Victory</Label>
-            </Pressable>
-          </View>
+          <>
+            <View style={s.soundTestRow}>
+              <Pressable
+                onPress={() => playTapSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Tap</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playCoinSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Coin</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playAcceptSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Accept</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playDeliverSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Victory</Label>
+              </Pressable>
+            </View>
+            <View style={[s.soundTestRow, { marginTop: 6 }]}>
+              <Pressable
+                onPress={() => playHornSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Horn</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playCrashSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Crash</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playEatSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Crunch</Label>
+              </Pressable>
+              <Pressable
+                onPress={() => playFuelSound()}
+                style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
+              >
+                <Label style={s.soundTestLabel}>Fuel</Label>
+              </Pressable>
+            </View>
+          </>
         )}
       </View>
 

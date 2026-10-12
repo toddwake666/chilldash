@@ -14,7 +14,7 @@ import {
   loadProfileForUser,
   AuthResult
 } from './supabase';
-import { playCoinSound, playDeliverSound, playTapSound } from './sounds';
+import { playCoinSound, playDeliverSound, playTapSound, playAcceptSound, playCrashSound, playEatSound, playFuelSound, playWhooshSound } from './sounds';
 import { syncPlayGamesProgress } from './playGames';
 import {
   identifyRider,
@@ -431,6 +431,7 @@ function useGameState() {
       return;
     }
     trackDeliveryEvent('accepted', o);
+    playAcceptSound();
     changeOrder(await api<Order>(`/orders/${o.id}/accept`, 'POST'));
     if (current.current!.at_garage) applyProfile(await api<Profile>('/garage/leave', 'POST'));
     setPhone(false); setScreen('city'); setDestination(null);
@@ -495,6 +496,7 @@ function useGameState() {
     notify('Home at last. Health and energy restored.');
   });
   const openPhone = (tab: PhoneTab = 'orders', app: PhoneApp = 'rider') => {
+    playWhooshSound();
     setPanel(null);
     if (tab === 'wallet' || app === 'wallet') {
       setPhoneApp('wallet');
@@ -568,12 +570,14 @@ function useGameState() {
   });
   const openService = (place: Service) => { setServiceStop(place); setPanel('service'); };
   const useService = (action: string, coins?: number) => {
+    playFuelSound();
     trackEconomyEvent('service_used', { item_id: action, cost: coins });
     return profileAction('/services/use', { service_id: serviceStop?.id, action, coins }, 'All taken care of. Safe travels!');
   };
   const collision = (kind: 'traffic' | 'wall') => {
     if (Date.now() - lastCollision.current < 3500 || current.current?.dead) return;
     lastCollision.current = Date.now();
+    playCrashSound();
     api<Profile>('/game/collision', 'POST', { kind })
       .then(p => {
         applyProfile(p);
@@ -619,6 +623,7 @@ function useGameState() {
       return profileAction('/food/buy', { item }, 'Food added to your bag. Tap Eat when you need it.');
     },
     eatFood: (item: string) => {
+      playEatSound();
       trackEconomyEvent('food_eaten', { item_id: item });
       return profileAction('/food/eat', { item }, 'A little nourishment. Feeling better already.');
     },
