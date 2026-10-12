@@ -305,10 +305,12 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
 
       {/* Cozy Hand-painted Wooden Totem / Signboard beside Pine Trail */}
       <G transform="translate(1720, 785)">
-        <Line x1="14" y1="0" x2="14" y2="38" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
-        <Rect x="-16" y="-22" width="60" height="26" rx="6" fill={c.butter} stroke={c.wood} strokeWidth="2.5" />
-        <T x="14" y="-10" textAnchor="middle" fontSize="7.5" fontWeight="bold" fill={c.wood} letterSpacing="0.8">AKASH WHEELS</T>
-        <T x="14" y="-2" textAnchor="middle" fontSize="5.5" fontWeight="bold" fill={c.teal} letterSpacing="0.5">BIKE SHOWROOM</T>
+        <Line x1="0" y1="0" x2="0" y2="38" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
+        <Rect x="-42" y="-23" width="84" height="28" rx="6" fill={c.shadow} />
+        <Rect x="-44" y="-25" width="88" height="28" rx="6" fill={c.butter} stroke={c.wood} strokeWidth="2.5" />
+        <Rect x="-41" y="-22" width="82" height="22" rx="4" fill="none" stroke={c.wood} strokeWidth="0.8" strokeDasharray="4 2" opacity={0.6} />
+        <T x="0" y="-12" textAnchor="middle" fontSize="7" fontWeight="bold" fill={c.wood} letterSpacing="0.4">AKASH WHEELS</T>
+        <T x="0" y="-2" textAnchor="middle" fontSize="5" fontWeight="bold" fill={c.teal} letterSpacing="0.3">BIKE SHOWROOM</T>
       </G>
     </G>
     )}
