@@ -21,7 +21,27 @@ import { PhoneChatApp } from './phone/PhoneChatApp';
 
 
 function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean }) {
-  const g = useGame(); const s = useStyles(); const { colors: c } = useTheme(); const o = g.order;
+  const g = useGame(); const s = useStyles(); const { colors: c } = useTheme();
+  const [selectedIdx, setSelectedIdx] = useState(0);
+
+  const activeOrder = g.order && g.order.status !== 'offered' ? g.order : null;
+
+  const rawOffered = (g.dispatch?.orders && g.dispatch.orders.length > 0 && g.dispatch.orders[0]?.status === 'offered')
+    ? g.dispatch.orders
+    : (g.order?.status === 'offered' ? [g.order] : []);
+
+  const offeredList = React.useMemo(() => {
+    const unique = Array.from(new Map(rawOffered.map(item => [item.id, item])).values());
+    return unique.sort((a, b) => {
+      if (a.is_fuchka_order && !b.is_fuchka_order) return -1;
+      if (!a.is_fuchka_order && b.is_fuchka_order) return 1;
+      return 0;
+    });
+  }, [rawOffered]);
+
+  const safeIdx = Math.min(Math.max(0, selectedIdx), Math.max(0, offeredList.length - 1));
+  const o = activeOrder || (offeredList.length > 0 ? offeredList[safeIdx] : null);
+
   const isGoOnlinePrompt =
     (!g.profile?.deliveries || g.profile?.deliveries === 0) &&
     !!g.profile?.partho_borrowed_express &&
@@ -97,14 +117,125 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
     : Infinity;
   const near = !offered && distToTarget <= 55;
   return <View testID="phone-order-detail">
-    <View style={s.orderHeading}><View><Label style={s.eyebrow}>{offered ? 'FRESH OFF THE PRESS' : collecting ? 'LET’S PICK IT UP' : 'ON THE HOME STRETCH'}</Label><Label display style={s.orderTitle}>{offered ? 'A good day to deliver.' : collecting ? 'Good things are waiting.' : 'One happy customer.'}</Label></View></View>
-    <View style={s.orderReward}><View style={s.deliveryIcon}><Icon name="bag-handle-outline" size={28} /></View><View style={s.orderRewardCopy}><Label style={s.orderItem}>{o.item}</Label><Label style={s.orderItemSub}>A little something for {o.customer}</Label></View><Coin amount={`+${o.reward}`} /></View>
-    <View style={s.routeCard}>
-      <View style={s.stop}><View style={[s.stopIcon, collecting && s.activeStop]}><Icon name={o.status === 'picked_up' ? 'checkmark' : 'storefront-outline'} size={20} color={c.teal} /></View><View style={s.stopCopy}><Label style={s.stopLabel}>{o.status === 'picked_up' ? 'COLLECTED' : 'PICK UP FROM'}</Label><Label style={s.stopName}>{o.pickup.name}</Label><Label style={s.stopAddress}>{o.pickup.address}</Label></View></View>
-      <View style={s.routeConnector}><View style={s.connectorLine} /><Label style={s.routeDistance}>{Math.round(distance(o.pickup, o.dropoff))} m {distance(o.pickup, o.dropoff) > 1500 ? 'across towns' : 'across the neighborhood'}</Label></View>
-      <View style={s.stop}><View style={[s.stopIcon, o.status === 'picked_up' && s.activeStop]}><Icon name="location-outline" size={21} color={c.teal} /></View><View style={s.stopCopy}><Label style={s.stopLabel}>DELIVER TO</Label><Label style={s.stopName}>{o.dropoff.name}</Label><Label style={s.stopAddress}>{o.customer} · {o.dropoff.address}</Label></View></View>
+    {/* Sleek Tab Switcher before orders when multiple orders are offered */}
+    {!activeOrder && offeredList.length > 1 && (
+      <View style={s.sleekOrderTabs} testID="order-tabs-switcher">
+        {offeredList.map((ord, idx) => {
+          const isSelected = safeIdx === idx;
+          const isFuchka = !!ord.is_fuchka_order;
+          return (
+            <Pressable
+              key={ord.id}
+              testID={`order-tab-pill-${ord.id}`}
+              onPress={() => {
+                playTapSound();
+                setSelectedIdx(idx);
+              }}
+              style={[
+                s.orderTabPill,
+                isFuchka && s.orderTabPillFestive,
+                isSelected && (isFuchka ? s.orderTabPillFestiveActive : s.orderTabPillActive),
+              ]}
+            >
+              <Icon
+                name={isFuchka ? 'sparkles' : 'bag-handle-outline'}
+                size={14}
+                color={isSelected ? (isFuchka ? '#FFFFFF' : c.surface) : (isFuchka ? '#DC2626' : c.muted)}
+              />
+              <Label style={[
+                s.orderTabPillText,
+                isFuchka && s.orderTabPillFestiveText,
+                isSelected && (isFuchka ? s.orderTabPillFestiveTextActive : s.orderTabPillTextActive),
+              ]}>
+                {isFuchka ? `🪔 PUJA SPECIAL (${ord.fuchka_count} pcs)` : '🛵 REGULAR'}
+              </Label>
+            </Pressable>
+          );
+        })}
+      </View>
+    )}
+
+    <View style={s.orderHeading}>
+      <View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          {o.is_fuchka_order && (
+            <View style={s.festiveBadge}>
+              <Label style={s.festiveBadgeText}>🪔 DURGA PUJA UTSAV</Label>
+            </View>
+          )}
+          <Label style={s.eyebrow}>
+            {offered
+              ? (o.is_fuchka_order ? 'FESTIVE SPECIAL ORDER' : 'FRESH OFF THE PRESS')
+              : collecting
+              ? 'LET’S PICK IT UP'
+              : 'ON THE HOME STRETCH'}
+          </Label>
+        </View>
+        <Label display style={s.orderTitle}>
+          {offered
+            ? (o.is_fuchka_order ? `${o.fuchka_count} Crispy Fuchkas waiting!` : 'A good day to deliver.')
+            : collecting
+            ? (o.is_fuchka_order ? 'Head to Maa Durga Fuchka Stall.' : 'Good things are waiting.')
+            : 'One happy customer.'}
+        </Label>
+      </View>
     </View>
-    <View style={s.promise}><Icon name={o.status === 'picked_up' ? 'heart-outline' : 'timer-outline'} color={c.teal} size={17} /><Label testID="phone-pickup-timer" style={s.promiseText}>{offered ? `You’ll have ${o.pickup_seconds >= 60 ? `${Math.floor(o.pickup_seconds / 60)}m ${o.pickup_seconds % 60 ? `${o.pickup_seconds % 60}s` : ''}` : `${o.pickup_seconds}s`} to collect after accepting. Delivery is untimed.` : collecting ? `Pick up in ${countdown(o.pickup_deadline, g.now)}. Timer keeps running with your phone open.` : 'Collected safely. No time limit to deliver.'}</Label></View>
+
+    <View style={s.orderReward}>
+      <View style={[s.deliveryIcon, o.is_fuchka_order && { backgroundColor: '#FEE2E2', borderWidth: 1.5, borderColor: '#DC2626' }]}>
+        <Icon name={o.is_fuchka_order ? "restaurant" : "bag-handle-outline"} size={26} color={o.is_fuchka_order ? "#DC2626" : undefined} />
+      </View>
+      <View style={s.orderRewardCopy}>
+        <Label style={s.orderItem}>{o.item}</Label>
+        <Label style={s.orderItemSub}>
+          {o.is_fuchka_order
+            ? `Special festive order for ${o.customer} · Amount + Distance pay`
+            : `A little something for ${o.customer}`}
+        </Label>
+      </View>
+      <Coin amount={`+${o.reward}`} />
+    </View>
+
+    <View style={s.routeCard}>
+      <View style={s.stop}>
+        <View style={[s.stopIcon, collecting && s.activeStop, o.is_fuchka_order && collecting && { backgroundColor: '#FEF08A' }]}>
+          <Icon name={o.status === 'picked_up' ? 'checkmark' : o.is_fuchka_order ? 'restaurant' : 'storefront-outline'} size={20} color={o.is_fuchka_order ? '#D97706' : c.teal} />
+        </View>
+        <View style={s.stopCopy}>
+          <Label style={[s.stopLabel, o.is_fuchka_order && { color: '#D97706' }]}>
+            {o.status === 'picked_up' ? 'COLLECTED' : 'PICK UP FROM'}
+          </Label>
+          <Label style={s.stopName}>{o.pickup.name}</Label>
+          <Label style={s.stopAddress}>{o.pickup.address}</Label>
+        </View>
+      </View>
+      <View style={s.routeConnector}>
+        <View style={s.connectorLine} />
+        <Label style={s.routeDistance}>{Math.round(distance(o.pickup, o.dropoff))} m {distance(o.pickup, o.dropoff) > 1500 ? 'across towns' : 'across the neighborhood'}</Label>
+      </View>
+      <View style={s.stop}>
+        <View style={[s.stopIcon, o.status === 'picked_up' && s.activeStop]}>
+          <Icon name="location-outline" size={21} color={c.teal} />
+        </View>
+        <View style={s.stopCopy}>
+          <Label style={s.stopLabel}>DELIVER TO</Label>
+          <Label style={s.stopName}>{o.dropoff.name}</Label>
+          <Label style={s.stopAddress}>{o.customer} · {o.dropoff.address}</Label>
+        </View>
+      </View>
+    </View>
+
+    <View style={s.promise}>
+      <Icon name={o.status === 'picked_up' ? 'heart-outline' : 'timer-outline'} color={c.teal} size={17} />
+      <Label testID="phone-pickup-timer" style={s.promiseText}>
+        {offered
+          ? `You’ll have ${o.pickup_seconds >= 60 ? `${Math.floor(o.pickup_seconds / 60)}m ${o.pickup_seconds % 60 ? `${o.pickup_seconds % 60}s` : ''}` : `${o.pickup_seconds}s`} to collect after accepting. Delivery is untimed.`
+          : collecting
+          ? `Pick up in ${countdown(o.pickup_deadline, g.now)}. Timer keeps running with your phone open.`
+          : 'Collected safely. No time limit to deliver.'}
+      </Label>
+    </View>
+
     {offered ? (
       <>
         {isNewLifeParthoPrompt && (
@@ -113,13 +244,36 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
             <Label style={s.newLifePromptBannerText}>Meet Partho first! Tap the back arrow (←) above to open Messages.</Label>
           </View>
         )}
-        <Button testID="accept-order-button" title="ACCEPT DELIVERY" onPress={g.accept} disabled={isNewLifeParthoPrompt || g.busy} loading={g.busy} icon="arrow-forward" style={isNewLifeParthoPrompt ? { opacity: 0.4 } : undefined} />
-        <Pressable testID="decline-order-button" onPress={g.decline} disabled={isNewLifeParthoPrompt || g.busy} style={[s.textButton, isNewLifeParthoPrompt && { opacity: 0.4 }]}><Label style={s.textButtonLabel}>Not this one</Label></Pressable>
+        <Button
+          testID="accept-order-button"
+          title={o.is_fuchka_order ? `ACCEPT PUJA SPECIAL (+${o.reward}c)` : "ACCEPT DELIVERY"}
+          onPress={() => g.accept(o)}
+          disabled={isNewLifeParthoPrompt || g.busy}
+          loading={g.busy}
+          icon="arrow-forward"
+          style={isNewLifeParthoPrompt ? { opacity: 0.4 } : undefined}
+        />
+        <Pressable
+          testID="decline-order-button"
+          onPress={() => g.decline(o)}
+          disabled={isNewLifeParthoPrompt || g.busy}
+          style={[s.textButton, isNewLifeParthoPrompt && { opacity: 0.4 }]}
+        >
+          <Label style={s.textButtonLabel}>Not this one</Label>
+        </Pressable>
       </>
     ) : (
       <>
-        <Button testID="phone-continue-delivery-button" title={near ? collecting ? 'PICK UP ORDER' : 'DELIVER ORDER' : 'BACK TO THE STREETS'} onPress={near ? g.interact : () => { g.setPhone(false); if (g.screen === 'garage') g.headOut(); }} loading={g.busy} icon={near ? 'bag-check-outline' : 'navigate-outline'} />
-        <Pressable testID="cancel-order-button" onPress={g.decline} disabled={g.busy} style={s.textButton}><Label style={s.textButtonLabel}>Cancel this delivery</Label></Pressable>
+        <Button
+          testID="phone-continue-delivery-button"
+          title={near ? collecting ? 'PICK UP ORDER' : 'DELIVER ORDER' : 'BACK TO THE STREETS'}
+          onPress={near ? g.interact : () => { g.setPhone(false); if (g.screen === 'garage') g.headOut(); }}
+          loading={g.busy}
+          icon={near ? 'bag-check-outline' : 'navigate-outline'}
+        />
+        <Pressable testID="cancel-order-button" onPress={() => g.decline(o)} disabled={g.busy} style={s.textButton}>
+          <Label style={s.textButtonLabel}>Cancel this delivery</Label>
+        </Pressable>
       </>
     )}
   </View>;
@@ -587,4 +741,15 @@ const useStyles = makeStyles(c => ({
   phoneStatusHighlighted: { borderColor: '#E53E3E', borderWidth: 1.5, backgroundColor: '#FFF5F5', borderRadius: 12 },
   statusDotHighlighted: { backgroundColor: '#E53E3E' },
   phoneStatusTextHighlighted: { color: '#E53E3E', fontWeight: '800' },
+  sleekOrderTabs: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  orderTabPill: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 12, backgroundColor: c.surfaceSecondary, borderWidth: 1.5, borderColor: c.border },
+  orderTabPillActive: { backgroundColor: c.brand, borderColor: c.onSurface },
+  orderTabPillFestive: { borderColor: '#FECACA', backgroundColor: '#FFF5F5' },
+  orderTabPillFestiveActive: { backgroundColor: '#DC2626', borderColor: '#991B1B' },
+  orderTabPillText: { fontSize: 10.5, fontWeight: '800', color: c.muted },
+  orderTabPillTextActive: { color: c.onSurface },
+  orderTabPillFestiveText: { color: '#DC2626' },
+  orderTabPillFestiveTextActive: { color: '#FFFFFF' },
+  festiveBadge: { backgroundColor: '#DC2626', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
+  festiveBadgeText: { fontSize: 8, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.5 },
 }));

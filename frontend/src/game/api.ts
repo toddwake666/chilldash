@@ -28,12 +28,17 @@ export type Profile = {
   pro_boost_reset_at?: number;
   pro_plan?: 'monthly' | 'yearly' | 'lifetime';
   pro_expires_at?: number;
+  fuchkas_delivered?: number;
+  fuchka_milestone_100_claimed?: boolean;
+  fuchka_milestone_200_claimed?: boolean;
 };
 export type Place = Point & { name: string; address: string };
 export type Order = {
   id: string; pickup: Place; dropoff: Place; item: string; customer: string; reward: number;
   xp: number; status: 'offered' | 'accepted' | 'picked_up' | 'delivered' | 'expired' | 'cancelled'; created_at: string;
   pickup_deadline: number | null; pickup_seconds: number;
+  is_fuchka_order?: boolean;
+  fuchka_count?: number;
 };
 export type Dispatch = { orders: Order[]; message: string; region: string; retry_after: number };
 export type Service = Point & { id: string; name: string; kind: 'garage' | 'fuel' | 'repair' | 'bike_shop'; address: string };

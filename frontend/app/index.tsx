@@ -13,6 +13,8 @@ import { prewarmSounds } from '@/src/game/sounds';
 
 const PRELOAD_ASSETS = [
   require('@/assets/images/akash_wheels.png'),
+  require('@/assets/images/durga_pandal.png'),
+  require('@/assets/images/fuchka_stall.png'),
   require('@/assets/images/station_bongaon.png'),
   require('@/assets/images/station_habra.png'),
   require('@/assets/images/station_petrapole.png'),

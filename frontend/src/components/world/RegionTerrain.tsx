@@ -5,6 +5,8 @@ import { MAP, nearestRoad, riverDistance } from '@/src/game/region';
 
 const RC_LOGO = require('@/assets/images/rclogo.webp');
 const AKASH_WHEELS_IMG = require('@/assets/images/akash_wheels.png');
+const DURGA_PANDAL_IMG = require('@/assets/images/durga_pandal.png');
+const FUCHKA_STALL_IMG = require('@/assets/images/fuchka_stall.png');
 import type { Point } from '@/src/game/api';
 import { AdScreen, LandmarkArt } from './LandmarkArt';
 import { StaticRailwayTracks } from './RailwayArt';
@@ -21,11 +23,11 @@ let cachedTownsD: string | null = null;
 let cachedRiverPoints: string | null = null;
 const roadPathCache = new Map<string, { normalRoadD: string; bridgeRoadD: string; allRoadD: string; bridges: typeof MAP.bridges }>();
 
-export const RegionGround=memo(function RegionGround({chunkX, chunkY}:{chunkX?:number;chunkY?:number}) {
+export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx, cy: propCy, isNight}:{chunkX?:number;chunkY?:number;cx?:number;cy?:number;isNight?:boolean}) {
   const {colors:c}=useTheme();
   const key = `${chunkX},${chunkY}`;
-  const cx = chunkX !== undefined ? chunkX * 500 : undefined;
-  const cy = chunkY !== undefined ? chunkY * 500 : undefined;
+  const cx = propCx !== undefined ? propCx : (chunkX !== undefined ? chunkX * 500 : undefined);
+  const cy = propCy !== undefined ? propCy : (chunkY !== undefined ? chunkY * 500 : undefined);
   let data = roadPathCache.get(key);
   if (!data) {
     const roads = cx !== undefined && cy !== undefined
@@ -104,6 +106,117 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY}:{chunkX?:n
         </G>
       );
     })}
+    {/* Durga Puja Festive Ground & Fuchka Stall across Pine Trail (Frustum Culled) */}
+    {(cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1200 && Math.abs(cy - 560) < 1250)) && (
+    <G testID="durga-puja-festival-ground">
+      {/* Festive Paved Grounds & Plaza */}
+      <Rect x="1560" y="410" width="310" height="230" rx="20" fill={c.pavement} stroke={c.treeLight} strokeWidth="5" />
+
+      {/* Red Carpet Ceremonial Approach Walkway connecting from Pine Trail footpath */}
+      <Path
+        d="M1650 670 L1700 670 L1730 570 L1680 570 Z"
+        fill="#DC2626"
+        stroke="#F59E0B"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* Decorative Marigold Floral Borders along the Red Carpet */}
+      {[0, 1, 2, 3, 4, 5].map(i => (
+        <G key={`garland-${i}`}>
+          <Circle cx={1655 + i * 14} cy={660 - i * 16} r="3.5" fill="#F59E0B" />
+          <Circle cx={1695 + i * 6} cy={660 - i * 16} r="3.5" fill="#EF4444" />
+        </G>
+      ))}
+
+      {/* Bamboo Perimeter Barricade (Traditional Pandal style) */}
+      <Line x1="1560" y1="635" x2="1650" y2="635" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
+      <Line x1="1700" y1="635" x2="1870" y2="635" stroke={c.wood} strokeWidth="5" strokeLinecap="round" />
+      <Line x1="1560" y1="410" x2="1870" y2="410" stroke={c.wood} strokeWidth="5" />
+      <Line x1="1560" y1="410" x2="1560" y2="635" stroke={c.wood} strokeWidth="5" />
+      <Line x1="1870" y1="410" x2="1870" y2="635" stroke={c.wood} strokeWidth="5" />
+
+      {/* Soft Ground Drop Shadow under the Grand Pandal */}
+      <Rect x="1595" y="435" width="270" height="175" rx="16" fill={c.shadow} />
+
+      {/* Grand Durga Puja Pandal Asset */}
+      <SvgImage
+        href={DURGA_PANDAL_IMG}
+        x="1590"
+        y="420"
+        width="280"
+        height="186"
+        preserveAspectRatio="xMidYMid meet"
+      />
+
+      {/* Festive Welcome Gate / Totem Signboard */}
+      <G transform="translate(1620, 645)">
+        <Line x1="0" y1="0" x2="0" y2="28" stroke={c.wood} strokeWidth="4.5" strokeLinecap="round" />
+        <Rect x="-42" y="-18" width="84" height="24" rx="6" fill="#991B1B" stroke="#F59E0B" strokeWidth="2" />
+        <T x="0" y="-7" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#FDE68A" letterSpacing="0.8">DURGA PUJA UTSAV</T>
+        <T x="0" y="1" textAnchor="middle" fontSize="4.8" fontWeight="bold" fill="#FFFFFF" letterSpacing="0.5">WHISPERING PINES</T>
+      </G>
+
+      {/* Festive Fuchka Stall Decking on Roadside Forecourt */}
+      <G testID="fuchka-stall-forecourt" transform="translate(1730, 615)">
+        {/* Stall Wooden Ground Planks */}
+        <Rect x="-12" y="-6" width="134" height="114" rx="12" fill={c.wood} stroke={c.butter} strokeWidth="2.5" />
+        <Rect x="-4" y="2" width="118" height="98" rx="8" fill={c.butter} opacity={0.15} />
+
+        {/* Fuchka Stall Ground Drop Shadow */}
+        <Rect x="-6" y="8" width="122" height="98" rx="10" fill={c.shadow} />
+
+        {/* The Illustrated Fuchka Stall Cart Asset */}
+        <SvgImage
+          href={FUCHKA_STALL_IMG}
+          x="-5"
+          y="0"
+          width="120"
+          height="104"
+          preserveAspectRatio="xMidYMid meet"
+        />
+
+        {/* Traditional Fuchka Sign Banner */}
+        <G transform="translate(55, 108)">
+          <Rect x="-50" y="-12" width="100" height="18" rx="5" fill="#B45309" stroke="#FDE68A" strokeWidth="1.5" />
+          <T x="0" y="0" textAnchor="middle" fontSize="6.5" fontWeight="bold" fill="#FEF3C7" letterSpacing="0.6">MAA DURGA FUCHKA</T>
+        </G>
+      </G>
+
+      {/* Roadside Ground-Level String LED Lights along the bamboo barricade */}
+      <G testID="roadside-string-leds">
+        <Path
+          d="M1560 642 Q1605 650 1650 642 M1700 642 Q1785 652 1870 642"
+          fill="none"
+          stroke="#4B5563"
+          strokeWidth="1.5"
+        />
+        {[
+          { x: 1570, y: 644, col: '#EF4444' },
+          { x: 1590, y: 647, col: '#F59E0B' },
+          { x: 1610, y: 648, col: '#10B981' },
+          { x: 1630, y: 646, col: '#06B6D4' },
+          { x: 1715, y: 645, col: '#8B5CF6' },
+          { x: 1740, y: 648, col: '#EF4444' },
+          { x: 1765, y: 650, col: '#F59E0B' },
+          { x: 1790, y: 649, col: '#10B981' },
+          { x: 1815, y: 647, col: '#06B6D4' },
+          { x: 1840, y: 645, col: '#EC4899' },
+          { x: 1860, y: 643, col: '#FBBF24' },
+        ].map((led, i) => (
+          <G key={`ground-led-${i}`}>
+            {isNight && (
+              <>
+                <Circle cx={led.x} cy={led.y} r="7" fill={led.col} opacity={0.35} />
+                <Circle cx={led.x} cy={led.y} r="4" fill={led.col} opacity={0.8} />
+              </>
+            )}
+            <Circle cx={led.x} cy={led.y} r={isNight ? 2.2 : 1.8} fill={isNight ? '#FFFFFF' : led.col} opacity={isNight ? 1 : 0.4} />
+          </G>
+        ))}
+      </G>
+    </G>
+    )}
+
     {/* Akash Wheels Bike Showroom at Whispering Pines (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1580) < 1150 && Math.abs(cy - 880) < 1250)) && (
     <G testID="akash-wheels-showroom">
@@ -243,6 +356,7 @@ function getTrees() {
     if(p.x>5600&&p.x<5860&&p.y>2120&&p.y<2290)continue;
     if(p.x>1730&&p.x<1990&&p.y>710&&p.y<880)continue;
     if(p.x>1440&&p.x<1770&&p.y>760&&p.y<1000)continue;
+    if(p.x>1540&&p.x<1890&&p.y>380&&p.y<720)continue; // Clear Durga Puja festival ground & fuchka stall
     scenery.push(p);
 
     const gx=Math.floor(p.x/500), gy=Math.floor(p.y/500);
@@ -484,14 +598,15 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
   </G>;
 }, (prev, next) => prev.chunkX === next.chunkX && prev.chunkY === next.chunkY);
 
-export const OverheadBridges = memo(function OverheadBridges({ cx, cy }: { cx?: number; cy?: number }) {
+export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }: { cx?: number; cy?: number; isNight?: boolean }) {
   const { colors: c } = useTheme();
 
-  // Viewport frustum culling: only render bridges if camera is in proximity
+  // Viewport frustum culling: only render bridges and overhead lights if camera is in proximity
   const nearRC = cx === undefined || cy === undefined || (Math.abs(cx - 3700) < 1400 && Math.abs(cy - 1160) < 1300);
   const nearRay = cx === undefined || cy === undefined || (Math.abs(cx - 3630) < 1400 && Math.abs(cy - 400) < 1300);
+  const nearPandal = cx === undefined || cy === undefined || (Math.abs(cx - 1680) < 1300 && Math.abs(cy - 700) < 1300);
 
-  if (!nearRC && !nearRay) return null;
+  if (!nearRC && !nearRay && !nearPandal) return null;
 
   const rcBridge = MAP?.bridges?.find(b => b.id === 'revenuecat-bridge');
   const rayBridge = MAP?.bridges?.find(b => b.id === 'ray-bridge');
@@ -582,6 +697,127 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy }: { cx?: 
           </G>
         );
       })()}
+
+      {/* Durga Puja Festive Overhead Light Arches spanning across Pine Trail (Rider rides under) */}
+      {nearPandal && (
+        <G key="durga-puja-overhead-leds" testID="overhead-pandal-led-arches">
+          {/* Arch 1: West Approach Catenary LED String */}
+          <Path
+            d="M1535 585 Q1565 635 1605 675"
+            fill="none"
+            stroke="#374151"
+            strokeWidth="2.5"
+          />
+          {[
+            { x: 1540, y: 590, col: '#EF4444' },
+            { x: 1552, y: 605, col: '#F59E0B' },
+            { x: 1565, y: 622, col: '#10B981' },
+            { x: 1578, y: 640, col: '#06B6D4' },
+            { x: 1592, y: 658, col: '#EC4899' },
+            { x: 1602, y: 672, col: '#FBBF24' },
+          ].map((bulb, idx) => (
+            <G key={`arch1-bulb-${idx}`}>
+              {isNight && (
+                <>
+                  <Circle cx={bulb.x} cy={bulb.y} r="8" fill={bulb.col} opacity={0.32} />
+                  <Circle cx={bulb.x} cy={bulb.y} r="4.5" fill={bulb.col} opacity={0.85} />
+                </>
+              )}
+              <Circle
+                cx={bulb.x}
+                cy={bulb.y}
+                r={isNight ? 2.2 : 1.8}
+                fill={isNight ? '#FFFFFF' : bulb.col}
+                opacity={isNight ? 1 : 0.45}
+              />
+            </G>
+          ))}
+
+          {/* Arch 2: Grand Center Torana Gate (Directly between Pandal & Akash Wheels / Fuchka Stall) */}
+          {/* Overhead Heavy Bamboo Support Beams spanning the roadway */}
+          <Line x1="1615" y1="655" x2="1675" y2="765" stroke={c.wood} strokeWidth="6" strokeLinecap="round" />
+          <Line x1="1620" y1="650" x2="1680" y2="760" stroke="#B45309" strokeWidth="2.5" strokeDasharray="8 5" />
+
+          {/* Suspended Overhead Festival Welcome Banner */}
+          <G transform="translate(1645, 710) rotate(58)">
+            <Rect x="-45" y="-14" width="90" height="28" rx="6" fill="#991B1B" stroke="#F59E0B" strokeWidth="2" />
+            <T x="0" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#FEF08A" letterSpacing="1">
+              ✨ SHUBHO UTSAV ✨
+            </T>
+          </G>
+
+          {/* Double Droop Overhead Fairy String Lights */}
+          <Path
+            d="M1615 658 Q1642 725 1675 765"
+            fill="none"
+            stroke="#1F2937"
+            strokeWidth="2"
+          />
+          <Path
+            d="M1618 662 Q1645 730 1678 770"
+            fill="none"
+            stroke="#1F2937"
+            strokeWidth="1.5"
+          />
+          {[
+            { x: 1622, y: 668, col: '#EF4444' },
+            { x: 1630, y: 682, col: '#F59E0B' },
+            { x: 1638, y: 698, col: '#10B981' },
+            { x: 1648, y: 718, col: '#06B6D4' },
+            { x: 1656, y: 734, col: '#EC4899' },
+            { x: 1665, y: 748, col: '#FBBF24' },
+            { x: 1672, y: 760, col: '#8B5CF6' },
+          ].map((bulb, idx) => (
+            <G key={`arch2-bulb-${idx}`}>
+              {isNight && (
+                <>
+                  <Circle cx={bulb.x} cy={bulb.y} r="9" fill={bulb.col} opacity={0.35} />
+                  <Circle cx={bulb.x} cy={bulb.y} r="5" fill={bulb.col} opacity={0.88} />
+                </>
+              )}
+              <Circle
+                cx={bulb.x}
+                cy={bulb.y}
+                r={isNight ? 2.4 : 1.8}
+                fill={isNight ? '#FFFFFF' : bulb.col}
+                opacity={isNight ? 1 : 0.45}
+              />
+            </G>
+          ))}
+
+          {/* Arch 3: East Approach Catenary LED String */}
+          <Path
+            d="M1705 750 Q1730 810 1765 850"
+            fill="none"
+            stroke="#374151"
+            strokeWidth="2.5"
+          />
+          {[
+            { x: 1710, y: 758, col: '#10B981' },
+            { x: 1720, y: 775, col: '#F59E0B' },
+            { x: 1732, y: 795, col: '#EF4444' },
+            { x: 1744, y: 816, col: '#06B6D4' },
+            { x: 1754, y: 834, col: '#8B5CF6' },
+            { x: 1762, y: 846, col: '#FBBF24' },
+          ].map((bulb, idx) => (
+            <G key={`arch3-bulb-${idx}`}>
+              {isNight && (
+                <>
+                  <Circle cx={bulb.x} cy={bulb.y} r="8" fill={bulb.col} opacity={0.32} />
+                  <Circle cx={bulb.x} cy={bulb.y} r="4.5" fill={bulb.col} opacity={0.85} />
+                </>
+              )}
+              <Circle
+                cx={bulb.x}
+                cy={bulb.y}
+                r={isNight ? 2.2 : 1.8}
+                fill={isNight ? '#FFFFFF' : bulb.col}
+                opacity={isNight ? 1 : 0.45}
+              />
+            </G>
+          ))}
+        </G>
+      )}
     </G>
   );
 });

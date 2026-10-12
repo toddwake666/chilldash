@@ -118,7 +118,7 @@ export function Garage() {
         <Label style={s.subtitle}>New streets. Little adventures. Your own pace.</Label>
         <View style={s.artCard} testID="garage-illustration">
           <Image source={GARAGE_ART} style={s.art} contentFit="cover" transition={250} accessibilityLabel="Your sunny garage, delivery boy and yellow scooter" />
-          <View style={s.artTop}><View style={s.location}><View style={s.dot} /><Label style={s.locationText}>HOME SWEET GARAGE</Label></View><View style={s.time}><Icon name={hour >= 18 || hour < 5 ? 'moon-outline' : 'sunny-outline'} size={16} /><Label style={s.locationText}>{gameTime(g.clock.current)}</Label></View></View>
+          <View style={s.artTop}><View style={s.location}><View style={s.dot} /><Label style={s.locationText}>HOME SWEET GARAGE</Label></View><View style={s.time}><Icon name={hour >= 18 || hour < 6 ? 'moon-outline' : 'sunny-outline'} size={16} /><Label style={s.locationText}>{gameTime(g.clock.current)}</Label></View></View>
           <View style={s.artBottom}><Icon name="location" size={14} color={c.surface} /><Label style={s.artCaption}>Sunnyvale • Your apartment</Label></View>
         </View>
       </Animated.View>

@@ -181,12 +181,30 @@ export function City() {
   return <View testID="city-screen" style={s.page}>
     <CityWorld {...ride} liveFrame={ride.liveFrame} subscribeFrame={ride.subscribeFrame} route={route} target={target} width={width} height={height} bike={g.profile!.bike} gear={g.profile!.gear} />
     <View pointerEvents="box-none" style={[s.top, { top: inset.top + 14 }]}>
-      <View style={s.topRow}><IconButton testID="ride-pause-button" name="grid-outline" label="Pause ride" onPress={() => g.setPanel('pause')} style={s.home} /><Pressable testID="world-settings-button" onPress={() => g.setPanel('world')} style={s.weather}><Icon name={ride.weather === 'rainy' ? 'rainy-outline' : ride.weather === 'cloudy' ? 'cloud-outline' : ride.minutes >= 1140 || ride.minutes < 360 ? 'moon-outline' : 'sunny-outline'} size={18} /><Label testID="game-clock" style={s.clock}>{gameTime(ride.minutes)}</Label><View style={s.smallDivider} /><Label testID="game-weather" style={s.weatherLabel}>{ride.weather}</Label></Pressable><Pressable testID="online-status-button" onPress={() => g.setPanel('status')} style={[s.status, g.profile!.online && s.onlineActive]}><View style={[s.onlineDot, { backgroundColor: g.profile!.online ? c.success : c.muted }]} /><Label testID="online-status" style={s.onlineText}>{g.profile!.online ? 'ONLINE' : 'OFFLINE'}</Label></Pressable></View>
+      <View style={s.topRow}><IconButton testID="ride-pause-button" name="grid-outline" label="Pause ride" onPress={() => g.setPanel('pause')} style={s.home} /><Pressable testID="world-settings-button" onPress={() => g.setPanel('world')} style={s.weather}><Icon name={ride.weather === 'rainy' ? 'rainy-outline' : ride.weather === 'cloudy' ? 'cloud-outline' : ride.minutes >= 1080 || ride.minutes < 360 ? 'moon-outline' : 'sunny-outline'} size={18} /><Label testID="game-clock" style={s.clock}>{gameTime(ride.minutes)}</Label><View style={s.smallDivider} /><Label testID="game-weather" style={s.weatherLabel}>{ride.weather}</Label></Pressable><Pressable testID="online-status-button" onPress={() => g.setPanel('status')} style={[s.status, g.profile!.online && s.onlineActive]}><View style={[s.onlineDot, { backgroundColor: g.profile!.online ? c.success : c.muted }]} /><Label testID="online-status" style={s.onlineText}>{g.profile!.online ? 'ONLINE' : 'OFFLINE'}</Label></Pressable></View>
       <View style={s.mapRow} pointerEvents="box-none">
         <Pressable testID="open-gps-button" onPress={() => g.openPhone('gps')} style={s.map}><View style={s.mapWindow}><MiniMap player={ride.player} target={target} route={route} size={100} /></View><View style={s.mapLabel}><Icon name="navigate" size={11} color={c.teal} /><Label testID="current-region" style={s.mapText}>{region(ride.player).toUpperCase()}</Label><Icon name="expand" size={10} /></View></Pressable>
         <View style={s.rightTop}><RideStatus /></View>
       </View>
-      {g.order?.status === 'offered' && <Pressable testID="new-order-notification" onPress={() => g.openPhone('orders')} style={s.notification}><View style={s.notificationIcon}><Icon name="bag-handle-outline" size={22} /></View><View style={s.notificationCopy}><Label style={s.notificationTitle}>A little delivery, a little adventure.</Label><Label style={s.notificationSub}>{g.order.pickup.name} · {g.order.reward} coins</Label></View><Icon name="chevron-forward" size={17} /></Pressable>}
+      {(() => {
+        const offeredOrder = g.order?.status === 'offered' ? g.order : (g.dispatch?.orders?.find(o => o.status === 'offered') || null);
+        if (!offeredOrder) return null;
+        const isFuchka = !!offeredOrder.is_fuchka_order;
+        return (
+          <Pressable testID="new-order-notification" onPress={() => g.openPhone('orders')} style={s.notification}>
+            <View style={[s.notificationIcon, isFuchka && { backgroundColor: '#FEE2E2' }]}>
+              <Icon name={isFuchka ? 'sparkles' : 'bag-handle-outline'} size={22} color={isFuchka ? '#DC2626' : undefined} />
+            </View>
+            <View style={s.notificationCopy}>
+              <Label style={[s.notificationTitle, isFuchka && { color: '#991B1B' }]}>
+                {isFuchka ? `🪔 Durga Puja Fuchka (${offeredOrder.fuchka_count || 10} pcs)` : 'A little delivery, a little adventure.'}
+              </Label>
+              <Label style={s.notificationSub}>{offeredOrder.pickup.name} · {offeredOrder.reward} coins</Label>
+            </View>
+            <Icon name="chevron-forward" size={17} />
+          </Pressable>
+        );
+      })()}
       {target && <View style={s.directions} testID="gps-directions"><View style={s.turn}><Icon name={targetNear ? 'flag' : nextDirection === 'north' ? 'arrow-up' : nextDirection === 'south' ? 'arrow-down' : nextDirection === 'west' ? 'arrow-back' : 'arrow-forward'} size={23} /></View><View style={s.directionCopy}><Label style={s.directionTitle}>{targetNear ? 'On the footpath. You’re here!' : route.length?`Head ${nextDirection} · ${Math.round(remaining)} m`:'Finding a safe route…'}</Label><Label style={s.directionSubtitle} numberOfLines={1}>{exploring?'EXPLORE':g.destination ? 'PIT STOP' : g.order?.status === 'accepted' ? 'PICK UP' : 'DELIVER'} · {target.name}</Label></View>{g.order?.status === 'accepted' ? <View style={s.step}><Icon name="timer-outline" size={14} /><Label testID="pickup-countdown" style={s.stepText}>{countdown(g.order.pickup_deadline, g.now)}</Label></View> : <Icon name={exploring?'compass-outline':g.destination ? 'construct-outline' : 'bag-check-outline'} size={20} />}</View>}
     </View>
     {ride.railNearby && ride.rail.closed && !near && !nearService ? (

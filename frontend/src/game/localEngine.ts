@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import worldData from './worldData.json';
-import type { Catalog, Destination, Dispatch, Order, Point, Profile, Weather } from './api';
+import type { Catalog, Destination, Dispatch, Order, Place, Point, Profile, Weather } from './api';
 import { distance, nearestRoad, onFootpath, region, getRoute, BIKES } from './world';
 import { syncProfileToSupabase, loadProfileFromSupabase, getSyncId, setSyncId } from './supabase';
 
@@ -71,8 +71,16 @@ export function getDefaultProfile(): Profile {
 
 let cachedProfile: Profile | null = null;
 let activeOrder: Order | null = null;
+let offeredOrders: Order[] = [];
 let orderCooldownUntil = 0;
 const shopCooldowns: Record<string, number> = {};
+
+export const FUCHKA_STALL_LOCATION: Place = {
+  x: 1730,
+  y: 620,
+  name: 'Festive Fuchka Stall',
+  address: 'Pine Trail · Whispering Pines Pandal Ground',
+};
 
 let isInitialCloudCheckDone = false;
 
@@ -230,11 +238,21 @@ export async function getLocalDispatch(): Promise<Dispatch> {
   if (activeOrder && activeOrder.status === 'accepted' && activeOrder.pickup_deadline && activeOrder.pickup_deadline < now) {
     activeOrder.status = 'expired';
     activeOrder = null;
+    offeredOrders = [];
   }
 
-  if (activeOrder && (activeOrder.status === 'offered' || activeOrder.status === 'accepted' || activeOrder.status === 'picked_up')) {
+  if (activeOrder && (activeOrder.status === 'accepted' || activeOrder.status === 'picked_up')) {
     return {
       orders: [activeOrder],
+      message: '',
+      region: currentRegion,
+      retry_after: 0,
+    };
+  }
+
+  if (offeredOrders.length > 0 && offeredOrders.every(o => o.status === 'offered')) {
+    return {
+      orders: offeredOrders,
       message: '',
       region: currentRegion,
       retry_after: 0,
@@ -377,7 +395,7 @@ export async function getLocalDispatch(): Promise<Dispatch> {
   ];
   const customers = ['Maya', 'Leo', 'Sam', 'Alex', 'Robin', 'Jules', 'Arjun', 'Riya', 'Dev'];
 
-  activeOrder = {
+  const regularOrder: Order = {
     id: `ord-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     pickup,
     dropoff,
@@ -391,9 +409,47 @@ export async function getLocalDispatch(): Promise<Dispatch> {
     pickup_seconds: seconds,
   };
 
+  // Generate Durga Puja Festive Fuchka Order across all 5 towns
+  const fuchkaCounts = [10, 20, 30, 40, 50];
+  const fuchkaCount = fuchkaCounts[Math.floor(Math.random() * fuchkaCounts.length)];
+  const fuchkaBaseFees: Record<number, number> = { 10: 25, 20: 35, 30: 45, 40: 55, 50: 65 };
+  const fuchkaDropoffs = worldData.dropoffs.filter(d => distance(FUCHKA_STALL_LOCATION, d) > 250);
+  const fuchkaDropoff = fuchkaDropoffs[Math.floor(Math.random() * fuchkaDropoffs.length)] || worldData.dropoffs[0];
+  const fuchkaDistance = calculateRouteDistance(FUCHKA_STALL_LOCATION, fuchkaDropoff);
+  const fuchkaDistFee = Math.floor(fuchkaDistance / 30);
+  const riderToStall = calculateRouteDistance(p.position, FUCHKA_STALL_LOCATION);
+  const fuchkaPickupSeconds = Math.max(90, Math.min(600, Math.floor(riderToStall / 24) + 110));
+  const fuchkaCustomers = ['Sourav', 'Debolina', 'Subhas', 'Poulami', 'Ananya', 'Rupam', 'Tanmoy', 'Moumita', 'Abhirup', 'Shreya', 'Indranil'];
+  const fuchkaTitles = [
+    `${fuchkaCount} Crispy Kolkata Fuchkas with Spicy Tok Jol`,
+    `${fuchkaCount} Tangy Festive Fuchkas with Masala Aloo`,
+    `${fuchkaCount} Special Durga Puja Fuchka Platter`,
+    `${fuchkaCount} Royal Kolkata Fuchkas with Sweet-Tangy Chutney`,
+    `${fuchkaCount} Street-Style Kolkata Fuchkas with Tok Jol`,
+  ];
+
+  const fuchkaOrder: Order = {
+    id: `fuchka-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    pickup: FUCHKA_STALL_LOCATION,
+    dropoff: fuchkaDropoff,
+    item: fuchkaTitles[Math.floor(Math.random() * fuchkaTitles.length)],
+    customer: fuchkaCustomers[Math.floor(Math.random() * fuchkaCustomers.length)],
+    reward: (fuchkaBaseFees[fuchkaCount] || 35) + fuchkaDistFee,
+    xp: 32 + Math.floor(fuchkaCount / 2),
+    status: 'offered',
+    created_at: new Date().toISOString(),
+    pickup_deadline: null,
+    pickup_seconds: fuchkaPickupSeconds,
+    is_fuchka_order: true,
+    fuchka_count: fuchkaCount,
+  };
+
   shopCooldowns[selected.idx] = now + 180;
+  offeredOrders = [fuchkaOrder, regularOrder];
+  activeOrder = fuchkaOrder;
+
   return {
-    orders: [activeOrder],
+    orders: offeredOrders,
     message: '',
     region: currentRegion,
     retry_after: 0,
@@ -624,8 +680,9 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
     }
     const b = body as { online: boolean };
     p.online = b.online;
-    if (!p.online && activeOrder && activeOrder.status === 'offered') {
-      activeOrder = null;
+    if (!p.online) {
+      if (activeOrder && activeOrder.status === 'offered') activeOrder = null;
+      offeredOrders = [];
     }
     await saveLocalProfile(p);
     return p as unknown as T;
@@ -645,15 +702,19 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
   if (path.startsWith('/orders/')) {
     const parts = path.split('/');
     const action = parts[parts.length - 1];
+    const targetOrderId = parts[parts.length - 2];
 
     if (action === 'accept') {
       const isNewLife = !p.partho_quest_completed && !p.partho_borrowed_express && (p.partho_chat_stage ?? 0) < 2;
       if (isNewLife) {
         throw new Error('Check your messages and meet Partho first!');
       }
-      if (activeOrder) {
+      const chosenOrder = offeredOrders.find(o => o.id === targetOrderId) || (activeOrder?.id === targetOrderId ? activeOrder : offeredOrders[0] || activeOrder);
+      if (chosenOrder) {
+        activeOrder = chosenOrder;
         activeOrder.status = 'accepted';
         activeOrder.pickup_deadline = Date.now() / 1000 + (activeOrder.pickup_seconds || 90);
+        offeredOrders = [];
         if (p.tutorial_active && (p.tutorial_step === 6 || p.tutorial_step === 5)) {
           p.tutorial_step = 7;
         }
@@ -663,11 +724,14 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
     }
 
     if (action === 'decline') {
-      if (activeOrder) {
-        activeOrder.status = 'cancelled';
-        activeOrder = null;
+      offeredOrders = offeredOrders.filter(o => o.id !== targetOrderId);
+      if (offeredOrders.length === 0 || activeOrder?.id === targetOrderId) {
+        if (activeOrder) activeOrder.status = 'cancelled';
+        activeOrder = offeredOrders[0] || null;
       }
-      orderCooldownUntil = Date.now() / 1000 + 35;
+      if (!activeOrder && offeredOrders.length === 0) {
+        orderCooldownUntil = Date.now() / 1000 + 35;
+      }
       return { status: 'cancelled' } as unknown as T;
     }
 
@@ -705,8 +769,26 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
         p.earned += totalReward;
         p.deliveries += 1;
         p.xp += deliveredOrder.xp + (p.is_pro ? 25 : 0);
+
+        // Durga Puja Festive Fuchka Milestones:
+        // 100 fuchkas delivered = 200 coins, 200 delivered = 300 more (500 total)
+        if (deliveredOrder.fuchka_count) {
+          p.fuchkas_delivered = (p.fuchkas_delivered || 0) + deliveredOrder.fuchka_count;
+          if (p.fuchkas_delivered >= 100 && !p.fuchka_milestone_100_claimed) {
+            p.fuchka_milestone_100_claimed = true;
+            p.balance += 200;
+            p.earned += 200;
+          }
+          if (p.fuchkas_delivered >= 200 && !p.fuchka_milestone_200_claimed) {
+            p.fuchka_milestone_200_claimed = true;
+            p.balance += 300;
+            p.earned += 300;
+          }
+        }
+
         orderCooldownUntil = Date.now() / 1000 + 45;
         activeOrder = null;
+        offeredOrders = [];
         await saveLocalProfile(p);
       }
       return { order: deliveredOrder, profile: p } as unknown as T;
@@ -728,6 +810,7 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
       if (curBike.fuel <= 20) curBike.fuel = 100;
     }
     if (activeOrder && activeOrder.status === 'offered') activeOrder = null;
+    offeredOrders = [];
     await saveLocalProfile(p);
     return p as unknown as T;
   }
@@ -805,6 +888,7 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
       Object.assign(p, fresh);
     }
     activeOrder = null;
+    offeredOrders = [];
     await saveLocalProfile(p);
     return p as unknown as T;
   }

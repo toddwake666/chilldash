@@ -103,8 +103,8 @@ export const CityWorld = React.memo(function CityWorld({
   }
   const riderTransform = riderTransformRef.current.str;
 
-  const night = minutes >= 1140 || minutes < 360,
-    sunset = minutes >= 1020 && minutes < 1140;
+  const night = minutes >= 1080 || minutes < 360,
+    sunset = minutes >= 1020 && minutes < 1080;
   const chunkX = Math.floor(activePlayer.x / 500),
     chunkY = Math.floor(activePlayer.y / 500);
 
@@ -140,7 +140,7 @@ export const CityWorld = React.memo(function CityWorld({
       <Svg testID="city-world" width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
         {/* World Space Camera Transform Group */}
         <G transform={worldTransform}>
-          <RegionGround chunkX={chunkX} chunkY={chunkY} />
+          <RegionGround chunkX={chunkX} chunkY={chunkY} cx={cx} cy={cy} isNight={night} />
           <RegionScenery chunkX={chunkX} chunkY={chunkY} />
           {isNearPark && <LandmarkArt landmark={parkLandmark!} cx={cx} cy={cy} />}
           {visibleServices
@@ -225,7 +225,7 @@ export const CityWorld = React.memo(function CityWorld({
 
         {/* Overhead World-Space Foreground: Bridges, gantries & overhead arches OVER rider */}
         <G transform={worldTransform} testID="overhead-world-foreground">
-          <OverheadBridges cx={cx} cy={cy} />
+          <OverheadBridges cx={cx} cy={cy} isNight={night} />
         </G>
 
         {/* Screen Space Ambient Lighting & Weather Overlays */}
@@ -248,7 +248,8 @@ export const CityWorld = React.memo(function CityWorld({
       prev.weather === next.weather &&
       prev.target === next.target &&
       prev.route === next.route &&
-      Math.floor(prev.minutes / 180) === Math.floor(next.minutes / 180)
+      (prev.minutes >= 1080 || prev.minutes < 360) === (next.minutes >= 1080 || next.minutes < 360) &&
+      (prev.minutes >= 1020 && prev.minutes < 1080) === (next.minutes >= 1020 && next.minutes < 1080)
     );
   }
 );

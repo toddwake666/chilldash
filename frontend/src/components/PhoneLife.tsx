@@ -104,6 +104,71 @@ export function MilestonesView() {
         )}
       </View>
     </View>
+    {/* Durga Puja Festive Event Milestone Card */}
+    {(() => {
+      const fuchkas = p.fuchkas_delivered || 0;
+      const m1Claimed = !!p.fuchka_milestone_100_claimed;
+      const m2Claimed = !!p.fuchka_milestone_200_claimed;
+      const allDone = m1Claimed && m2Claimed;
+      const pct = Math.min(100, Math.round((fuchkas / 200) * 100));
+
+      return (
+        <View testID="fuchka-event-goal-card" style={[s.card, { borderColor: '#F59E0B', borderWidth: 1.5, backgroundColor: '#FFFBEB' }]}>
+          <View style={s.row}>
+            <View style={[s.art, { backgroundColor: '#FEE2E2', borderWidth: 1, borderColor: '#DC2626' }]}>
+              <Icon name={allDone ? 'trophy' : 'sparkles'} color="#DC2626" size={28} />
+            </View>
+            <View style={s.grow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={{ backgroundColor: '#DC2626', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 }}>
+                  <Label style={{ fontSize: 7.5, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.5 }}>FESTIVE EVENT</Label>
+                </View>
+                <Label display style={[s.cardTitle, { color: '#991B1B' }]}>Durga Puja Fuchka Rush</Label>
+              </View>
+              <Label style={[s.tiny, { color: '#B45309' }]}>
+                {allDone
+                  ? 'All festival milestones unlocked! Outstanding riding!'
+                  : `${fuchkas} / 200 crispy fuchkas delivered across 5 towns`}
+              </Label>
+            </View>
+          </View>
+
+          <View style={[s.progressTrack, { backgroundColor: '#FEF3C7' }]}>
+            <View style={[s.progressFill, { width: `${pct}%`, backgroundColor: '#DC2626' }]} />
+          </View>
+
+          <View style={[s.rewardRow, { marginVertical: 10 }]}>
+            <View style={{ gap: 2 }}>
+              <Label style={{ fontSize: 9, fontWeight: '800', color: m1Claimed ? '#059669' : '#B45309' }}>
+                {m1Claimed ? '✓ 100 Fuchkas: +200 COINS CLAIMED' : '⭐ Tier 1: 100 Fuchkas = +200 Coins'}
+              </Label>
+              <Label style={{ fontSize: 9, fontWeight: '800', color: m2Claimed ? '#059669' : '#B45309' }}>
+                {m2Claimed ? '✓ 200 Fuchkas: +300 COINS MORE CLAIMED' : '🏆 Tier 2: 200 Fuchkas = +300 Coins More'}
+              </Label>
+            </View>
+            <Coin amount={allDone ? '+500' : m1Claimed ? '+300' : '+200'} small />
+          </View>
+
+          <Button
+            testID="fuchka-event-navigate-button"
+            title="RIDE TO FUCHKA STALL"
+            onPress={() => {
+              g.navigateTo({
+                id: 'fuchka_stall',
+                name: 'Maa Durga Fuchka Stall',
+                x: 1730,
+                y: 620,
+                kind: 'stall' as any,
+                address: 'Pine Trail · Whispering Pines',
+              });
+            }}
+            icon="navigate-outline"
+            style={{ backgroundColor: '#DC2626' }}
+          />
+        </View>
+      );
+    })()}
+
     {g.catalog!.milestones.map(m => {
       const claimed = p.claimed_milestones.includes(m.deliveries), ready = p.deliveries >= m.deliveries;
       return <View key={m.deliveries} style={s.card}>

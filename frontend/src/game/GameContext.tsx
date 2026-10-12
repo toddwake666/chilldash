@@ -422,23 +422,33 @@ function useGameState() {
   });
   const equip = (bike: string, gear: string) => profileAction('/profile/equipment', { bike, gear }, 'Kit updated. Ready for the road.', 'PUT');
   const purchase = (item: string) => profileAction('/profile/purchase', { item }, 'Unlocked and packed for your next ride.');
-  const accept = () => act(async () => {
-    if (!currentOrder.current) return;
+  const accept = (targetOrder?: Order) => act(async () => {
+    const o = targetOrder || currentOrder.current;
+    if (!o) return;
     const isNewLife = !current.current?.partho_quest_completed && !current.current?.partho_borrowed_express && (current.current?.partho_chat_stage ?? 0) < 2;
     if (isNewLife) {
       notify('Check your messages and meet Partho first!');
       return;
     }
-    trackDeliveryEvent('accepted', currentOrder.current);
-    changeOrder(await api<Order>(`/orders/${currentOrder.current.id}/accept`, 'POST'));
+    trackDeliveryEvent('accepted', o);
+    changeOrder(await api<Order>(`/orders/${o.id}/accept`, 'POST'));
     if (current.current!.at_garage) applyProfile(await api<Profile>('/garage/leave', 'POST'));
-    setPhone(false); setScreen('city'); setDestination(null); notify('Pickup clock started. Follow the route to the shop’s footpath.');
+    setPhone(false); setScreen('city'); setDestination(null);
+    notify(o.is_fuchka_order ? '🪔 Durga Puja Fuchka order accepted! Ride to the stall at Whispering Pines!' : 'Pickup clock started. Follow the route to the shop’s footpath.');
   });
-  const decline = () => act(async () => {
-    if (!currentOrder.current) return;
-    trackDeliveryEvent('declined', currentOrder.current);
-    await api(`/orders/${currentOrder.current.id}/decline`, 'POST'); changeOrder(null);
-    receiveDispatch(await api<Dispatch>('/dispatch')); notify('Order closed. Explore other neighborhoods for your next request.');
+  const decline = (targetOrder?: Order) => act(async () => {
+    const o = targetOrder || currentOrder.current;
+    if (!o) return;
+    trackDeliveryEvent('declined', o);
+    await api(`/orders/${o.id}/decline`, 'POST');
+    const freshDispatch = await api<Dispatch>('/dispatch');
+    if (freshDispatch.orders.length > 0) {
+      changeOrder(freshDispatch.orders[0]);
+    } else {
+      changeOrder(null);
+    }
+    receiveDispatch(freshDispatch);
+    notify('Order closed. Explore other neighborhoods for your next request.');
   });
   const interact = () => act(async () => {
     const o = currentOrder.current; if (!o) return;
@@ -452,7 +462,7 @@ function useGameState() {
       const updated = await api<Order>(`/orders/${o.id}/pickup`, 'POST', position.current);
       trackDeliveryEvent('picked_up', o);
       changeOrder(updated); setDestination(null);
-      notify('Collected! Follow the route to the dropoff location.');
+      notify(o.is_fuchka_order ? '🪔 Fresh hot fuchkas collected! Follow the GPS route to deliver.' : 'Collected! Follow the route to the dropoff location.');
     } else if (o.status === 'picked_up') {
       const roadPt = nearestRoad(o.dropoff).point;
       const dist = Math.min(distance(position.current, o.dropoff), distance(position.current, roadPt));
@@ -468,6 +478,14 @@ function useGameState() {
       applyProfile(result.profile); setReward(result.order); changeOrder(null); setDestination(null);
       playDeliverSound();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      if (result.order.is_fuchka_order && result.order.fuchka_count) {
+        const totalDelivered = result.profile.fuchkas_delivered || 0;
+        if (result.profile.fuchka_milestone_200_claimed && totalDelivered >= 200 && (totalDelivered - result.order.fuchka_count < 200)) {
+          notify(`🎉 FESTIVE MILESTONE! 200 Fuchkas Delivered! +300 Coins earned!`);
+        } else if (result.profile.fuchka_milestone_100_claimed && totalDelivered >= 100 && (totalDelivered - result.order.fuchka_count < 100)) {
+          notify(`🎉 FESTIVE MILESTONE! 100 Fuchkas Delivered! +200 Coins earned!`);
+        }
+      }
     }
   });
   const headOut = () => act(async () => { applyProfile(await api<Profile>('/garage/leave', 'POST')); setScreen('city'); notify('Check your supplies. Toggle online inside your phone.'); });
