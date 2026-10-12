@@ -7,9 +7,18 @@ const RC_LOGO = require('@/assets/images/rclogo.webp');
 const AKASH_WHEELS_IMG = require('@/assets/images/akash_wheels.png');
 const DURGA_PANDAL_IMG = require('@/assets/images/durga_pandal.png');
 const FUCHKA_STALL_IMG = require('@/assets/images/fuchka_stall.png');
+const NEON_ARCHWAY_DAY = require('@/assets/images/neon_archway_day.png');
+const NEON_ARCHWAY_NIGHT = require('@/assets/images/neon_archway_night.png');
 import type { Point } from '@/src/game/api';
 import { AdScreen, LandmarkArt } from './LandmarkArt';
 import { StaticRailwayTracks } from './RailwayArt';
+
+export const FESTIVE_ARCHWAYS = [
+  { id: 'arch-1', x: 1440, y: 530, w: 68, h: 102, lightX: 1478, lightY: 575 },
+  { id: 'arch-2', x: 1535, y: 645, w: 68, h: 102, lightX: 1578, lightY: 690 },
+  { id: 'arch-3', x: 1690, y: 785, w: 68, h: 102, lightX: 1735, lightY: 825 },
+  { id: 'arch-4', x: 1855, y: 810, w: 68, h: 102, lightX: 1900, lightY: 845 },
+];
 
 const FESTIVE_POLES = [
   { x: 1477, y: 514 },
@@ -236,6 +245,32 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
           </G>
         ))}
       </G>
+
+      {/* Roadside Neon Goddess Festive Light Gates - Ground Footings & Night Light Pools */}
+      <G testID="festive-archway-ground-lighting">
+        {FESTIVE_ARCHWAYS.map((a, idx) => (
+          <G key={`arch-ground-${idx}`}>
+            {/* Ground Base Footing & Shadow */}
+            <Ellipse cx={a.x + 20} cy={a.y + a.h + 2} rx={18} ry={5} fill={c.shadow} />
+            <Rect x={a.x + 6} y={a.y + a.h - 6} width={28} height={10} rx={2} fill={c.wood} stroke={c.onSurface} strokeWidth={0.8} />
+
+            {/* In Night Time: Radiant Light Coming Out onto Road & Pavement */}
+            {isNight && (
+              <G testID={`archway-light-pool-${idx}`}>
+                {/* Wide golden ambient light spread across the road */}
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={64} ry={36} fill="#F59E0B" opacity={0.24} />
+                {/* Bright yellow mid-zone illuminating road asphalt */}
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={42} ry={24} fill="#FDE047" opacity={0.34} />
+                {/* Core bright hotspot directly below lamp */}
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={22} ry={13} fill="#FEF08A" opacity={0.48} />
+                {/* Festive neon tint spill on roadside pavement */}
+                <Ellipse cx={a.x + 36} cy={a.lightY} rx={32} ry={18} fill="#EC4899" opacity={0.16} />
+                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={26} ry={16} fill="#06B6D4" opacity={0.18} />
+              </G>
+            )}
+          </G>
+        ))}
+      </G>
     </G>
     )}
 
@@ -379,6 +414,8 @@ function getTrees() {
     if(p.x>1730&&p.x<1990&&p.y>710&&p.y<880)continue;
     if(p.x>1440&&p.x<1770&&p.y>760&&p.y<1000)continue;
     if(p.x>1540&&p.x<1890&&p.y>380&&p.y<720)continue; // Clear Durga Puja festival ground & fuchka stall
+    if(p.x>1410&&p.x<1510&&p.y>500&&p.y<650)continue; // Clear Archway 1
+    if(p.x>1820&&p.x<1980&&p.y>780&&p.y<940)continue; // Clear Archway 4
     scenery.push(p);
 
     const gx=Math.floor(p.x/500), gy=Math.floor(p.y/500);
@@ -623,11 +660,12 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
 export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }: { cx?: number; cy?: number; isNight?: boolean }) {
   const { colors: c } = useTheme();
 
-  // Viewport frustum culling: only render bridges if camera is in proximity
+  // Viewport frustum culling: only render bridges or festive structures if camera is in proximity
   const nearRC = cx === undefined || cy === undefined || (Math.abs(cx - 3700) < 1400 && Math.abs(cy - 1160) < 1300);
   const nearRay = cx === undefined || cy === undefined || (Math.abs(cx - 3630) < 1400 && Math.abs(cy - 400) < 1300);
+  const nearFestive = cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1300 && Math.abs(cy - 680) < 1300);
 
-  if (!nearRC && !nearRay) return null;
+  if (!nearRC && !nearRay && !nearFestive) return null;
 
   const rcBridge = MAP?.bridges?.find(b => b.id === 'revenuecat-bridge');
   const rayBridge = MAP?.bridges?.find(b => b.id === 'ray-bridge');
@@ -718,6 +756,60 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
           </G>
         );
       })()}
+
+      {/* 4 Neon Goddess Festival Archway Lightings along Pine Trail Roadside */}
+      {nearFestive && (
+        <G testID="overhead-festive-archways">
+          {FESTIVE_ARCHWAYS.map((a, idx) => {
+            const diyaX = a.x + a.w * 0.78;
+            const diyaY = a.y + a.h * 0.22;
+            return (
+              <G key={`overhead-arch-${idx}`} testID={`festive-archway-${idx}`}>
+                {/* Radiant Neon Aura Halos around structure when lit at night */}
+                {isNight && (
+                  <G testID={`archway-aura-${idx}`}>
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.65} ry={a.h * 0.55} fill="#F59E0B" opacity={0.2} />
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.5} ry={a.h * 0.45} fill="#EC4899" opacity={0.16} />
+                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#06B6D4" opacity={0.18} />
+                  </G>
+                )}
+
+                {/* Archway Image Asset (Daylight: Lights OFF / Night: Lights ON) */}
+                <SvgImage
+                  href={isNight ? NEON_ARCHWAY_NIGHT : NEON_ARCHWAY_DAY}
+                  x={a.x}
+                  y={a.y}
+                  width={a.w}
+                  height={a.h}
+                  preserveAspectRatio="xMidYMid meet"
+                />
+
+                {/* Nighttime Light Beams & Lamp Corona Shining Down onto Road */}
+                {isNight && (
+                  <G testID={`archway-beam-${idx}`}>
+                    {/* Downward light cone shining from hanging diya lamp to ground */}
+                    <Path
+                      d={`M${diyaX - 4} ${diyaY + 6} L${a.lightX - 28} ${a.lightY - 6} L${a.lightX + 28} ${a.lightY - 6} L${diyaX + 4} ${diyaY + 6} Z`}
+                      fill="#FEF08A"
+                      opacity={0.22}
+                    />
+                    <Path
+                      d={`M${diyaX - 2} ${diyaY + 6} L${a.lightX - 14} ${a.lightY - 6} L${a.lightX + 14} ${a.lightY - 6} L${diyaX + 2} ${diyaY + 6} Z`}
+                      fill="#FFFFFF"
+                      opacity={0.3}
+                    />
+                    {/* Hanging Diya Lamp Multi-tier Glow */}
+                    <Circle cx={diyaX} cy={diyaY} r={22} fill="#F59E0B" opacity={0.3} />
+                    <Circle cx={diyaX} cy={diyaY} r={14} fill="#FDE047" opacity={0.55} />
+                    <Circle cx={diyaX} cy={diyaY} r={7} fill="#FEF08A" opacity={0.8} />
+                    <Circle cx={diyaX} cy={diyaY} r={3} fill="#FFFFFF" opacity={1.0} />
+                  </G>
+                )}
+              </G>
+            );
+          })}
+        </G>
+      )}
     </G>
   );
 });
