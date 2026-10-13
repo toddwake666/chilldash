@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import worldData from './worldData.json';
 import type { Catalog, Destination, Dispatch, Order, Place, Point, Profile, Weather } from './api';
-import { distance, nearestRoad, onFootpath, region, getRoute, BIKES } from './world';
+import { distance, nearestRoad, onFootpath, snapToFootpath, region, getRoute, BIKES } from './world';
 import { syncProfileToSupabase, loadProfileFromSupabase, getSyncId, setSyncId } from './supabase';
 
 const PROFILE_KEY = 'chill_dash_local_profile';
@@ -395,10 +395,13 @@ export async function getLocalDispatch(): Promise<Dispatch> {
   ];
   const customers = ['Maya', 'Leo', 'Sam', 'Alex', 'Robin', 'Jules', 'Arjun', 'Riya', 'Dev'];
 
+  const snappedPickup: Place = { ...pickup, ...snapToFootpath(pickup) };
+  const snappedDropoff: Place = { ...dropoff, ...snapToFootpath(dropoff) };
+
   const regularOrder: Order = {
     id: `ord-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    pickup,
-    dropoff,
+    pickup: snappedPickup,
+    dropoff: snappedDropoff,
     item: items[selected.idx % items.length],
     customer: customers[selected.idx % customers.length],
     reward: baseReward + Math.floor(routeDist / 35) + farBonus,
@@ -414,10 +417,12 @@ export async function getLocalDispatch(): Promise<Dispatch> {
   const fuchkaCount = fuchkaCounts[Math.floor(Math.random() * fuchkaCounts.length)];
   const fuchkaBaseFees: Record<number, number> = { 10: 25, 20: 35, 30: 45, 40: 55, 50: 65 };
   const fuchkaDropoffs = worldData.dropoffs.filter(d => distance(FUCHKA_STALL_LOCATION, d) > 250);
-  const fuchkaDropoff = fuchkaDropoffs[Math.floor(Math.random() * fuchkaDropoffs.length)] || worldData.dropoffs[0];
-  const fuchkaDistance = calculateRouteDistance(FUCHKA_STALL_LOCATION, fuchkaDropoff);
+  const rawFuchkaDropoff = fuchkaDropoffs[Math.floor(Math.random() * fuchkaDropoffs.length)] || worldData.dropoffs[0];
+  const snappedFuchkaPickup: Place = { ...FUCHKA_STALL_LOCATION, ...snapToFootpath(FUCHKA_STALL_LOCATION) };
+  const snappedFuchkaDropoff: Place = { ...rawFuchkaDropoff, ...snapToFootpath(rawFuchkaDropoff) };
+  const fuchkaDistance = calculateRouteDistance(snappedFuchkaPickup, snappedFuchkaDropoff);
   const fuchkaDistFee = Math.floor(fuchkaDistance / 30);
-  const riderToStall = calculateRouteDistance(p.position, FUCHKA_STALL_LOCATION);
+  const riderToStall = calculateRouteDistance(p.position, snappedFuchkaPickup);
   const fuchkaPickupSeconds = Math.max(90, Math.min(600, Math.floor(riderToStall / 24) + 110));
   const fuchkaCustomers = ['Sourav', 'Debolina', 'Subhas', 'Poulami', 'Ananya', 'Rupam', 'Tanmoy', 'Moumita', 'Abhirup', 'Shreya', 'Indranil'];
   const fuchkaTitles = [
@@ -430,8 +435,8 @@ export async function getLocalDispatch(): Promise<Dispatch> {
 
   const fuchkaOrder: Order = {
     id: `fuchka-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    pickup: FUCHKA_STALL_LOCATION,
-    dropoff: fuchkaDropoff,
+    pickup: snappedFuchkaPickup,
+    dropoff: snappedFuchkaDropoff,
     item: fuchkaTitles[Math.floor(Math.random() * fuchkaTitles.length)],
     customer: fuchkaCustomers[Math.floor(Math.random() * fuchkaCustomers.length)],
     reward: (fuchkaBaseFees[fuchkaCount] || 35) + fuchkaDistFee,

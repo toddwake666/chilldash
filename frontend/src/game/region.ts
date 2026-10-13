@@ -116,6 +116,61 @@ export function canRide(p: Point, hintSegment?: Segment | null) {
 export function onFootpath(p: Point) {
   const d=nearestRoad(p).distance; return d >= 38 && d <= 74 && canRide(p);
 }
+
+/**
+ * Snaps any destination, landmark, or delivery point directly onto the nearest
+ * rideable roadside footpath / sidewalk (distance ~48 from road centerline),
+ * preventing points from ever spawning unreachable inside houses or buildings.
+ */
+export function snapToFootpath(p: Point): Point {
+  if (!MAP || !SEGMENTS.length) return p;
+  const near = nearestRoad(p);
+  const roadPt = near.point;
+  const dx = p.x - roadPt.x;
+  const dy = p.y - roadPt.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (dist >= 40 && dist <= 55 && canRide(p)) {
+    return p;
+  }
+
+  const targetDist = 48;
+
+  if (dist < 1e-3) {
+    const seg = near.segment;
+    const sx = seg.b.x - seg.a.x;
+    const sy = seg.b.y - seg.a.y;
+    const slen = Math.hypot(sx, sy) || 1;
+    const cand1 = {
+      x: Math.round(roadPt.x - (sy / slen) * targetDist),
+      y: Math.round(roadPt.y + (sx / slen) * targetDist),
+    };
+    if (canRide(cand1)) return cand1;
+    const cand2 = {
+      x: Math.round(roadPt.x + (sy / slen) * targetDist),
+      y: Math.round(roadPt.y - (sx / slen) * targetDist),
+    };
+    if (canRide(cand2)) return cand2;
+    return roadPt;
+  }
+
+  const snapped = {
+    x: Math.round(roadPt.x + (dx / dist) * targetDist),
+    y: Math.round(roadPt.y + (dy / dist) * targetDist),
+  };
+
+  if (canRide(snapped)) {
+    return snapped;
+  }
+
+  const fallback = {
+    x: Math.round(roadPt.x + (dx / dist) * 42),
+    y: Math.round(roadPt.y + (dy / dist) * 42),
+  };
+  if (canRide(fallback)) return fallback;
+
+  return roadPt;
+}
 export function region(p: Point) {
   if (!MAP) return 'Sunnyvale';
   const bridge=MAP.bridges.find(b => p.x >= b.start && p.x <= b.end && Math.abs(p.y-b.y)<65);

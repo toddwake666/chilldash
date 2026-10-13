@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { api, openSave, Catalog, Destination, Dispatch, Order, Point, Profile, Service, Weather, restoreProfileFromSyncCode, saveLocalProfile, setSyncId } from './api';
-import { configureWorld, distance, GARAGE, nearestRoad } from './world';
+import { configureWorld, distance, GARAGE, nearestRoad, snapToFootpath } from './world';
 import * as Haptics from 'expo-haptics';
 import { User } from '@supabase/supabase-js';
 import { 
@@ -536,7 +536,14 @@ function useGameState() {
     const p = await api<Profile>('/tutorial/partho_chat_stage', 'POST', { stage });
     applyProfile(p);
   });
-  const navigateTo = (place: Destination) => { setDestination(place); setPhone(false); setPanel(null); if (screen === 'garage') headOut(); notify(`GPS set to ${place.name}.`); };
+  const navigateTo = (place: Destination) => {
+    const snapped = snapToFootpath({ x: place.x, y: place.y });
+    setDestination({ ...place, x: snapped.x, y: snapped.y });
+    setPhone(false);
+    setPanel(null);
+    if (screen === 'garage') headOut();
+    notify(`GPS set to ${place.name}.`);
+  };
   const quickTravel = (place: { id: string; name: string; x: number; y: number }) => act(async () => {
     if (current.current?.online) {
       notify('Quick Travel is offline-only. Toggle offline in your phone.');
@@ -769,7 +776,7 @@ function useGameState() {
       navigateTo({ id: fuelService.id, name: fuelService.name, x: fuelService.x, y: fuelService.y, kind: 'service', address: fuelService.address });
     },
     navigateToBoss: () => {
-      navigateTo({ id: 'boss_shimultala', name: 'Shimultala Heights Apartments', x: 4800, y: 520, kind: 'landmark', address: 'Block A · Bongaon' });
+      navigateTo({ id: 'boss_shimultala', name: 'Shimultala Heights Apartments', x: 4800, y: 632, kind: 'landmark', address: 'Block A · Bongaon' });
     },
     navigateToGarage: () => {
       navigateTo({ id: 'home_garage', name: 'Home Sweet Garage', x: GARAGE.x, y: GARAGE.y, kind: 'garage', address: 'Home Sweet Garage · Sunnyvale' });

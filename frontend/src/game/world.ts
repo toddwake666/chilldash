@@ -1,4 +1,4 @@
-export { MAP, WORLD, configureWorld, canRide, onFootpath, getRoute, region, distance, nearestRoad, railwayState, blockedByGate } from './region';
+export { MAP, WORLD, configureWorld, canRide, onFootpath, snapToFootpath, getRoute, region, distance, nearestRoad, railwayState, blockedByGate } from './region';
 export const COLS=[120,400,680,960], ROWS=[120,400,680,960,1240], TOWN_OFFSET=2160;
 export const ALL_COLS=[...COLS,...COLS.map(x=>x+TOWN_OFFSET)];
 export const GARAGE={x:352,y:750};

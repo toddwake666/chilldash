@@ -77,6 +77,63 @@ const FESTIVE_BULBS = [
   { x: 1967.5, y: 753.1, col: "#EF4444" },
 ];
 
+const FESTIVE_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#EC4899', '#8B5CF6', '#FBBF24'];
+
+interface TownLightStrip {
+  town: string;
+  cx: number;
+  cy: number;
+  poles: { x: number; y: number }[];
+  cableD: string;
+  bulbs: { x: number; y: number; col: string }[];
+}
+
+export const TOWN_FESTIVE_ROADS: TownLightStrip[] = [
+  { town: 'sunnyvale', startX: 160, endX: 880, curbY: 632, cx: 520, cy: 680 },
+  { town: 'pinecrest', startX: 2320, endX: 3040, curbY: 632, cx: 2680, cy: 680 },
+  { town: 'bongaon', startX: 4420, endX: 5140, curbY: 632, cx: 4780, cy: 680 },
+  { town: 'habra', startX: 2320, endX: 3040, curbY: 2672, cx: 2680, cy: 2720 },
+  { town: 'petrapole', startX: 4520, endX: 5240, curbY: 3052, cx: 4880, cy: 3100 },
+].map((cfg, townIdx) => {
+  const poles: { x: number; y: number }[] = [];
+  for (let x = cfg.startX; x <= cfg.endX; x += 48) {
+    poles.push({ x, y: cfg.curbY });
+  }
+
+  let cableD = '';
+  const bulbs: { x: number; y: number; col: string }[] = [];
+  let bulbIdx = townIdx * 3;
+
+  for (let i = 0; i < poles.length - 1; i++) {
+    const p1 = poles[i];
+    const p2 = poles[i + 1];
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y - 30) + 8;
+    cableD += `${i === 0 ? 'M' : ' M'}${p1.x} ${p1.y - 30}Q${midX} ${midY} ${p2.x} ${p2.y - 30}`;
+
+    const ts = [0.25, 0.5, 0.75];
+    for (const t of ts) {
+      const bx = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * midX + t * t * p2.x;
+      const by = (1 - t) * (1 - t) * (p1.y - 30) + 2 * (1 - t) * t * midY + t * t * (p2.y - 30);
+      bulbs.push({
+        x: Math.round(bx * 10) / 10,
+        y: Math.round(by * 10) / 10,
+        col: FESTIVE_COLORS[bulbIdx % FESTIVE_COLORS.length],
+      });
+      bulbIdx++;
+    }
+  }
+
+  return {
+    town: cfg.town,
+    cx: cfg.cx,
+    cy: cfg.cy,
+    poles,
+    cableD,
+    bulbs,
+  };
+});
+
 export const points = (ps: any[]) => (ps || []).map(p => {
   if (Array.isArray(p)) return `${p[0] || 0},${p[1] || 0}`;
   return `${p?.x ?? 0},${p?.y ?? 0}`;
@@ -273,6 +330,56 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
       </G>
     </G>
     )}
+
+    {/* Festive LED Light Strips along Horizontal Roads in All 5 Towns */}
+    {TOWN_FESTIVE_ROADS.map(strip => {
+      const isNear = cx === undefined || cy === undefined || (Math.abs(cx - strip.cx) < 1300 && Math.abs(cy - strip.cy) < 1300);
+      if (!isNear) return null;
+      return (
+        <G key={`town-leds-${strip.town}`} testID={`town-led-strip-${strip.town}`}>
+          {/* Roadside Bamboo Poles */}
+          <G testID={`town-poles-${strip.town}`}>
+            {strip.poles.map((p, idx) => (
+              <G key={`pole-${strip.town}-${idx}`}>
+                <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3} ry={1.5} fill={c.shadow} />
+                <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#92400E" strokeWidth={3} strokeLinecap="round" />
+                <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#D97706" strokeWidth={1.3} />
+                <Circle cx={p.x} cy={p.y - 30} r={2.5} fill="#B45309" stroke="#78350F" strokeWidth={0.8} />
+              </G>
+            ))}
+          </G>
+
+          {/* Hanging Wire / Cable between Poles */}
+          <Path
+            d={strip.cableD}
+            fill="none"
+            stroke="#1F2937"
+            strokeWidth={1.5}
+          />
+
+          {/* Hanging Festive LED Bulbs (Night: Glowing / Day: Off) */}
+          <G testID={`town-bulbs-${strip.town}`}>
+            {strip.bulbs.map((b, idx) => (
+              <G key={`bulb-${strip.town}-${idx}`}>
+                {isNight && (
+                  <>
+                    <Circle cx={b.x} cy={b.y} r={7} fill={b.col} opacity={0.35} />
+                    <Circle cx={b.x} cy={b.y} r={4} fill={b.col} opacity={0.85} />
+                  </>
+                )}
+                <Circle
+                  cx={b.x}
+                  cy={b.y}
+                  r={isNight ? 2 : 1.6}
+                  fill={isNight ? '#FFFFFF' : b.col}
+                  opacity={isNight ? 1 : 0.45}
+                />
+              </G>
+            ))}
+          </G>
+        </G>
+      );
+    })}
 
     {/* Akash Wheels Bike Showroom at Whispering Pines (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1580) < 1150 && Math.abs(cy - 880) < 1250)) && (
