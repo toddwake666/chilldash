@@ -10,38 +10,60 @@ const toPt = (p: any): { x: number; y: number } => {
 
 const pts = (points: { x: number; y: number }[]) => points.map(p => `${p.x},${p.y}`).join(' ');
 
+function getParallelRailPoints(points: { x: number; y: number }[], offset: number): { x: number; y: number }[] {
+  const n = points.length;
+  if (n < 2) return points;
+  const result: { x: number; y: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    let nx = 0, ny = 0;
+    if (i > 0) {
+      const dx = points[i].x - points[i - 1].x;
+      const dy = points[i].y - points[i - 1].y;
+      const len = Math.hypot(dx, dy) || 1;
+      nx += -dy / len;
+      ny += dx / len;
+    }
+    if (i < n - 1) {
+      const dx = points[i + 1].x - points[i].x;
+      const dy = points[i + 1].y - points[i].y;
+      const len = Math.hypot(dx, dy) || 1;
+      nx += -dy / len;
+      ny += dx / len;
+    }
+    const len = Math.hypot(nx, ny) || 1;
+    result.push({
+      x: Math.round((points[i].x + (nx / len) * offset) * 10) / 10,
+      y: Math.round((points[i].y + (ny / len) * offset) * 10) / 10,
+    });
+  }
+  return result;
+}
+
 export const StaticRailwayTracks = React.memo(function StaticRailwayTracks() {
-  const {colors:c}=useTheme(), r=MAP.railway;
+  const { colors: c } = useTheme(), r = MAP.railway;
   const rawTracks = r.tracks || [{ id: 'main-track', points: [{ x: r.start, y: r.y }, { x: r.end, y: r.y }] }];
   const tracks = rawTracks.map(t => ({ id: t.id, points: (t.points || []).map(toPt) }));
   const bridge = MAP.bridges.find(b => b.kind === 'railway_bridge') || { start: 3460, end: 4200, y: 3050, name: 'Ichhamati Railway Bridge', x: 3820 };
 
+  const processedTracks = React.useMemo(() => {
+    return tracks.map(t => {
+      const d = 'M' + t.points.map(p => `${p.x},${p.y}`).join('L');
+      const leftRail = pts(getParallelRailPoints(t.points, -12));
+      const rightRail = pts(getParallelRailPoints(t.points, 12));
+      return { id: t.id, d, leftRail, rightRail };
+    });
+  }, [tracks]);
+
   return <G testID="eastern-railway-static-tracks">
-    <Defs>
-      <ClipPath id="rail-corridor">
-        <Rect x={r.start - 200} y={r.y - 48} width={r.end - r.start + 400} height="96"/>
-      </ClipPath>
-    </Defs>
-
-    {/* Render All Track Beds, Sleepers & Rails */}
-    {tracks.map(track => {
-      const d = 'M' + track.points.map(p => `${p.x},${p.y}`).join('L');
-      return <G key={track.id}>
-        <Path d={d} fill="none" stroke={c.roadEdge} strokeWidth="56" strokeLinecap="round" strokeLinejoin="round" />
-        <Path d={d} fill="none" stroke={c.wood} strokeWidth="50" strokeDasharray="8 10" strokeLinecap="butt" strokeLinejoin="round" />
-      </G>;
-    })}
-
-    {/* Dual Parallel Steel Rail Lines for Horizontal Main Track */}
-    {[-16, 16].map(dy => (
-      <Line key={dy} x1={r.start} y1={r.y + dy} x2={r.end} y2={r.y + dy} stroke={c.surface} strokeWidth="4" />
-    ))}
-
-    {/* Dual Parallel Steel Rail Lines for Bongaon Curve Branch */}
-    {tracks.filter(t => t.id !== 'main-track').map(t => (
-      <G key={`rails-${t.id}`}>
-        <Polyline points={pts(t.points.map(p => ({ x: p.x - 14, y: p.y })))} fill="none" stroke={c.surface} strokeWidth="4" strokeLinecap="round" />
-        <Polyline points={pts(t.points.map(p => ({ x: p.x + 14, y: p.y })))} fill="none" stroke={c.surface} strokeWidth="4" strokeLinecap="round" />
+    {/* Render All Track Beds: Ballast and Wooden Sleepers */}
+    {processedTracks.map(track => (
+      <G key={`bed-${track.id}`}>
+        {/* Dark Gravel Ballast Bed */}
+        <Path d={track.d} fill="none" stroke="#252930" strokeWidth="52" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Inner Ballast Highlight */}
+        <Path d={track.d} fill="none" stroke="#373D47" strokeWidth="44" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Wooden Sleepers / Ties */}
+        <Path d={track.d} fill="none" stroke="#5C3D28" strokeWidth="38" strokeDasharray="5 7" strokeLinecap="butt" strokeLinejoin="round" />
       </G>
     ))}
 
@@ -64,6 +86,53 @@ export const StaticRailwayTracks = React.memo(function StaticRailwayTracks() {
       })}
       <Rect x={bridge.x - 145} y={bridge.y - 94} width="290" height="38" rx="7" fill={c.coral} stroke={c.surface} strokeWidth="2" />
       <T x={bridge.x} y={bridge.y - 70} textAnchor="middle" fontSize="17" fontWeight="bold" fill={c.surface}>ICHHAMATI RAILWAY BRIDGE</T>
+    </G>
+
+    {/* Road-Rail Level Crossing Asphalt Pads at Gates */}
+    {r.gates?.map(gate => (
+      <G key={`crossing-pad-${gate.id}`} testID={`crossing-pad-${gate.id}`}>
+        <Rect x={gate.x - 38} y={gate.y - 19} width="76" height="38" rx="4" fill="#3E2723" opacity="0.8" />
+        <Rect x={gate.x - 34} y={gate.y - 15} width="68" height="30" rx="3" fill="#1E232A" />
+        <Line x1={gate.x - 34} y1={gate.y - 12} x2={gate.x + 34} y2={gate.y - 12} stroke="#FDE047" strokeWidth="1.5" strokeDasharray="5 5" />
+        <Line x1={gate.x - 34} y1={gate.y + 12} x2={gate.x + 34} y2={gate.y + 12} stroke="#FDE047" strokeWidth="1.5" strokeDasharray="5 5" />
+      </G>
+    ))}
+
+    {/* Dual Parallel Steel Rails (Base and Metallic Shine) for All Tracks */}
+    {processedTracks.map(track => (
+      <G key={`rails-${track.id}`}>
+        {/* Steel Rail Base */}
+        <Polyline points={track.leftRail} fill="none" stroke="#475569" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+        <Polyline points={track.rightRail} fill="none" stroke="#475569" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Metallic Shiny Rail Head */}
+        <Polyline points={track.leftRail} fill="none" stroke="#E2E8F0" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        <Polyline points={track.rightRail} fill="none" stroke="#E2E8F0" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      </G>
+    ))}
+
+    {/* Buffer Stops / Terminus Bumpers at Line Termini */}
+    <G testID="railway-buffer-stops">
+      {/* West Mainline Buffer (Habra Outskirts) */}
+      <G transform="translate(1400, 3050)">
+        <Rect x="-8" y="-22" width="16" height="44" rx="3" fill="#D97706" stroke="#1F2937" strokeWidth="2" />
+        <Line x1="-8" y1="-12" x2="8" y2="-12" stroke="#EF4444" strokeWidth="4" />
+        <Line x1="-8" y1="12" x2="8" y2="12" stroke="#EF4444" strokeWidth="4" />
+        <Circle cx="0" cy="0" r="5" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
+      </G>
+      {/* East Mainline Buffer (Petrapole Border Outskirts) */}
+      <G transform="translate(6080, 3050)">
+        <Rect x="-8" y="-22" width="16" height="44" rx="3" fill="#D97706" stroke="#1F2937" strokeWidth="2" />
+        <Line x1="-8" y1="-12" x2="8" y2="-12" stroke="#EF4444" strokeWidth="4" />
+        <Line x1="-8" y1="12" x2="8" y2="12" stroke="#EF4444" strokeWidth="4" />
+        <Circle cx="0" cy="0" r="5" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
+      </G>
+      {/* Bongaon Branch Terminus Buffer (North Terminus) */}
+      <G transform="translate(3880, 380)">
+        <Rect x="-22" y="-8" width="44" height="16" rx="3" fill="#D97706" stroke="#1F2937" strokeWidth="2" />
+        <Line x1="-12" y1="-8" x2="-12" y2="8" stroke="#EF4444" strokeWidth="4" />
+        <Line x1="12" y1="-8" x2="12" y2="8" stroke="#EF4444" strokeWidth="4" />
+        <Circle cx="0" cy="0" r="5" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
+      </G>
     </G>
   </G>;
 });

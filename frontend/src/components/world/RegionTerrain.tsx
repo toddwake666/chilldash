@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Circle, Ellipse, G, Line, Path, Polyline, Rect, Text as T, Image as SvgImage } from 'react-native-svg';
 import { useTheme } from '@/src/theme';
-import { MAP, nearestRoad, riverDistance } from '@/src/game/region';
+import { MAP, nearestRoad, riverDistance, isSponsoredAdBuilding } from '@/src/game/region';
 
 const RC_LOGO = require('@/assets/images/rclogo.webp');
 const AKASH_WHEELS_IMG = require('@/assets/images/akash_wheels.png');
@@ -187,7 +187,6 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     {/* Bibhutibhushan Dense Forest Floor */}
     <Path d="M5100 1620Q5950 1580 5980 2150T5460 2740Q5080 2400 5100 1620Z" fill={c.teal} opacity=".22"/>
     <T x="5540" y="1780" textAnchor="middle" fontSize="26" letterSpacing="4" fill={c.teal}>BIBHUTIBHUSHAN FOREST</T>
-    <StaticRailwayTracks />
     {normalRoadD ? <Path d={normalRoadD} fill="none" stroke={c.pavement} strokeWidth={118} strokeLinejoin="round" strokeLinecap="round"/> : null}
     {bridgeRoadD ? <Path d={bridgeRoadD} fill="none" stroke={c.pavement} strokeWidth={126} strokeLinejoin="round" strokeLinecap="round"/> : null}
     {allRoadD ? <Path d={allRoadD} fill="none" stroke={c.roadEdge} strokeWidth={79} strokeLinejoin="round" strokeLinecap="round"/> : null}
@@ -229,6 +228,8 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         </G>
       );
     })}
+    {/* Static Railway Tracks Layered ABOVE Roads and Bridges */}
+    <StaticRailwayTracks />
     {/* Durga Puja Festive Ground & Fuchka Stall across Pine Trail (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1200 && Math.abs(cy - 560) < 1250)) && (
     <G testID="durga-puja-festival-ground">
@@ -535,7 +536,7 @@ function getTrees() {
   }
   return scenery;
 }
-const BUILDING_NAMES: Record<string, string> = {
+export const BUILDING_NAMES: Record<string, string> = {
   // Sunnyvale
   'sunnyvale-0-0': 'SUNNYVALE MARKET',
   'sunnyvale-0-1': 'SLICE OF HEAVEN',
@@ -734,6 +735,8 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
       const x=b.x+(urban?0:(i%3)*4), y=b.y, w=Math.min(urban?148:174,b.width), h=Math.min(130,b.height);
       if(urban&&i===10)return <G key={b.id}><Rect x={x-8} y={y-8} width={w+16} height={h+22} rx="45" fill={c.treeLight}/><Circle cx={x+w/2} cy={y+h/2} r="28" fill={c.sky} stroke={c.pavement} strokeWidth="10"/><Circle cx={x+6} cy={y+10} r="14" fill={c.tree}/><Circle cx={x+w-8} cy={y+h-5} r="14" fill={c.tree}/><T x={x+w/2} y={y+h+29} textAnchor="middle" fontSize="9" fill={c.teal}>SUNSHINE PARK</T></G>;
 
+      const isSponsored = isSponsoredAdBuilding(b);
+
       // Bongaon Multistory Modern Apartment Styling
       if (b.town === 'bongaon' && i > 0) {
         return <G key={b.id} testID={`apartment-${b.id}`}>
@@ -749,13 +752,14 @@ export const RegionScenery=memo(function RegionScenery({chunkX,chunkY}:{chunkX:n
           <Rect x={x + 18} y={y - 18} width="26" height="10" rx="2" fill={c.teal} stroke={c.wood} strokeWidth="1" />
           <Line x1={x + w - 24} y1={y - 8} x2={x + w - 24} y2={y - 22} stroke={c.onSurface} strokeWidth="2" />
           <Rect x={x + w / 2 - 20} y={y + h - 18} width="40" height="18" rx="2" fill={c.coral} />
+          {isSponsored && <AdScreen x={x + 9} y={y + 20} w={w - 18} h={46} id={b.id} variant={i % 2} />}
           <T x={x + w / 2} y={y + h + 22} textAnchor="middle" fontSize="9" fill={c.onSurface} fontWeight="bold">{name}</T>
         </G>;
       }
 
       // Habra Residential Houses & General Styling
       return <G key={b.id} testID={`building-${b.id}`}>
-        {urban&&i===6?<><Rect x={x+17} y={y+33} width={w-34} height="30" rx="4" fill={c.brand}/><T x={x+w/2} y={y+53} textAnchor="middle" fontSize="13" fontWeight="bold" fill={c.onSurface}>CHILL DASH</T></>:shop&&i%3===1?<AdScreen x={x+9} y={y+23} w={w-18} h={48} id={b.id} variant={i%2}/>:shop?<Rect x={x+20} y={y+20} width="34" height="22" rx="3" fill={c.surface} stroke={c.wood}/>:null}
+        {urban&&i===6?<><Rect x={x+17} y={y+33} width={w-34} height="30" rx="4" fill={c.brand}/><T x={x+w/2} y={y+53} textAnchor="middle" fontSize="13" fontWeight="bold" fill={c.onSurface}>CHILL DASH</T></>:isSponsored?<AdScreen x={x+9} y={y+23} w={w-18} h={48} id={b.id} variant={i%2}/>:shop?<Rect x={x+20} y={y+20} width="34" height="22" rx="3" fill={c.surface} stroke={c.wood}/>:null}
         {b.town === 'habra' && (
           <Rect x={x + w - 26} y={y - 14} width="12" height="20" fill={c.coral} stroke={c.wood} strokeWidth="1" />
         )}

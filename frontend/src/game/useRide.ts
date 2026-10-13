@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import { useGame } from './GameContext';
 import { BIKES, blockedByGate, canRide, distance, MAP, nearestRoad, railwayState } from './world';
 import { createTraffic, stepTraffic, cleanTraffic, Vehicle } from './traffic';
+import { createPedestrians, stepPedestrians, Pedestrian } from './pedestrians';
 import { recordFrameForWatchdog, registerPerformanceCleanupListener } from './performanceEngine';
 import type { Point } from './api';
 import type { Segment } from './region';
@@ -17,6 +18,7 @@ export function useRide() {
   const blockedGate = useRef<string | null>(null);
   const clearanceUntil = useRef(0);
   const traffic = useRef<Vehicle[]>(createTraffic());
+  const pedestrians = useRef<Pedestrian[]>(createPedestrians());
   const lastSeg = useRef<Segment | null>(null);
 
   // High-frequency live frame ref for buttery-smooth 60 FPS world rendering
@@ -25,6 +27,7 @@ export function useRide() {
     camera: { ...g.position.current },
     heading: 0,
     vehicles: traffic.current,
+    pedestrians: pedestrians.current,
     rail: railwayState(),
   });
 
@@ -70,6 +73,7 @@ export function useRide() {
     speed: 0,
     pushing: false,
     vehicles: traffic.current,
+    pedestrians: pedestrians.current,
     rail: railwayState(),
     railNearby: false,
     railBlocked: false,
@@ -177,6 +181,7 @@ export function useRide() {
       elapsed.current += dt;
       game.pending.current.elapsed += dt;
       traffic.current = stepTraffic(traffic.current, dt, currentPos);
+      pedestrians.current = stepPedestrians(pedestrians.current, dt, game.weather.current === 'rainy');
       const rail = railwayState(undefined, currentPos.x, currentPos.y);
       const currentRail = rail;
 
@@ -436,6 +441,7 @@ export function useRide() {
       liveFrame.current.camera.y = camY;
       liveFrame.current.heading = heading;
       liveFrame.current.vehicles = traffic.current;
+      liveFrame.current.pedestrians = pedestrians.current;
       liveFrame.current.rail = currentRail;
 
       // Notify high-frequency subscribers (CityWorld) capped to ~60 FPS to eliminate 120Hz React re-render thrashing
@@ -482,6 +488,7 @@ export function useRide() {
           speed: kmh,
           pushing,
           vehicles: traffic.current,
+          pedestrians: pedestrians.current,
           rail: currentRail,
           railNearby,
           railBlocked: railBlocked || !!blockedGate.current,

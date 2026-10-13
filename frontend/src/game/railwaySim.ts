@@ -140,7 +140,7 @@ const PATH_MAIN_WEST = buildPathDef([
 
 // Route 3: Bongaon Branch Southbound (Bongaon Junction -> Petrapole)
 const PATH_BONGAON_SOUTH = buildPathDef([
-  { x: 3880, y: 450 },
+  { x: 3880, y: 380 },
   { x: 3880, y: 950 },
   { x: 3880, y: 1450 },
   { x: 3960, y: 1950 },
@@ -157,7 +157,7 @@ const PATH_BONGAON_NORTH = buildPathDef([
   { x: 3960, y: 1950 },
   { x: 3880, y: 1450 },
   { x: 3880, y: 950 },
-  { x: 3880, y: 450 }
+  { x: 3880, y: 380 }
 ]);
 
 const TRAIN_CONFIGS: TrainConfig[] = [

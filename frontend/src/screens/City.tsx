@@ -5,7 +5,8 @@ import { makeStyles, useTheme } from '@/src/theme';
 import { useGame } from '@/src/game/GameContext';
 import { useRide } from '@/src/game/useRide';
 import { countdown, distance, gameTime, getRoute, nearestRoad, onFootpath, region } from '@/src/game/world';
-import { MAP } from '@/src/game/region';
+import { MAP, isSponsoredAdBuilding } from '@/src/game/region';
+import { BUILDING_NAMES } from '@/src/components/world/RegionTerrain';
 import type { Point, Service } from '@/src/game/api';
 import { CityWorld, MiniMap } from '@/src/components/CityWorld';
 import { RideControls } from '@/src/components/RideControls';
@@ -88,7 +89,7 @@ export function City() {
   const remaining = remainingRef.current;
 
   const billboardLandmarks = useMemo(() => MAP?.landmarks?.filter(l => l.kind === 'cinema' || l.kind === 'mall') || [], []);
-  const billboardBlocks = useMemo(() => (MAP?.blocks || []).filter(b => (b.town === 'sunnyvale' || b.index % 4 === 0) && b.index % 3 === 1), []);
+  const billboardBlocks = useMemo(() => (MAP?.blocks || []).filter(isSponsoredAdBuilding), []);
 
   const orderRoadPt = useMemo(() => (orderTarget ? nearestRoad(orderTarget).point : null), [orderTarget?.x, orderTarget?.y]);
   const targetRoadPt = useMemo(() => (target ? nearestRoad(target).point : null), [target?.x, target?.y]);
@@ -143,7 +144,7 @@ export function City() {
     const billboardName = nearLandmarkBillboard
       ? nearLandmarkBillboard.name
       : nearBlockBillboard
-      ? 'City Merchant Sponsor'
+      ? (BUILDING_NAMES[nearBlockBillboard.id] ? `${BUILDING_NAMES[nearBlockBillboard.id]} Sponsor` : 'City Merchant Sponsor')
       : nearForestHighwayCand
       ? 'Forest Highway Sponsor'
       : 'City Sponsor';

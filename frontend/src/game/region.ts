@@ -225,3 +225,12 @@ export function blockedByGate(a: Point, b: Point, closedOrAt?: boolean | number)
   const at = typeof closedOrAt === 'number' ? closedOrAt : Date.now() / 1000 + timeOffset;
   return blockedByGateAt(a, b, at);
 }
+
+export function isSponsoredAdBuilding(b: { town: string; index: number }): boolean {
+  if (b.town === 'sunnyvale') return b.index === 1 || b.index === 4 || b.index === 7;
+  if (b.town === 'pinecrest') return b.index === 1 || b.index === 4;
+  if (b.town === 'bongaon') return b.index === 1 || b.index === 4 || b.index === 16;
+  if (b.town === 'habra') return b.index === 1 || b.index === 4 || b.index === 16;
+  if (b.town === 'petrapole') return b.index === 2 || b.index === 4;
+  return false;
+}

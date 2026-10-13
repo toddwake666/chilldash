@@ -11,6 +11,8 @@ import { points, RegionGround, RegionScenery, OverheadBridges } from './world/Re
 import { LandmarkArt } from './world/LandmarkArt';
 import { RailwayArt } from './world/RailwayArt';
 import { TrafficArt } from './world/TrafficArt';
+import { PedestrianArt } from './world/PedestrianArt';
+import type { Pedestrian } from '@/src/game/pedestrians';
 
 const RainOverlay = React.memo(function RainOverlay({ width, height, color }: { width: number; height: number; color: string }) {
   const drops = React.useMemo(() => {
@@ -33,6 +35,7 @@ export const CityWorld = React.memo(function CityWorld({
   bike,
   gear,
   vehicles,
+  pedestrians,
   rail,
   liveFrame,
   subscribeFrame,
@@ -50,12 +53,14 @@ export const CityWorld = React.memo(function CityWorld({
   bike: string;
   gear: string;
   vehicles: Vehicle[];
+  pedestrians?: Pedestrian[];
   rail: ReturnType<typeof railwayState>;
   liveFrame?: React.MutableRefObject<{
     player: Point;
     camera: Point;
     heading: number;
     vehicles: Vehicle[];
+    pedestrians?: Pedestrian[];
     rail: ReturnType<typeof railwayState>;
   }>;
   subscribeFrame?: (fn: () => void) => () => void;
@@ -73,6 +78,7 @@ export const CityWorld = React.memo(function CityWorld({
   const activeCam = activeFrame ? activeFrame.camera : (camera || player);
   const activeHeading = activeFrame ? activeFrame.heading : heading;
   const activeVehicles = activeFrame ? activeFrame.vehicles : vehicles;
+  const activePedestrians = activeFrame ? (activeFrame.pedestrians || []) : (pedestrians || []);
   const activeRail = activeFrame ? activeFrame.rail : rail;
 
   const { colors: c } = useTheme();
@@ -172,6 +178,7 @@ export const CityWorld = React.memo(function CityWorld({
             </>
           )}
           <RailwayArt state={activeRail} cx={cx} cy={cy} dynamicOnly />
+          <PedestrianArt pedestrians={activePedestrians} cx={cx} cy={cy} isRaining={weather === 'rainy'} />
           <TrafficArt vehicles={activeVehicles} cx={cx} cy={cy} />
           {target && (
             <G testID="delivery-destination-marker">
