@@ -196,7 +196,9 @@ export function CareView() {
   const repairCost = Math.max(2, Math.ceil((100 - bike.condition) * .25));
   const canPartial = !isBicycle && fullRefuelCost > 6 && (bike.fuel || 0) < 95;
 
-  return <View testID="phone-care-screen">
+    const isRefuelAlert = !isBicycle && (bike?.fuel ?? 100) < 10;
+
+    return <View testID="phone-care-screen">
     <Label style={s.kicker}>LOOK AFTER YOURSELF AND YOUR RIDE</Label>
     <Label display style={s.title}>A little roadside care.</Label>
     <Vitals />
@@ -208,20 +210,35 @@ export function CareView() {
       <View style={s.grow}><Label style={s.placeName}>{stop.name}</Label><Label style={s.tiny}>{stop.kind === 'garage' ? 'Free rest · health & energy' : stop.kind === 'fuel' ? `Fuel from 6 coins (Full: ${fullTankCost}c) · air pump 4c` : 'Repairs from 2 coins'}</Label></View>
       <Icon name="navigate-outline" color={c.teal} size={17} />
     </Pressable>)}
-    <Label display style={s.section}>Can’t make the trip?</Label>
-    <Label style={s.note}>Roadside help comes to your current location. Service price + 10 coins callout fee.</Label>
-    {canPartial && (
-      <Button
-        testID="roadside-partial-resource-button"
-        title="ROADSIDE SPLASH (6c FUEL) · 16 COINS"
-        onPress={() => g.roadside('refuel', 6)}
-        disabled={bike[resource] >= 99.9 || g.busy || p.balance < 16}
-        secondary
-        style={{ marginBottom: 8 }}
-      />
-    )}
-    <Button testID="roadside-resource-button" title={`${action === 'pump' ? 'AIR PUMP' : 'FULL REFUEL'} · ${fullRefuelCost + 10} COINS`} onPress={() => g.roadside(action)} disabled={bike[resource] >= 99.9 || g.busy || p.balance < (fullRefuelCost + 10)} style={{ marginBottom: 12 }} />
-    <Button testID="roadside-repair-button" title={`ROADSIDE REPAIR · ${repairCost + 10}`} onPress={() => g.roadside('repair')} disabled={bike.condition >= 99.9 || g.busy || p.balance < (repairCost + 10)} secondary />
+    <View testID="roadside-refuel-section" style={[s.roadsideWrap, isRefuelAlert && s.roadsideAlert]}>
+      <View style={s.roadsideHeaderRow}>
+        <Label display style={[s.section, { marginTop: 0 }]}>Can’t make the trip?</Label>
+        {isRefuelAlert && (
+          <View style={s.refuelBadge}>
+            <Label style={s.refuelBadgeText}>⚡ LOW FUEL</Label>
+          </View>
+        )}
+      </View>
+      <Label style={s.note}>Roadside help comes to your current location. Service price + 10 coins callout fee.</Label>
+      {canPartial && (
+        <Button
+          testID="roadside-partial-resource-button"
+          title="ROADSIDE SPLASH (6c FUEL) · 16 COINS"
+          onPress={() => g.roadside('refuel', 6)}
+          disabled={bike[resource] >= 99.9 || g.busy || p.balance < 16}
+          secondary
+          style={{ marginBottom: 8 }}
+        />
+      )}
+      <Button testID="roadside-resource-button" title={`${action === 'pump' ? 'AIR PUMP' : 'FULL REFUEL'} · ${fullRefuelCost + 10} COINS`} onPress={() => g.roadside(action)} disabled={bike[resource] >= 99.9 || g.busy || p.balance < (fullRefuelCost + 10)} style={{ marginBottom: 12 }} />
+      <Button testID="roadside-repair-button" title={`ROADSIDE REPAIR · ${repairCost + 10}`} onPress={() => g.roadside('repair')} disabled={bike.condition >= 99.9 || g.busy || p.balance < (repairCost + 10)} secondary />
+    </View>
   </View>;
 }
-const useStyles = makeStyles(c => ({ kicker: { fontSize: 8, letterSpacing: 1.15, color: c.teal, fontWeight: '800', marginBottom: 8 }, title: { fontSize: 26, letterSpacing: -.4, marginBottom: 13 }, note: { fontSize: 11, lineHeight: 18, color: c.muted, marginVertical: 12 }, balance: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, card: { borderRadius: 18, padding: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.surfaceSecondary, marginBottom: 16 }, row: { flexDirection: 'row', alignItems: 'center', gap: 9 }, grow: { flex: 1 }, art: { width: 48, height: 56, borderRadius: 15, backgroundColor: c.butter, alignItems: 'center', justifyContent: 'center' }, cardTitle: { fontSize: 18 }, tiny: { fontSize: 9, color: c.muted, lineHeight: 15, marginTop: 4 }, actions: { flexDirection: 'row', gap: 8, marginTop: 14 }, half: { flex: 1, paddingHorizontal: 6, minHeight: 48 }, kitArt: { backgroundColor: c.mint, width: 128, height: 128, borderRadius: 64, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginVertical: 8 }, price: { fontSize: 11, lineHeight: 18, color: c.teal, fontWeight: '800', marginBottom: 12 }, tip: { flexDirection: 'row', gap: 9, alignItems: 'center', padding: 13, backgroundColor: c.mint, borderRadius: 14 }, tipText: { flex: 1, fontSize: 10, lineHeight: 17, color: c.teal }, progressTrack: { height: 6, borderRadius: 4, backgroundColor: c.surfaceTertiary, overflow: 'hidden', marginTop: 16 }, progressFill: { height: '100%', backgroundColor: c.teal }, rewardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 14 }, section: { fontSize: 21, marginTop: 24, marginBottom: 12 }, place: { flexDirection: 'row', gap: 9, alignItems: 'center', minHeight: 64, borderBottomWidth: 1, borderColor: c.border, paddingVertical: 10 }, placeName: { fontSize: 12, fontWeight: '800' }, serviceIcon: { width: 35, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: c.mint } }));
+const useStyles = makeStyles(c => ({ kicker: { fontSize: 8, letterSpacing: 1.15, color: c.teal, fontWeight: '800', marginBottom: 8 }, title: { fontSize: 26, letterSpacing: -.4, marginBottom: 13 }, note: { fontSize: 11, lineHeight: 18, color: c.muted, marginVertical: 12 }, balance: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, card: { borderRadius: 18, padding: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.surfaceSecondary, marginBottom: 16 }, row: { flexDirection: 'row', alignItems: 'center', gap: 9 }, grow: { flex: 1 }, art: { width: 48, height: 56, borderRadius: 15, backgroundColor: c.butter, alignItems: 'center', justifyContent: 'center' }, cardTitle: { fontSize: 18 }, tiny: { fontSize: 9, color: c.muted, lineHeight: 15, marginTop: 4 }, actions: { flexDirection: 'row', gap: 8, marginTop: 14 }, half: { flex: 1, paddingHorizontal: 6, minHeight: 48 }, kitArt: { backgroundColor: c.mint, width: 128, height: 128, borderRadius: 64, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginVertical: 8 }, price: { fontSize: 11, lineHeight: 18, color: c.teal, fontWeight: '800', marginBottom: 12 }, tip: { flexDirection: 'row', gap: 9, alignItems: 'center', padding: 13, backgroundColor: c.mint, borderRadius: 14 }, tipText: { flex: 1, fontSize: 10, lineHeight: 17, color: c.teal }, progressTrack: { height: 6, borderRadius: 4, backgroundColor: c.surfaceTertiary, overflow: 'hidden', marginTop: 16 }, progressFill: { height: '100%', backgroundColor: c.teal }, rewardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 14 }, section: { fontSize: 21, marginTop: 24, marginBottom: 12 }, place: { flexDirection: 'row', gap: 9, alignItems: 'center', minHeight: 64, borderBottomWidth: 1, borderColor: c.border, paddingVertical: 10 }, placeName: { fontSize: 12, fontWeight: '800' }, serviceIcon: { width: 35, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: c.mint },
+  roadsideWrap: { marginTop: 16, padding: 12, borderRadius: 18, backgroundColor: c.surfaceSecondary, borderWidth: 1, borderColor: c.border },
+  roadsideAlert: { borderColor: '#10B981', borderWidth: 2, backgroundColor: c.mint },
+  roadsideHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+  refuelBadge: { backgroundColor: '#10B981', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  refuelBadgeText: { fontSize: 9, fontWeight: '900', color: '#000000' },
+}));

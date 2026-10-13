@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGame } from '@/src/game/GameContext';
@@ -18,10 +18,13 @@ import { useSoundFX, playTapSound } from '@/src/game/sounds';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { PhoneAppsGrid } from './phone/PhoneAppsGrid';
 import { PhoneChatApp } from './phone/PhoneChatApp';
+import { RefuelBanner } from './RefuelBanner';
 
 
 function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean }) {
   const g = useGame(); const s = useStyles(); const { colors: c } = useTheme();
+  const p = g.profile!, bike = p?.bikes?.[p?.bike], isBicycle = p?.bike === 'bicycle';
+  const showRefuelBanner = !isBicycle && (bike?.fuel ?? 100) < 10;
 
   const activeOrder = g.order && g.order.status !== 'offered' ? g.order : null;
 
@@ -67,6 +70,9 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
   }));
 
   if (!hasOrders) return <View testID="phone-no-orders" style={s.empty}>
+    {showRefuelBanner && (
+      <RefuelBanner onPress={g.openRoadsideRefuel} testID="phone-refuel-banner" style={{ marginBottom: 16 }} />
+    )}
     <View style={s.emptyArt}><BikeArt width={175} height={112} /></View>
     <Label display style={s.emptyTitle}>{g.profile!.online ? 'A quiet corner for now.' : 'A little break is good.'}</Label>
     <Label testID="dispatch-message" style={s.emptyText}>
@@ -121,6 +127,9 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
 
     return (
       <View testID="phone-order-detail">
+        {showRefuelBanner && (
+          <RefuelBanner onPress={g.openRoadsideRefuel} testID="phone-refuel-banner" style={{ marginBottom: 16 }} />
+        )}
         <View style={s.orderHeading}>
           <Label style={s.eyebrow}>
             {o.is_fuchka_order ? 'FESTIVE ORDER' : collecting ? 'LET’S PICK IT UP' : 'ON THE HOME STRETCH'}
@@ -188,6 +197,9 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
   // Offered orders list (shown together on the same tab, no tab buttons)
   return (
     <View testID="phone-order-detail" style={{ gap: 24 }}>
+      {showRefuelBanner && (
+        <RefuelBanner onPress={g.openRoadsideRefuel} testID="phone-refuel-banner" />
+      )}
       {isNewLifeParthoPrompt && (
         <View style={s.newLifePromptBanner} testID="new-life-order-banner">
           <Icon name="chatbubble-ellipses" size={16} color="#FFFFFF" />
@@ -532,6 +544,17 @@ export function Phone() {
     transform: [{ scale: backPulse.value }],
   }));
 
+  const scrollRef = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (g.phoneTab === 'care' && g.phoneScrollTarget === 'roadside-refuel') {
+      const timer = setTimeout(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+        g.setPhoneScrollTarget(null);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [g.phoneTab, g.phoneScrollTarget]);
+
   return <View testID="phone-modal" style={[s.phone, { width: Math.min(width - 32, 420), height: Math.min(height - inset.top - inset.bottom - 48, 740) }]}>
     <View style={s.phoneTop}><Label style={s.phoneTime}>{gameTime(g.clock.current)}</Label><View style={s.speaker} /><View style={s.signal}><Icon name="cellular" size={13} /><Icon name="battery-full" size={17} /></View></View>
     <View style={s.phoneHeader}>
@@ -639,7 +662,7 @@ export function Phone() {
             </Pressable>
           ))}
         </ScrollView>
-        <ScrollView key={g.phoneTab} testID="phone-content-scroll" style={s.phoneScroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={s.phoneContent}>
+        <ScrollView key={g.phoneTab} ref={scrollRef} testID="phone-content-scroll" style={s.phoneScroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={s.phoneContent}>
           {g.phoneTab === 'orders' ? <OrderView isNewLifeParthoPrompt={isNewLifeParthoPrompt} /> : g.phoneTab === 'wallet' ? <WalletView /> : g.phoneTab === 'food' ? <FoodView /> : g.phoneTab === 'kit' ? <KitView /> : g.phoneTab === 'care' ? <CareView /> : g.phoneTab === 'milestones' ? <MilestonesView /> : g.phoneTab === 'profile' ? <PhoneProfile /> : <RegionalGPS />}
         </ScrollView>
       </>

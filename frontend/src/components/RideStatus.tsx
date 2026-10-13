@@ -3,12 +3,14 @@ import { Pressable, View } from 'react-native';
 import { useGame } from '@/src/game/GameContext';
 import { makeStyles, useTheme } from '@/src/theme';
 import { Icon, Label } from './ui';
+import { RefuelBanner } from './RefuelBanner';
 
 /** Only the two essentials live on the road; the complete breakdown lives in Care. */
 export function RideStatus() {
   const g = useGame(), s = useStyles(), { colors: c } = useTheme();
   const p = g.profile!, bike = p.bikes[p.bike], bicycle = p.bike === 'bicycle';
   const resource = bicycle ? bike.air : bike.fuel;
+  const showRefuelBanner = !bicycle && (bike?.fuel ?? 100) < 10;
   const rainRisk = p.weather === 'rainy' && p.gear !== 'raincoat';
   const healthAttention = p.health < 25 || p.hunger < 15 || p.energy < 20 || rainRisk;
   const bikeAttention = resource < 20 || bike.condition < 25;
@@ -29,15 +31,21 @@ export function RideStatus() {
       <Label testID="hud-health-value" style={[s.value, p.health < 25 && s.low]}>{Math.ceil(p.health)}<Label style={s.percent}>%</Label></Label>
       {healthAttention && <View testID="hud-health-warning" style={s.warningDot} />}
     </Pressable>
-    <Pressable testID="hud-resource-button" accessibilityRole="button" accessibilityLabel={`${bicycle ? 'Tire air' : 'Fuel'} ${Math.ceil(resource)} percent. Open detailed stats.`} onPress={() => g.openPhone('care')} style={({ pressed }) => [s.indicator, pressed && s.pressed]}>
-      <Icon name={bicycle ? 'speedometer-outline' : 'gas-station-outline'} bike={!bicycle} size={17} color={resource < 20 ? c.error : c.teal} />
-      <Label testID="hud-resource-value" style={[s.value, resource < 20 && s.low]}>{Math.ceil(resource)}<Label style={s.percent}>%</Label></Label>
-      {bikeAttention && <View testID="hud-resource-warning" style={s.warningDot} />}
-    </Pressable>
+    <View style={s.resourceCol}>
+      <Pressable testID="hud-resource-button" accessibilityRole="button" accessibilityLabel={`${bicycle ? 'Tire air' : 'Fuel'} ${Math.ceil(resource)} percent. Open detailed stats.`} onPress={() => g.openPhone('care')} style={({ pressed }) => [s.indicator, pressed && s.pressed]}>
+        <Icon name={bicycle ? 'speedometer-outline' : 'gas-station-outline'} bike={!bicycle} size={17} color={resource < 20 ? c.error : c.teal} />
+        <Label testID="hud-resource-value" style={[s.value, resource < 20 && s.low]}>{Math.ceil(resource)}<Label style={s.percent}>%</Label></Label>
+        {bikeAttention && <View testID="hud-resource-warning" style={s.warningDot} />}
+      </Pressable>
+      {showRefuelBanner && (
+        <RefuelBanner compact onPress={g.openRoadsideRefuel} testID="hud-refuel-banner" />
+      )}
+    </View>
   </View>;
 }
 const useStyles = makeStyles(c => ({
-  row: { flexDirection: 'row', gap: 6 },
+  row: { flexDirection: 'row', gap: 6, alignItems: 'flex-start' },
+  resourceCol: { alignItems: 'center' },
   indicator: { height: 44, minWidth: 65, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 8, borderRadius: 14, backgroundColor: c.glass, borderWidth: 1.5, borderColor: c.surface },
   value: { fontSize: 12, fontWeight: '800', fontVariant: ['tabular-nums'] },
   percent: { fontSize: 8, color: c.muted }, low: { color: c.error },

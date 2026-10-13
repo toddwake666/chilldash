@@ -201,7 +201,8 @@ export function createPedestrians(): Pedestrian[] {
       const t = (i + 0.35 + ((id * 37) % 25) / 100) / c.count;
       const dir: 1 | -1 = i % 2 === 0 ? 1 : -1;
       const sidewalkSide: 1 | -1 = (i + id) % 2 === 0 ? 1 : -1;
-      const offsetDist = 40 + ((id * 11) % 6); // 40..45 px
+      // Offset strictly centered on the footpath (asphalt radius 37, pavement radius 59, midpoint = 48)
+      const offsetDist = 48;
       const speed = 24 + ((id * 7) % 12);      // 24..35 px/s
 
       // Normal to road (towards sidewalk)

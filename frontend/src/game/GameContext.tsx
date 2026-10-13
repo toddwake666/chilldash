@@ -42,6 +42,7 @@ function useGameState() {
   const [screen, setScreen] = useState<'garage' | 'city'>('garage');
   const [order, setOrder] = useState<Order | null>(null), [dispatch, setDispatch] = useState<Dispatch | null>(null);
   const [phone, setPhone] = useState(false), [phoneTab, setPhoneTabState] = useState<PhoneTab>('orders');
+  const [phoneScrollTarget, setPhoneScrollTarget] = useState<string | null>(null);
   const setPhoneTab = (tab: PhoneTab) => {
     trackTabSwitch(tab);
     setPhoneTabState(tab);
@@ -511,6 +512,10 @@ function useGameState() {
     }
     setPhone(true);
   };
+  const openRoadsideRefuel = () => {
+    setPhoneScrollTarget('roadside-refuel');
+    openPhone('care', 'rider');
+  };
   const borrowParthoExpress = () => act(async () => {
     trackTutorialEvent('borrow_express');
     const p = await api<Profile>('/tutorial/partho_borrow_express', 'POST');
@@ -598,7 +603,7 @@ function useGameState() {
     position.current = p.position; clock.current = p.minutes; weather.current = p.weather; pending.current = { elapsed: 0, moving: 0, distance: 0 };
     changeOrder(null); setScreen('garage'); setPhone(false); setPanel(null); notify(choice === 'pay' ? 'Back at the garage. Your progress is safe; the delivery was cancelled.' : 'A fresh start. Take care of yourself out there.');
   });
-  return { profile, catalog, loading, error, initialize, busy, screen, order, dispatch, phone, setPhone, phoneTab, setPhoneTab, phoneApp, setPhoneApp, borrowParthoExpress, returnParthoExpress, setParthoChatStage, panel, setPanel, toast, notify, reward, dismissReward: () => setReward(null), position, clock, weather, weatherAuto, pending, now, toggleOnline, equip, purchase, accept, decline, interact, headOut, returnGarage, openPhone, refreshOrder, save, destination, setDestination, navigateTo, quickTravel, serviceStop, openService, useService, collision, recover, houseAd, showHouseAd, closeHouseAd,
+  return { profile, catalog, loading, error, initialize, busy, screen, order, dispatch, phone, setPhone, phoneTab, setPhoneTab, phoneApp, setPhoneApp, phoneScrollTarget, setPhoneScrollTarget, openRoadsideRefuel, borrowParthoExpress, returnParthoExpress, setParthoChatStage, panel, setPanel, toast, notify, reward, dismissReward: () => setReward(null), position, clock, weather, weatherAuto, pending, now, toggleOnline, equip, purchase, accept, decline, interact, headOut, returnGarage, openPhone, refreshOrder, save, destination, setDestination, navigateTo, quickTravel, serviceStop, openService, useService, collision, recover, houseAd, showHouseAd, closeHouseAd,
     proStatus,
     refreshProStatus,
     restorePurchases: async () => {

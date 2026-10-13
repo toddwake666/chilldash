@@ -79,61 +79,6 @@ const FESTIVE_BULBS = [
 
 const FESTIVE_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#EC4899', '#8B5CF6', '#FBBF24'];
 
-interface TownLightStrip {
-  town: string;
-  cx: number;
-  cy: number;
-  poles: { x: number; y: number }[];
-  cableD: string;
-  bulbs: { x: number; y: number; col: string }[];
-}
-
-export const TOWN_FESTIVE_ROADS: TownLightStrip[] = [
-  { town: 'sunnyvale', startX: 160, endX: 880, curbY: 632, cx: 520, cy: 680 },
-  { town: 'pinecrest', startX: 2320, endX: 3040, curbY: 632, cx: 2680, cy: 680 },
-  { town: 'bongaon', startX: 4420, endX: 5140, curbY: 632, cx: 4780, cy: 680 },
-  { town: 'habra', startX: 2320, endX: 3040, curbY: 2672, cx: 2680, cy: 2720 },
-  { town: 'petrapole', startX: 4520, endX: 5240, curbY: 3052, cx: 4880, cy: 3100 },
-].map((cfg, townIdx) => {
-  const poles: { x: number; y: number }[] = [];
-  for (let x = cfg.startX; x <= cfg.endX; x += 48) {
-    poles.push({ x, y: cfg.curbY });
-  }
-
-  let cableD = '';
-  const bulbs: { x: number; y: number; col: string }[] = [];
-  let bulbIdx = townIdx * 3;
-
-  for (let i = 0; i < poles.length - 1; i++) {
-    const p1 = poles[i];
-    const p2 = poles[i + 1];
-    const midX = (p1.x + p2.x) / 2;
-    const midY = (p1.y - 30) + 8;
-    cableD += `${i === 0 ? 'M' : ' M'}${p1.x} ${p1.y - 30}Q${midX} ${midY} ${p2.x} ${p2.y - 30}`;
-
-    const ts = [0.25, 0.5, 0.75];
-    for (const t of ts) {
-      const bx = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * midX + t * t * p2.x;
-      const by = (1 - t) * (1 - t) * (p1.y - 30) + 2 * (1 - t) * t * midY + t * t * (p2.y - 30);
-      bulbs.push({
-        x: Math.round(bx * 10) / 10,
-        y: Math.round(by * 10) / 10,
-        col: FESTIVE_COLORS[bulbIdx % FESTIVE_COLORS.length],
-      });
-      bulbIdx++;
-    }
-  }
-
-  return {
-    town: cfg.town,
-    cx: cfg.cx,
-    cy: cfg.cy,
-    poles,
-    cableD,
-    bulbs,
-  };
-});
-
 export const points = (ps: any[]) => (ps || []).map(p => {
   if (Array.isArray(p)) return `${p[0] || 0},${p[1] || 0}`;
   return `${p?.x ?? 0},${p?.y ?? 0}`;
@@ -332,56 +277,6 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     </G>
     )}
 
-    {/* Festive LED Light Strips along Horizontal Roads in All 5 Towns */}
-    {TOWN_FESTIVE_ROADS.map(strip => {
-      const isNear = cx === undefined || cy === undefined || (Math.abs(cx - strip.cx) < 1300 && Math.abs(cy - strip.cy) < 1300);
-      if (!isNear) return null;
-      return (
-        <G key={`town-leds-${strip.town}`} testID={`town-led-strip-${strip.town}`}>
-          {/* Roadside Bamboo Poles */}
-          <G testID={`town-poles-${strip.town}`}>
-            {strip.poles.map((p, idx) => (
-              <G key={`pole-${strip.town}-${idx}`}>
-                <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3} ry={1.5} fill={c.shadow} />
-                <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#92400E" strokeWidth={3} strokeLinecap="round" />
-                <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#D97706" strokeWidth={1.3} />
-                <Circle cx={p.x} cy={p.y - 30} r={2.5} fill="#B45309" stroke="#78350F" strokeWidth={0.8} />
-              </G>
-            ))}
-          </G>
-
-          {/* Hanging Wire / Cable between Poles */}
-          <Path
-            d={strip.cableD}
-            fill="none"
-            stroke="#1F2937"
-            strokeWidth={1.5}
-          />
-
-          {/* Hanging Festive LED Bulbs (Night: Glowing / Day: Off) */}
-          <G testID={`town-bulbs-${strip.town}`}>
-            {strip.bulbs.map((b, idx) => (
-              <G key={`bulb-${strip.town}-${idx}`}>
-                {isNight && (
-                  <>
-                    <Circle cx={b.x} cy={b.y} r={7} fill={b.col} opacity={0.35} />
-                    <Circle cx={b.x} cy={b.y} r={4} fill={b.col} opacity={0.85} />
-                  </>
-                )}
-                <Circle
-                  cx={b.x}
-                  cy={b.y}
-                  r={isNight ? 2 : 1.6}
-                  fill={isNight ? '#FFFFFF' : b.col}
-                  opacity={isNight ? 1 : 0.45}
-                />
-              </G>
-            ))}
-          </G>
-        </G>
-      );
-    })}
-
     {/* Akash Wheels Bike Showroom at Whispering Pines (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1580) < 1150 && Math.abs(cy - 880) < 1250)) && (
     <G testID="akash-wheels-showroom">
@@ -426,22 +321,22 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     <T x="1590" y="1150" textAnchor="middle" fontSize="26" letterSpacing="5" fill={c.teal}>WHISPERING PINES</T>
 
     {/* Whispering Pines Roadside Billboard: VIPER RR (Frustum Culled) */}
-    {(cx === undefined || cy === undefined || (Math.abs(cx - 1632) < 1150 && Math.abs(cy - 1050) < 1250)) && (
+    {(cx === undefined || cy === undefined || (Math.abs(cx - 1625) < 1150 && Math.abs(cy - 1050) < 1250)) && (
     <G testID="whispering-pines-viper-billboard">
       {/* Support Pillars */}
-      <Line x1="1540" y1="1060" x2="1540" y2="1140" stroke={c.onSurface} strokeWidth="8" />
-      <Line x1="1720" y1="1060" x2="1720" y2="1140" stroke={c.onSurface} strokeWidth="8" />
-      <Line x1="1536" y1="1100" x2="1724" y2="1100" stroke={c.onSurface} strokeWidth="5" />
+      <Line x1="1520" y1="1060" x2="1520" y2="1140" stroke={c.onSurface} strokeWidth="8" />
+      <Line x1="1730" y1="1060" x2="1730" y2="1140" stroke={c.onSurface} strokeWidth="8" />
+      <Line x1="1516" y1="1100" x2="1734" y2="1100" stroke={c.onSurface} strokeWidth="5" />
       {/* Drop Shadow */}
-      <Rect x="1514" y="1004" width="232" height="96" rx="12" fill={c.shadow} />
+      <Rect x="1489" y="1004" width="272" height="96" rx="12" fill={c.shadow} />
       {/* Billboard Outer Frame */}
-      <Rect x="1510" y="1000" width="240" height="96" rx="12" fill="#0F172A" stroke="#F59E0B" strokeWidth="3.5" />
+      <Rect x="1485" y="1000" width="280" height="96" rx="12" fill="#0F172A" stroke="#F59E0B" strokeWidth="3.5" />
       {/* Display Screen Canvas */}
-      <Rect x="1515" y="1005" width="230" height="86" rx="8" fill="#18181B" />
+      <Rect x="1490" y="1005" width="270" height="86" rx="8" fill="#18181B" />
       {/* Ambient Red Glow Line */}
-      <Line x1="1515" y1="1088" x2="1745" y2="1088" stroke="#DC2626" strokeWidth="3" />
+      <Line x1="1490" y1="1088" x2="1760" y2="1088" stroke="#DC2626" strokeWidth="3" />
       {/* Scaled Viper RR Superbike Graphic */}
-      <G transform="translate(1522, 1016) scale(0.68)">
+      <G transform="translate(1496, 1018) scale(0.62)">
         <Circle cx="33" cy="63" r="16" fill="#334155" stroke="#F59E0B" strokeWidth="2.5" />
         <Circle cx="119" cy="63" r="16" fill="#334155" stroke="#F59E0B" strokeWidth="2.5" />
         <Path d="M33 63 L65 50" fill="none" stroke="#F8FAFC" strokeWidth="3.5" />
@@ -450,14 +345,14 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         <Path d="M70 55 L92 55 L108 44 L78 44 Z" fill="#000000" />
         <Path d="M108 18 L120 9 L126 18 Z" fill="#FEE2E2" opacity={0.9} stroke="#F8FAFC" strokeWidth="1.5" />
       </G>
-      {/* Typography */}
-      <T x="1632" y="1032" fontSize="12" fontWeight="bold" fill="#F59E0B" letterSpacing="1.5">VIPER RR · 1000CC</T>
-      <T x="1632" y="1052" fontSize="11" fontWeight="bold" fill="#F8FAFC" letterSpacing="0.8">ONLY FOR THE DREAMERS</T>
-      <T x="1632" y="1068" fontSize="8" fontWeight="bold" fill="#94A3B8" letterSpacing="0.8">POWER · PRECISION · SOUL</T>
+      {/* Typography - Safely Centered Inside Display Canvas */}
+      <T x="1672" y="1032" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#F59E0B" letterSpacing="0.8">VIPER RR · 1000CC</T>
+      <T x="1672" y="1052" textAnchor="middle" fontSize="9.5" fontWeight="bold" fill="#F8FAFC" letterSpacing="0.4">ONLY FOR THE DREAMERS</T>
+      <T x="1672" y="1068" textAnchor="middle" fontSize="7.5" fontWeight="bold" fill="#94A3B8" letterSpacing="0.4">POWER · PRECISION · SOUL</T>
       {/* Spotlights */}
-      <Circle cx="1555" cy="998" r="4" fill="#FDE047" />
-      <Circle cx="1630" cy="998" r="4" fill="#FDE047" />
-      <Circle cx="1705" cy="998" r="4" fill="#FDE047" />
+      <Circle cx="1530" cy="998" r="4" fill="#FDE047" />
+      <Circle cx="1625" cy="998" r="4" fill="#FDE047" />
+      <Circle cx="1720" cy="998" r="4" fill="#FDE047" />
     </G>
     )}
 
@@ -523,6 +418,7 @@ function getTrees() {
     if(p.x>5600&&p.x<5860&&p.y>2120&&p.y<2290)continue;
     if(p.x>1730&&p.x<1990&&p.y>710&&p.y<880)continue;
     if(p.x>1440&&p.x<1770&&p.y>760&&p.y<1000)continue;
+    if(p.x>1460&&p.x<1790&&p.y>980&&p.y<1160)continue; // Clear Whispering Pines Viper RR billboard
     if(p.x>1540&&p.x<1890&&p.y>380&&p.y<720)continue; // Clear Durga Puja festival ground & fuchka stall
     if(p.x>1410&&p.x<1510&&p.y>500&&p.y<650)continue; // Clear Archway 1
     if(p.x>1820&&p.x<1980&&p.y>780&&p.y<940)continue; // Clear Archway 4
