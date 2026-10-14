@@ -19,6 +19,18 @@ export interface Pedestrian {
   accessory: 'none' | 'bag' | 'phone';
   walkPhase: number;
   isLoop?: boolean;
+  // Precomputed fast-path linear geometry for zero-allocation 60 FPS updates
+  pA?: Point;
+  pB?: Point;
+  dx?: number;
+  dy?: number;
+  segLen?: number;
+  invSegLen?: number;
+  fwdHeading?: number;
+  bwdHeading?: number;
+  turnDist?: number;
+  invTurnDist?: number;
+  cycle?: number;
   // Optional legacy fields for backward compatibility
   dir?: 1 | -1;
   p1?: Point;
@@ -52,7 +64,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 472, y: 1175 },
       { x: 472, y: 1025 },
     ],
-    count: 3,
+    count: 2,
     isLoop: true,
   },
   {
@@ -62,7 +74,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 210, y: 1305 },
       { x: 840, y: 1305 },
     ],
-    count: 3,
+    count: 2,
     isLoop: false,
   },
   {
@@ -72,7 +84,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 200, y: 334.5 },
       { x: 320, y: 334.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -82,7 +94,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 480, y: 334.5 },
       { x: 600, y: 334.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -92,7 +104,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 480, y: 614.5 },
       { x: 600, y: 614.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -102,7 +114,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 480, y: 894.5 },
       { x: 600, y: 894.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
 
@@ -114,7 +126,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 1680, y: 903 },
       { x: 1940, y: 903 },
     ],
-    count: 3,
+    count: 2,
     isLoop: false,
   },
   {
@@ -124,7 +136,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2360, y: 334.5 },
       { x: 2480, y: 334.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -134,7 +146,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2640, y: 334.5 },
       { x: 2760, y: 334.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -144,7 +156,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2640, y: 614.5 },
       { x: 2760, y: 614.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -154,7 +166,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2640, y: 894.5 },
       { x: 2760, y: 894.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -164,7 +176,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2640, y: 1174.5 },
       { x: 2760, y: 1174.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
 
@@ -176,7 +188,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 4080, y: 614.5 },
       { x: 4224, y: 614.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -186,7 +198,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 4404, y: 614.5 },
       { x: 4548, y: 614.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -196,7 +208,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 5404, y: 954.5 },
       { x: 5548, y: 954.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -206,7 +218,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 5404, y: 1294.5 },
       { x: 5548, y: 1294.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -216,7 +228,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 4728, y: 1634.5 },
       { x: 4872, y: 1634.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
 
@@ -228,7 +240,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2364, y: 2654.5 },
       { x: 2484, y: 2654.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -238,7 +250,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2648, y: 2654.5 },
       { x: 2768, y: 2654.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -248,7 +260,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2368, y: 3314.5 },
       { x: 2488, y: 3314.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -258,7 +270,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2640, y: 3314.5 },
       { x: 2760, y: 3314.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -268,7 +280,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 2920, y: 3654.5 },
       { x: 3060, y: 3654.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
 
@@ -280,7 +292,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 5208, y: 3034.5 },
       { x: 5352, y: 3034.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -290,7 +302,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 5540, y: 3034.5 },
       { x: 5684, y: 3034.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -300,7 +312,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 4864, y: 4114.5 },
       { x: 5008, y: 4114.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
   {
@@ -310,7 +322,7 @@ const FOOTPATH_ROUTES: FootpathRouteDef[] = [
       { x: 5208, y: 4114.5 },
       { x: 5352, y: 4114.5 },
     ],
-    count: 2,
+    count: 1,
     isLoop: false,
   },
 ];
@@ -368,8 +380,47 @@ function lerpAngle(a: number, b: number, t: number): number {
 }
 
 function updatePedestrian(p: Pedestrian, stepDt: number): void {
-  p.walkPhase = (p.walkPhase + p.speed * stepDt * 0.28) % (Math.PI * 2);
+  // Case 1: Precomputed Two-point Sidewalk Promenade Patrol (A <-> B)
+  // Blazing-fast zero-trigonometric linear update: zero Math.hypot, zero Math.atan2, zero divisions
+  if (p.pA && p.pB && p.segLen && p.cycle) {
+    p.travel = (p.travel + p.speed * stepDt) % p.cycle;
+    const d = ((p.travel % p.cycle) + p.cycle) % p.cycle;
+    const segLen = p.segLen;
+    const turnDist = p.turnDist!;
+    const invSegLen = p.invSegLen!;
+    const invTurnDist = p.invTurnDist!;
 
+    if (d < segLen) {
+      // Walking A -> B
+      const t = d * invSegLen;
+      p.x = p.pA.x + p.dx! * t;
+      p.y = p.pA.y + p.dy! * t;
+      p.heading = p.fwdHeading!;
+    } else if (d < segLen + turnDist) {
+      // Turning around on the spot at B
+      p.x = p.pB.x;
+      p.y = p.pB.y;
+      const t = (d - segLen) * invTurnDist;
+      const ease = t * t * (3 - 2 * t);
+      p.heading = lerpAngle(p.fwdHeading!, p.bwdHeading!, ease);
+    } else if (d < 2 * segLen + turnDist) {
+      // Walking B -> A
+      const t = (d - (segLen + turnDist)) * invSegLen;
+      p.x = p.pB.x - p.dx! * t;
+      p.y = p.pB.y - p.dy! * t;
+      p.heading = p.bwdHeading!;
+    } else {
+      // Turning around on the spot at A
+      p.x = p.pA.x;
+      p.y = p.pA.y;
+      const t = (d - (2 * segLen + turnDist)) * invTurnDist;
+      const ease = t * t * (3 - 2 * t);
+      p.heading = lerpAngle(p.bwdHeading!, p.fwdHeading!, ease);
+    }
+    return;
+  }
+
+  // Case 2: Multi-point Circuit Loops (e.g. Sunshine Park perimeter)
   const path = p.path;
   const numPts = path.length;
   if (numPts < 2) {
@@ -379,54 +430,6 @@ function updatePedestrian(p: Pedestrian, stepDt: number): void {
     return;
   }
 
-  // Case 1: Two-point Sidewalk Promenade Patrol (A <-> B)
-  // Walks smoothly along the sidewalk; smoothly rotates on the spot at ends without sliding or snapping
-  if (!p.isLoop && numPts === 2) {
-    const pA = path[0];
-    const pB = path[1];
-    const segLen = Math.hypot(pB.x - pA.x, pB.y - pA.y);
-    const turnDist = Math.max(10, p.speed * 0.45);
-    const cycle = 2 * (segLen + turnDist);
-
-    p.travel = (p.travel + p.speed * stepDt) % cycle;
-    const d = ((p.travel % cycle) + cycle) % cycle;
-
-    const dirX = (pB.x - pA.x) / (segLen || 1);
-    const dirY = (pB.y - pA.y) / (segLen || 1);
-    const fwdHeading = (Math.atan2(dirX, -dirY) * 180) / Math.PI;
-    const bwdHeading = (fwdHeading + 180) % 360;
-
-    if (d < segLen) {
-      // Walking A -> B
-      const t = d / segLen;
-      p.x = pA.x + (pB.x - pA.x) * t;
-      p.y = pA.y + (pB.y - pA.y) * t;
-      p.heading = fwdHeading;
-    } else if (d < segLen + turnDist) {
-      // Turning around at B
-      p.x = pB.x;
-      p.y = pB.y;
-      const t = (d - segLen) / turnDist;
-      const ease = t * t * (3 - 2 * t);
-      p.heading = lerpAngle(fwdHeading, bwdHeading, ease);
-    } else if (d < 2 * segLen + turnDist) {
-      // Walking B -> A
-      const t = (d - (segLen + turnDist)) / segLen;
-      p.x = pB.x + (pA.x - pB.x) * t;
-      p.y = pB.y + (pA.y - pB.y) * t;
-      p.heading = bwdHeading;
-    } else {
-      // Turning around at A
-      p.x = pA.x;
-      p.y = pA.y;
-      const t = (d - (2 * segLen + turnDist)) / turnDist;
-      const ease = t * t * (3 - 2 * t);
-      p.heading = lerpAngle(bwdHeading, fwdHeading, ease);
-    }
-    return;
-  }
-
-  // Case 2: Multi-point Circuit Loops (e.g. Sunshine Park perimeter)
   const totalLen = p.length || 1;
   p.travel = (p.travel + p.speed * stepDt) % totalLen;
   const dist = ((p.travel % totalLen) + totalLen) % totalLen;
@@ -490,14 +493,22 @@ export function createPedestrians(): Pedestrian[] {
 
     const pA = path[0];
     const pB = path[1];
-    const segLen = isPatrol ? Math.hypot(pB.x - pA.x, pB.y - pA.y) : len;
-    const turnDist = isPatrol ? 14 : 0;
-    const cycle = isPatrol ? 2 * (segLen + turnDist) : len;
+    const dx = isPatrol ? pB.x - pA.x : 0;
+    const dy = isPatrol ? pB.y - pA.y : 0;
+    const segLen = isPatrol ? Math.hypot(dx, dy) : len;
+    const invSegLen = 1 / (segLen || 1);
+    const dirX = dx * invSegLen;
+    const dirY = dy * invSegLen;
+    const fwdHeading = isPatrol ? Math.round((Math.atan2(dirX, -dirY) * 180) / Math.PI) : 0;
+    const bwdHeading = (fwdHeading + 180) % 360;
 
     for (let j = 0; j < route.count; j++) {
-      const initialTravel = (j / route.count) * cycle;
       // Relaxed, natural walking speed: 22..30 px/s
       const speed = 23 + ((id * 7) % 8);
+      const turnDist = isPatrol ? Math.max(10, speed * 0.45) : 0;
+      const invTurnDist = turnDist > 0 ? 1 / turnDist : 0.1;
+      const cycle = isPatrol ? 2 * (segLen + turnDist) : len;
+      const initialTravel = (j / route.count) * cycle;
 
       const accessory: 'none' | 'bag' | 'phone' =
         id % 5 === 0 ? 'bag' : id % 7 === 0 ? 'phone' : 'none';
@@ -506,9 +517,9 @@ export function createPedestrians(): Pedestrian[] {
         id,
         town: route.town,
         roadName: route.roadName,
-        x: 0,
-        y: 0,
-        heading: 0,
+        x: pA.x,
+        y: pA.y,
+        heading: fwdHeading,
         speed,
         path,
         length: cycle,
@@ -521,6 +532,18 @@ export function createPedestrians(): Pedestrian[] {
         hairColor: HAIR_COLORS[id % HAIR_COLORS.length],
         accessory,
         walkPhase: (id * 1.3) % (Math.PI * 2),
+        // Precomputed fast-path linear geometry
+        pA,
+        pB,
+        dx,
+        dy,
+        segLen,
+        invSegLen,
+        fwdHeading,
+        bwdHeading,
+        turnDist,
+        invTurnDist,
+        cycle,
       };
 
       // Position initially at initialTravel
@@ -537,13 +560,23 @@ export function createPedestrians(): Pedestrian[] {
 export function stepPedestrians(
   pedestrians: Pedestrian[],
   dt: number,
-  _isRaining = false
+  playerPos?: Point
 ): Pedestrian[] {
   const stepDt = Math.min(dt, 0.1);
+  const px = playerPos?.x;
+  const py = playerPos?.y;
 
-  // In-place zero-allocation update for buttery-smooth 60 FPS performance
+  // In-place zero-allocation update with spatial culling for maximum 60 FPS headroom
   for (let i = 0; i < pedestrians.length; i++) {
-    updatePedestrian(pedestrians[i], stepDt);
+    const p = pedestrians[i];
+    // If player position is provided and pedestrian is in another town (> 1400px away), advance cycle without full coordinate calculation
+    if (px !== undefined && py !== undefined && (Math.abs(p.x - px) > 1400 || Math.abs(p.y - py) > 1400)) {
+      if (p.cycle) {
+        p.travel = (p.travel + p.speed * stepDt) % p.cycle;
+      }
+      continue;
+    }
+    updatePedestrian(p, stepDt);
   }
 
   return pedestrians;

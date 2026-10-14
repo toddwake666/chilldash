@@ -49,6 +49,7 @@ export function useRide() {
   }, []);
 
   const lastHudUpdate = useRef(0);
+  const frameCount = useRef(0);
   const lastRenderNotify = useRef(0);
   const lastReported = useRef({
     moving: false,
@@ -181,7 +182,7 @@ export function useRide() {
       elapsed.current += dt;
       game.pending.current.elapsed += dt;
       traffic.current = stepTraffic(traffic.current, dt, currentPos);
-      pedestrians.current = stepPedestrians(pedestrians.current, dt, game.weather.current === 'rainy');
+      pedestrians.current = stepPedestrians(pedestrians.current, dt, currentPos);
       const rail = railwayState(undefined, currentPos.x, currentPos.y);
       const currentRail = rail;
 
@@ -444,9 +445,10 @@ export function useRide() {
       liveFrame.current.pedestrians = pedestrians.current;
       liveFrame.current.rail = currentRail;
 
-      // Notify high-frequency subscribers (CityWorld) capped to ~60 FPS on high-refresh (90/120Hz) displays without dropping 60Hz frames
-      if (now - lastRenderNotify.current >= 12.0) {
-        lastRenderNotify.current = now;
+      // Cadence-perfect frame pacing: On ultra-high-refresh (120Hz+), cadence to ~60 FPS; on 60-90Hz, deliver every VSYNC
+      frameCount.current++;
+      const isUltraHighRefresh = rawElapsed < 0.010;
+      if (!isUltraHighRefresh || (frameCount.current % 2 === 0)) {
         frameListeners.current.forEach(listener => listener());
       }
 
