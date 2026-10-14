@@ -444,8 +444,8 @@ export function useRide() {
       liveFrame.current.pedestrians = pedestrians.current;
       liveFrame.current.rail = currentRail;
 
-      // Notify high-frequency subscribers (CityWorld) capped to ~60 FPS to eliminate 120Hz React re-render thrashing
-      if (now - lastRenderNotify.current >= 15.8) {
+      // Notify high-frequency subscribers (CityWorld) capped to ~60 FPS on high-refresh (90/120Hz) displays without dropping 60Hz frames
+      if (now - lastRenderNotify.current >= 12.0) {
         lastRenderNotify.current = now;
         frameListeners.current.forEach(listener => listener());
       }
