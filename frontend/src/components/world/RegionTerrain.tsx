@@ -77,6 +77,66 @@ const FESTIVE_BULBS = [
   { x: 1967.5, y: 753.1, col: "#EF4444" },
 ];
 
+const PANDAL_LIGHTS = [
+  // Apex & Spire
+  { x: 1720, y: 422, col: '#FBBF24' },
+  { x: 1710, y: 435, col: '#EF4444' },
+  { x: 1730, y: 435, col: '#10B981' },
+  { x: 1700, y: 450, col: '#06B6D4' },
+  { x: 1720, y: 450, col: '#FFFFFF' },
+  { x: 1740, y: 450, col: '#EC4899' },
+
+  // Upper roof contour swags
+  { x: 1675, y: 470, col: '#F59E0B' },
+  { x: 1695, y: 468, col: '#8B5CF6' },
+  { x: 1720, y: 465, col: '#FBBF24' },
+  { x: 1745, y: 468, col: '#10B981' },
+  { x: 1765, y: 470, col: '#EF4444' },
+
+  // Mid decorative cornice & festoon
+  { x: 1640, y: 495, col: '#06B6D4' },
+  { x: 1665, y: 492, col: '#EC4899' },
+  { x: 1690, y: 490, col: '#FBBF24' },
+  { x: 1720, y: 488, col: '#FFFFFF' },
+  { x: 1750, y: 490, col: '#F59E0B' },
+  { x: 1775, y: 492, col: '#10B981' },
+  { x: 1800, y: 495, col: '#8B5CF6' },
+
+  // Main Eaves Swag line
+  { x: 1605, y: 522, col: '#EF4444' },
+  { x: 1625, y: 520, col: '#FBBF24' },
+  { x: 1648, y: 518, col: '#10B981' },
+  { x: 1672, y: 516, col: '#06B6D4' },
+  { x: 1696, y: 515, col: '#EC4899' },
+  { x: 1720, y: 514, col: '#FFFFFF' },
+  { x: 1744, y: 515, col: '#F59E0B' },
+  { x: 1768, y: 516, col: '#8B5CF6' },
+  { x: 1792, y: 518, col: '#10B981' },
+  { x: 1815, y: 520, col: '#FBBF24' },
+  { x: 1835, y: 522, col: '#EF4444' },
+
+  // Left Pillar vertical strip
+  { x: 1608, y: 542, col: '#FBBF24' },
+  { x: 1608, y: 562, col: '#06B6D4' },
+  { x: 1608, y: 582, col: '#EC4899' },
+  { x: 1608, y: 602, col: '#10B981' },
+
+  // Right Pillar vertical strip
+  { x: 1832, y: 542, col: '#FBBF24' },
+  { x: 1832, y: 562, col: '#06B6D4' },
+  { x: 1832, y: 582, col: '#EC4899' },
+  { x: 1832, y: 602, col: '#10B981' },
+
+  // Entrance Arch festoon
+  { x: 1665, y: 598, col: '#EF4444' },
+  { x: 1678, y: 578, col: '#FBBF24' },
+  { x: 1695, y: 562, col: '#10B981' },
+  { x: 1720, y: 556, col: '#FFFFFF' },
+  { x: 1745, y: 562, col: '#06B6D4' },
+  { x: 1762, y: 578, col: '#EC4899' },
+  { x: 1775, y: 598, col: '#F59E0B' },
+];
+
 const FESTIVE_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#EC4899', '#8B5CF6', '#FBBF24'];
 
 export const points = (ps: any[]) => (ps || []).map(p => {
@@ -178,6 +238,23 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     {/* Durga Puja Festive Ground & Fuchka Stall across Pine Trail (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1200 && Math.abs(cy - 560) < 1250)) && (
     <G testID="durga-puja-festival-ground">
+      {/* Nighttime Radiant Floodlight & Golden Illumination across Durga Pandal Grounds */}
+      {isNight && (
+        <G testID="pandal-night-illumination">
+          {/* Broad golden festival ambient ground aura */}
+          <Ellipse cx={1720} cy={575} rx={165} ry={75} fill="#F59E0B" opacity={0.34} />
+          {/* Intense warm amber mid illumination */}
+          <Ellipse cx={1720} cy={580} rx={110} ry={48} fill="#FDE047" opacity={0.46} />
+          {/* Brilliant white-gold central entrance hotspot */}
+          <Ellipse cx={1720} cy={585} rx={60} ry={26} fill="#FEF08A" opacity={0.62} />
+          <Ellipse cx={1720} cy={590} rx={28} ry={14} fill="#FFFFFF" opacity={0.75} />
+          {/* Pandal Apex Halo */}
+          <Circle cx={1720} cy={422} r={36} fill="#FBBF24" opacity={0.40} />
+          <Circle cx={1720} cy={422} r={20} fill="#FEF08A" opacity={0.60} />
+          <Circle cx={1720} cy={422} r={8} fill="#FFFFFF" opacity={0.85} />
+        </G>
+      )}
+
       {/* Paved approach apron connecting from Pine Trail footpath */}
       <Rect x="1650" y="630" width="40" height="32" rx="4" fill={c.pavement} />
 
@@ -190,7 +267,47 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         height="186"
         preserveAspectRatio="xMidYMid meet"
       />
-      <T x="1720" y="620" textAnchor="middle" fontSize={11} fontWeight="bold" fill={c.teal}>
+
+      {/* Chandannagar-Style Radiant Festive LED Rice Lights along Pandal Facade */}
+      <G testID="pandal-facade-fairy-lights">
+        {PANDAL_LIGHTS.map((b, idx) => (
+          <G key={`pandal-bulb-${idx}`}>
+            {isNight && (
+              <>
+                {/* Large vibrant outer bloom halo */}
+                <Circle cx={b.x} cy={b.y} r={14} fill={b.col} opacity={0.38} />
+                {/* Mid intense corona */}
+                <Circle cx={b.x} cy={b.y} r={7.5} fill={b.col} opacity={0.75} />
+                {/* Inner saturated radiant diode */}
+                <Circle cx={b.x} cy={b.y} r={4.2} fill={b.col} opacity={0.96} />
+                {/* Sparkle glint on alternating bulbs */}
+                {idx % 3 === 0 && (
+                  <>
+                    <Line x1={b.x - 6} y1={b.y} x2={b.x + 6} y2={b.y} stroke="#FFFFFF" strokeWidth={1.2} opacity={0.9} />
+                    <Line x1={b.x} y1={b.y - 6} x2={b.x} y2={b.y + 6} stroke="#FFFFFF" strokeWidth={1.2} opacity={0.9} />
+                  </>
+                )}
+              </>
+            )}
+            {/* Hot white central diode core */}
+            <Circle
+              cx={b.x}
+              cy={b.y}
+              r={isNight ? 2.2 : 1.6}
+              fill={isNight ? '#FFFFFF' : b.col}
+              opacity={isNight ? 1 : 0.55}
+            />
+          </G>
+        ))}
+      </G>
+
+      {/* Illuminated Pandal Title with Golden Glow Aura at Night */}
+      {isNight && (
+        <T x={1720} y={620} textAnchor="middle" fontSize={11} fontWeight="bold" fill="#FEF08A" opacity={0.85} stroke="#F59E0B" strokeWidth={3}>
+          DURGA PUJA PANDAL
+        </T>
+      )}
+      <T x={1720} y={620} textAnchor="middle" fontSize={11} fontWeight="bold" fill={isNight ? '#FFFFFF' : c.teal}>
         DURGA PUJA PANDAL
       </T>
 
@@ -204,7 +321,14 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         height="102"
         preserveAspectRatio="xMidYMid meet"
       />
-      <T x="1918" y="776" textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
+      {isNight && (
+        <>
+          <Circle cx={1918} cy={710} r={20} fill="#F59E0B" opacity={0.35} />
+          <Circle cx={1918} cy={710} r={10} fill="#FEF08A" opacity={0.75} />
+          <Circle cx={1918} cy={710} r={3.5} fill="#FFFFFF" opacity={1.0} />
+        </>
+      )}
+      <T x="1918" y={776} textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
         FUCHKA STALL
       </T>
 
@@ -220,6 +344,23 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         ))}
       </G>
 
+      {/* Nighttime Ground Glow Spill along Pine Trail Roadside */}
+      {isNight && (
+        <G testID="festive-roadside-light-spill">
+          {FESTIVE_POLES.map((p, idx) => (
+            <Ellipse
+              key={`pole-glow-${idx}`}
+              cx={p.x}
+              cy={p.y}
+              rx={32}
+              ry={16}
+              fill={idx % 2 === 0 ? '#F59E0B' : '#EC4899'}
+              opacity={0.22}
+            />
+          ))}
+        </G>
+      )}
+
       {/* Hanging Wire / Cable between the Bamboo Poles */}
       <Path
         d={FESTIVE_CABLE_PATH_D}
@@ -228,22 +369,34 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         strokeWidth={1.5}
       />
 
-      {/* Hanging Festive LED Strips strung along the wire */}
+      {/* Hanging Festive LED Strips strung along the wire - Dazzling Multi-Tiered Bloom */}
       <G testID="hanging-festive-led-strips">
         {FESTIVE_BULBS.map((b, idx) => (
           <G key={`festive-bulb-${idx}`}>
             {isNight && (
               <>
-                <Circle cx={b.x} cy={b.y} r={7} fill={b.col} opacity={0.35} />
-                <Circle cx={b.x} cy={b.y} r={4} fill={b.col} opacity={0.85} />
+                {/* Wide outer radiant bloom aura */}
+                <Circle cx={b.x} cy={b.y} r={17} fill={b.col} opacity={0.36} />
+                {/* Mid intense colorful corona */}
+                <Circle cx={b.x} cy={b.y} r={9.5} fill={b.col} opacity={0.70} />
+                {/* Inner saturated brilliant glow */}
+                <Circle cx={b.x} cy={b.y} r={5.2} fill={b.col} opacity={0.95} />
+                {/* Dazzling 4-point sparkle cross flare on alternating bulbs */}
+                {idx % 2 === 0 && (
+                  <>
+                    <Line x1={b.x - 7.5} y1={b.y} x2={b.x + 7.5} y2={b.y} stroke="#FFFFFF" strokeWidth={1.3} opacity={0.9} />
+                    <Line x1={b.x} y1={b.y - 7.5} x2={b.x} y2={b.y + 7.5} stroke="#FFFFFF" strokeWidth={1.3} opacity={0.9} />
+                  </>
+                )}
               </>
             )}
+            {/* Hot white central diode core */}
             <Circle
               cx={b.x}
               cy={b.y}
-              r={isNight ? 2 : 1.6}
+              r={isNight ? 2.6 : 1.8}
               fill={isNight ? '#FFFFFF' : b.col}
-              opacity={isNight ? 1 : 0.45}
+              opacity={isNight ? 1 : 0.55}
             />
           </G>
         ))}
@@ -261,14 +414,14 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
             {isNight && (
               <G testID={`archway-light-pool-${idx}`}>
                 {/* Wide golden ambient light spread across the road */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={64} ry={36} fill="#F59E0B" opacity={0.24} />
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={74} ry={42} fill="#F59E0B" opacity={0.36} />
                 {/* Bright yellow mid-zone illuminating road asphalt */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={42} ry={24} fill="#FDE047" opacity={0.34} />
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={50} ry={28} fill="#FDE047" opacity={0.50} />
                 {/* Core bright hotspot directly below lamp */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={22} ry={13} fill="#FEF08A" opacity={0.48} />
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={26} ry={15} fill="#FEF08A" opacity={0.68} />
                 {/* Festive neon tint spill on roadside pavement */}
-                <Ellipse cx={a.x + 36} cy={a.lightY} rx={32} ry={18} fill="#EC4899" opacity={0.16} />
-                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={26} ry={16} fill="#06B6D4" opacity={0.18} />
+                <Ellipse cx={a.x + 36} cy={a.lightY} rx={36} ry={20} fill="#EC4899" opacity={0.24} />
+                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={30} ry={18} fill="#06B6D4" opacity={0.26} />
               </G>
             )}
           </G>
@@ -777,9 +930,9 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
                 {/* Radiant Neon Aura Halos around structure when lit at night */}
                 {isNight && (
                   <G testID={`archway-aura-${idx}`}>
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.65} ry={a.h * 0.55} fill="#F59E0B" opacity={0.2} />
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.5} ry={a.h * 0.45} fill="#EC4899" opacity={0.16} />
-                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#06B6D4" opacity={0.18} />
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.72} ry={a.h * 0.6} fill="#F59E0B" opacity={0.32} />
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.52} ry={a.h * 0.46} fill="#EC4899" opacity={0.28} />
+                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#06B6D4" opacity={0.30} />
                   </G>
                 )}
 
@@ -798,20 +951,23 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
                   <G testID={`archway-beam-${idx}`}>
                     {/* Downward light cone shining from hanging diya lamp to ground */}
                     <Path
-                      d={`M${diyaX - 4} ${diyaY + 6} L${a.lightX - 28} ${a.lightY - 6} L${a.lightX + 28} ${a.lightY - 6} L${diyaX + 4} ${diyaY + 6} Z`}
+                      d={`M${diyaX - 5} ${diyaY + 6} L${a.lightX - 34} ${a.lightY - 6} L${a.lightX + 34} ${a.lightY - 6} L${diyaX + 5} ${diyaY + 6} Z`}
                       fill="#FEF08A"
-                      opacity={0.22}
+                      opacity={0.32}
                     />
                     <Path
-                      d={`M${diyaX - 2} ${diyaY + 6} L${a.lightX - 14} ${a.lightY - 6} L${a.lightX + 14} ${a.lightY - 6} L${diyaX + 2} ${diyaY + 6} Z`}
+                      d={`M${diyaX - 2.5} ${diyaY + 6} L${a.lightX - 18} ${a.lightY - 6} L${a.lightX + 18} ${a.lightY - 6} L${diyaX + 2.5} ${diyaY + 6} Z`}
                       fill="#FFFFFF"
-                      opacity={0.3}
+                      opacity={0.44}
                     />
                     {/* Hanging Diya Lamp Multi-tier Glow */}
-                    <Circle cx={diyaX} cy={diyaY} r={22} fill="#F59E0B" opacity={0.3} />
-                    <Circle cx={diyaX} cy={diyaY} r={14} fill="#FDE047" opacity={0.55} />
-                    <Circle cx={diyaX} cy={diyaY} r={7} fill="#FEF08A" opacity={0.8} />
-                    <Circle cx={diyaX} cy={diyaY} r={3} fill="#FFFFFF" opacity={1.0} />
+                    <Circle cx={diyaX} cy={diyaY} r={28} fill="#F59E0B" opacity={0.42} />
+                    <Circle cx={diyaX} cy={diyaY} r={17} fill="#FDE047" opacity={0.72} />
+                    <Circle cx={diyaX} cy={diyaY} r={9} fill="#FEF08A" opacity={0.92} />
+                    <Circle cx={diyaX} cy={diyaY} r={4.5} fill="#FFFFFF" opacity={1.0} />
+                    {/* Sparkle flare on diya core */}
+                    <Line x1={diyaX - 10} y1={diyaY} x2={diyaX + 10} y2={diyaY} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
+                    <Line x1={diyaX} y1={diyaY - 10} x2={diyaX} y2={diyaY + 10} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
                   </G>
                 )}
               </G>
