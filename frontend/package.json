@@ -8,6 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "web:build": "expo export -p web",
+    "web:serve": "node ./scripts/serve_web.js",
     "lint": "expo lint"
   },
   "dependencies": {
