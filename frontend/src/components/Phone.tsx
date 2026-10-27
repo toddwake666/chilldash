@@ -35,8 +35,10 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
   const offeredList = React.useMemo(() => {
     const unique = Array.from(new Map(rawOffered.map(item => [item.id, item])).values());
     return unique.sort((a, b) => {
-      if (a.is_fuchka_order && !b.is_fuchka_order) return -1;
-      if (!a.is_fuchka_order && b.is_fuchka_order) return 1;
+      const aSpecial = a.is_halloween_order || a.is_fuchka_order;
+      const bSpecial = b.is_halloween_order || b.is_fuchka_order;
+      if (aSpecial && !bSpecial) return -1;
+      if (!aSpecial && bSpecial) return 1;
       return 0;
     });
   }, [rawOffered]);
@@ -132,15 +134,15 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
         )}
         <View style={s.orderHeading}>
           <Label style={s.eyebrow}>
-            {o.is_fuchka_order ? 'FESTIVE ORDER' : collecting ? 'LET’S PICK IT UP' : 'ON THE HOME STRETCH'}
+            {(o.is_halloween_order || o.is_fuchka_order) ? '🎃 SPOOKY ORDER' : collecting ? 'LET’S PICK IT UP' : 'ON THE HOME STRETCH'}
           </Label>
           <Label display style={s.orderTitle}>
-            {collecting ? (o.is_fuchka_order ? 'Head to Fuchka Stall.' : 'Good things are waiting.') : 'One happy customer.'}
+            {collecting ? ((o.is_halloween_order || o.is_fuchka_order) ? 'Head to Cider & Candy Shack.' : 'Good things are waiting.') : 'One happy customer.'}
           </Label>
         </View>
         <View style={s.orderReward}>
           <View style={s.deliveryIcon}>
-            <Icon name={o.is_fuchka_order ? "restaurant-outline" : "bag-handle-outline"} size={28} />
+            <Icon name={(o.is_halloween_order || o.is_fuchka_order) ? "flame-outline" : "bag-handle-outline"} size={28} />
           </View>
           <View style={s.orderRewardCopy}>
             <Label style={s.orderItem}>{o.item}</Label>
@@ -151,7 +153,7 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
         <View style={s.routeCard}>
           <View style={s.stop}>
             <View style={[s.stopIcon, collecting && s.activeStop]}>
-              <Icon name={o.status === 'picked_up' ? 'checkmark' : o.is_fuchka_order ? 'restaurant-outline' : 'storefront-outline'} size={20} color={c.teal} />
+              <Icon name={o.status === 'picked_up' ? 'checkmark' : (o.is_halloween_order || o.is_fuchka_order) ? 'flame-outline' : 'storefront-outline'} size={20} color={c.teal} />
             </View>
             <View style={s.stopCopy}>
               <Label style={s.stopLabel}>{o.status === 'picked_up' ? 'COLLECTED' : 'PICK UP FROM'}</Label>
@@ -210,15 +212,15 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
         <View key={ord.id} style={idx > 0 ? { borderTopWidth: 1, borderColor: c.border, paddingTop: 20 } : undefined}>
           <View style={s.orderHeading}>
             <Label style={s.eyebrow}>
-              {ord.is_fuchka_order ? 'FESTIVE ORDER' : 'FRESH OFF THE PRESS'}
+              {(ord.is_halloween_order || ord.is_fuchka_order) ? '🎃 SPOOKY ORDER' : 'FRESH OFF THE PRESS'}
             </Label>
             <Label display style={s.orderTitle}>
-              {ord.is_fuchka_order ? `Fuchka Delivery (${ord.fuchka_count} pcs)` : 'A good day to deliver.'}
+              {(ord.is_halloween_order || ord.is_fuchka_order) ? `Halloween Treats (${ord.halloween_treat_count || ord.fuchka_count} pcs)` : 'A good day to deliver.'}
             </Label>
           </View>
           <View style={s.orderReward}>
             <View style={s.deliveryIcon}>
-              <Icon name={ord.is_fuchka_order ? "restaurant-outline" : "bag-handle-outline"} size={28} />
+              <Icon name={(ord.is_halloween_order || ord.is_fuchka_order) ? "flame-outline" : "bag-handle-outline"} size={28} />
             </View>
             <View style={s.orderRewardCopy}>
               <Label style={s.orderItem}>{ord.item}</Label>
@@ -229,7 +231,7 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
           <View style={s.routeCard}>
             <View style={s.stop}>
               <View style={s.stopIcon}>
-                <Icon name={ord.is_fuchka_order ? 'restaurant-outline' : 'storefront-outline'} size={20} color={c.teal} />
+                <Icon name={(ord.is_halloween_order || ord.is_fuchka_order) ? 'flame-outline' : 'storefront-outline'} size={20} color={c.teal} />
               </View>
               <View style={s.stopCopy}>
                 <Label style={s.stopLabel}>PICK UP FROM</Label>
@@ -260,7 +262,7 @@ function OrderView({ isNewLifeParthoPrompt }: { isNewLifeParthoPrompt?: boolean 
           </View>
           <Button
             testID={idx === 0 ? "accept-order-button" : `accept-order-${ord.id}-button`}
-            title={ord.is_fuchka_order ? "ACCEPT FUCHKA ORDER" : "ACCEPT DELIVERY"}
+            title={(ord.is_halloween_order || ord.is_fuchka_order) ? "ACCEPT HALLOWEEN ORDER" : "ACCEPT DELIVERY"}
             onPress={() => g.accept(ord)}
             disabled={isNewLifeParthoPrompt || g.busy}
             loading={g.busy}

@@ -31,6 +31,9 @@ export type Profile = {
   fuchkas_delivered?: number;
   fuchka_milestone_100_claimed?: boolean;
   fuchka_milestone_200_claimed?: boolean;
+  halloween_treats_delivered?: number;
+  halloween_milestone_100_claimed?: boolean;
+  halloween_milestone_200_claimed?: boolean;
 };
 export type Place = Point & { name: string; address: string };
 export type Order = {
@@ -39,6 +42,8 @@ export type Order = {
   pickup_deadline: number | null; pickup_seconds: number;
   is_fuchka_order?: boolean;
   fuchka_count?: number;
+  is_halloween_order?: boolean;
+  halloween_treat_count?: number;
 };
 export type Dispatch = { orders: Order[]; message: string; region: string; retry_after: number };
 export type Service = Point & { id: string; name: string; kind: 'garage' | 'fuel' | 'repair' | 'bike_shop'; address: string };

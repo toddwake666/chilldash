@@ -488,8 +488,8 @@ export function PhoneProfile() {
             <Label style={s.soundSubtitle}>
               {!musicEnabled
                 ? 'Background music muted'
-                : currentZone === 'dhak'
-                ? 'Playing: Durga Puja Dhak Drums'
+                : currentZone === 'spooky' || currentZone === 'dhak'
+                ? 'Playing: Halloween Spooky Organ'
                 : 'Playing: Midday in the Valley'}
             </Label>
           </View>
@@ -517,10 +517,10 @@ export function PhoneProfile() {
             </Pressable>
             <Pressable
               testID="preview-music-dhak-button"
-              onPress={() => playMusicPreview('dhak')}
+              onPress={() => playMusicPreview('spooky')}
               style={({ pressed }) => [s.soundTestPill, pressed && { opacity: 0.7 }]}
             >
-              <Label style={s.soundTestLabel}>Puja Dhak</Label>
+              <Label style={s.soundTestLabel}>Spooky Organ</Label>
             </Pressable>
           </View>
         )}

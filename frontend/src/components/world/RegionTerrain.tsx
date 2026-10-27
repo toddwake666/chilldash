@@ -5,8 +5,8 @@ import { MAP, nearestRoad, riverDistance, isSponsoredAdBuilding } from '@/src/ga
 
 const RC_LOGO = require('@/assets/images/rclogo.webp');
 const AKASH_WHEELS_IMG = require('@/assets/images/akash_wheels.png');
-const DURGA_PANDAL_IMG = require('@/assets/images/durga_pandal.png');
-const FUCHKA_STALL_IMG = require('@/assets/images/fuchka_stall.png');
+const HAUNTED_BARN_IMG = require('@/assets/images/haunted_barn.png');
+const CIDER_SHACK_IMG = require('@/assets/images/cider_shack.png');
 const NEON_ARCHWAY_DAY = require('@/assets/images/neon_archway_day.png');
 const NEON_ARCHWAY_NIGHT = require('@/assets/images/neon_archway_night.png');
 import type { Point } from '@/src/game/api';
@@ -39,105 +39,106 @@ const FESTIVE_POLES = [
 const FESTIVE_CABLE_PATH_D = "M1477 484Q1504 502 1531 505 M1531 505Q1557 530.5 1583 541 M1583 541Q1604 574 1625 592 M1625 592Q1642.5 627 1660 647 M1660 647Q1675.5 679 1691 696 M1691 696Q1705.5 720 1720 729 M1720 729Q1735 744.5 1750 745 M1750 745Q1769.5 758 1789 756 M1789 756Q1811.5 765.5 1834 760 M1834 760Q1857.5 767.5 1881 760 M1881 760Q1905.5 766 1930 757 M1930 757Q1955 760 1980 748";
 
 const FESTIVE_BULBS = [
-  { x: 1490.5, y: 492.1, col: "#EF4444" },
-  { x: 1504, y: 498.3, col: "#F59E0B" },
-  { x: 1517.5, y: 502.6, col: "#10B981" },
-  { x: 1544, y: 516.8, col: "#06B6D4" },
-  { x: 1557, y: 526.8, col: "#EC4899" },
-  { x: 1570, y: 534.8, col: "#8B5CF6" },
-  { x: 1593.5, y: 556.6, col: "#FBBF24" },
-  { x: 1604, y: 570.3, col: "#EF4444" },
-  { x: 1614.5, y: 582.1, col: "#F59E0B" },
-  { x: 1633.8, y: 608.6, col: "#10B981" },
-  { x: 1642.5, y: 623.3, col: "#06B6D4" },
-  { x: 1651.3, y: 636.1, col: "#EC4899" },
-  { x: 1667.8, y: 662.1, col: "#8B5CF6" },
-  { x: 1675.5, y: 675.3, col: "#FBBF24" },
-  { x: 1683.3, y: 686.6, col: "#EF4444" },
-  { x: 1698.3, y: 707.1, col: "#F59E0B" },
-  { x: 1705.5, y: 716.3, col: "#10B981" },
-  { x: 1712.8, y: 723.6, col: "#06B6D4" },
-  { x: 1727.5, y: 735.8, col: "#EC4899" },
-  { x: 1735, y: 740.8, col: "#8B5CF6" },
-  { x: 1742.5, y: 743.8, col: "#FBBF24" },
-  { x: 1759.8, y: 750.6, col: "#EF4444" },
-  { x: 1769.5, y: 754.3, col: "#F59E0B" },
-  { x: 1779.3, y: 756.1, col: "#10B981" },
-  { x: 1800.3, y: 759.8, col: "#06B6D4" },
-  { x: 1811.5, y: 761.8, col: "#EC4899" },
-  { x: 1822.8, y: 761.8, col: "#8B5CF6" },
-  { x: 1845.8, y: 762.8, col: "#FBBF24" },
-  { x: 1857.5, y: 763.8, col: "#EF4444" },
-  { x: 1869.3, y: 762.8, col: "#F59E0B" },
-  { x: 1893.3, y: 762.1, col: "#10B981" },
-  { x: 1905.5, y: 762.3, col: "#06B6D4" },
-  { x: 1917.8, y: 760.6, col: "#EC4899" },
-  { x: 1942.5, y: 757.6, col: "#8B5CF6" },
-  { x: 1955, y: 756.3, col: "#FBBF24" },
-  { x: 1967.5, y: 753.1, col: "#EF4444" },
+  { x: 1490.5, y: 492.1, col: "#F97316" },
+  { x: 1504, y: 498.3, col: "#A855F7" },
+  { x: 1517.5, y: 502.6, col: "#22C55E" },
+  { x: 1544, y: 516.8, col: "#FBBF24" },
+  { x: 1557, y: 526.8, col: "#EA580C" },
+  { x: 1570, y: 534.8, col: "#7E22CE" },
+  { x: 1593.5, y: 556.6, col: "#10B981" },
+  { x: 1604, y: 570.3, col: "#F97316" },
+  { x: 1614.5, y: 582.1, col: "#A855F7" },
+  { x: 1633.8, y: 608.6, col: "#22C55E" },
+  { x: 1642.5, y: 623.3, col: "#FBBF24" },
+  { x: 1651.3, y: 636.1, col: "#EA580C" },
+  { x: 1667.8, y: 662.1, col: "#7E22CE" },
+  { x: 1675.5, y: 675.3, col: "#10B981" },
+  { x: 1683.3, y: 686.6, col: "#F97316" },
+  { x: 1698.3, y: 707.1, col: "#A855F7" },
+  { x: 1705.5, y: 716.3, col: "#22C55E" },
+  { x: 1712.8, y: 723.6, col: "#FBBF24" },
+  { x: 1727.5, y: 735.8, col: "#EA580C" },
+  { x: 1735, y: 740.8, col: "#7E22CE" },
+  { x: 1742.5, y: 743.8, col: "#10B981" },
+  { x: 1759.8, y: 750.6, col: "#F97316" },
+  { x: 1769.5, y: 754.3, col: "#A855F7" },
+  { x: 1779.3, y: 756.1, col: "#22C55E" },
+  { x: 1800.3, y: 759.8, col: "#FBBF24" },
+  { x: 1811.5, y: 761.8, col: "#EA580C" },
+  { x: 1822.8, y: 761.8, col: "#7E22CE" },
+  { x: 1845.8, y: 762.8, col: "#10B981" },
+  { x: 1857.5, y: 763.8, col: "#F97316" },
+  { x: 1869.3, y: 762.8, col: "#A855F7" },
+  { x: 1893.3, y: 762.1, col: "#22C55E" },
+  { x: 1905.5, y: 762.3, col: "#FBBF24" },
+  { x: 1917.8, y: 760.6, col: "#EA580C" },
+  { x: 1942.5, y: 757.6, col: "#7E22CE" },
+  { x: 1955, y: 756.3, col: "#10B981" },
+  { x: 1967.5, y: 753.1, col: "#F97316" },
 ];
 
-const PANDAL_LIGHTS = [
-  // Apex & Spire
-  { x: 1720, y: 422, col: '#FBBF24' },
-  { x: 1710, y: 435, col: '#EF4444' },
-  { x: 1730, y: 435, col: '#10B981' },
-  { x: 1700, y: 450, col: '#06B6D4' },
+const BARN_LIGHTS = [
+  // Barn Gable Peak & Spire
+  { x: 1720, y: 424, col: '#F97316' },
+  { x: 1705, y: 436, col: '#A855F7' },
+  { x: 1735, y: 436, col: '#22C55E' },
+  { x: 1690, y: 452, col: '#FBBF24' },
   { x: 1720, y: 450, col: '#FFFFFF' },
-  { x: 1740, y: 450, col: '#EC4899' },
+  { x: 1750, y: 452, col: '#EA580C' },
 
-  // Upper roof contour swags
-  { x: 1675, y: 470, col: '#F59E0B' },
-  { x: 1695, y: 468, col: '#8B5CF6' },
-  { x: 1720, y: 465, col: '#FBBF24' },
-  { x: 1745, y: 468, col: '#10B981' },
-  { x: 1765, y: 470, col: '#EF4444' },
+  // Roof slopes & Hayloft
+  { x: 1665, y: 474, col: '#7E22CE' },
+  { x: 1695, y: 470, col: '#F97316' },
+  { x: 1720, y: 468, col: '#22C55E' },
+  { x: 1745, y: 470, col: '#A855F7' },
+  { x: 1775, y: 474, col: '#FBBF24' },
 
-  // Mid decorative cornice & festoon
-  { x: 1640, y: 495, col: '#06B6D4' },
-  { x: 1665, y: 492, col: '#EC4899' },
-  { x: 1690, y: 490, col: '#FBBF24' },
+  // Cornice & upper timber beams
+  { x: 1635, y: 496, col: '#EA580C' },
+  { x: 1660, y: 492, col: '#22C55E' },
+  { x: 1690, y: 490, col: '#A855F7' },
   { x: 1720, y: 488, col: '#FFFFFF' },
-  { x: 1750, y: 490, col: '#F59E0B' },
-  { x: 1775, y: 492, col: '#10B981' },
-  { x: 1800, y: 495, col: '#8B5CF6' },
+  { x: 1750, y: 490, col: '#F97316' },
+  { x: 1780, y: 492, col: '#FBBF24' },
+  { x: 1805, y: 496, col: '#7E22CE' },
 
-  // Main Eaves Swag line
-  { x: 1605, y: 522, col: '#EF4444' },
-  { x: 1625, y: 520, col: '#FBBF24' },
-  { x: 1648, y: 518, col: '#10B981' },
-  { x: 1672, y: 516, col: '#06B6D4' },
-  { x: 1696, y: 515, col: '#EC4899' },
-  { x: 1720, y: 514, col: '#FFFFFF' },
-  { x: 1744, y: 515, col: '#F59E0B' },
-  { x: 1768, y: 516, col: '#8B5CF6' },
-  { x: 1792, y: 518, col: '#10B981' },
-  { x: 1815, y: 520, col: '#FBBF24' },
-  { x: 1835, y: 522, col: '#EF4444' },
+  // Main Eaves Line
+  { x: 1605, y: 520, col: '#F97316' },
+  { x: 1625, y: 518, col: '#A855F7' },
+  { x: 1648, y: 516, col: '#22C55E' },
+  { x: 1672, y: 515, col: '#FBBF24' },
+  { x: 1696, y: 514, col: '#EA580C' },
+  { x: 1720, y: 513, col: '#FFFFFF' },
+  { x: 1744, y: 514, col: '#F97316' },
+  { x: 1768, y: 515, col: '#7E22CE' },
+  { x: 1792, y: 516, col: '#22C55E' },
+  { x: 1815, y: 518, col: '#FBBF24' },
+  { x: 1835, y: 520, col: '#EA580C' },
 
-  // Left Pillar vertical strip
-  { x: 1608, y: 542, col: '#FBBF24' },
-  { x: 1608, y: 562, col: '#06B6D4' },
-  { x: 1608, y: 582, col: '#EC4899' },
-  { x: 1608, y: 602, col: '#10B981' },
+  // Left Post timber strip
+  { x: 1608, y: 540, col: '#F97316' },
+  { x: 1608, y: 560, col: '#A855F7' },
+  { x: 1608, y: 580, col: '#22C55E' },
+  { x: 1608, y: 600, col: '#FBBF24' },
 
-  // Right Pillar vertical strip
-  { x: 1832, y: 542, col: '#FBBF24' },
-  { x: 1832, y: 562, col: '#06B6D4' },
-  { x: 1832, y: 582, col: '#EC4899' },
-  { x: 1832, y: 602, col: '#10B981' },
+  // Right Post timber strip
+  { x: 1832, y: 540, col: '#F97316' },
+  { x: 1832, y: 560, col: '#A855F7' },
+  { x: 1832, y: 580, col: '#22C55E' },
+  { x: 1832, y: 600, col: '#FBBF24' },
 
-  // Entrance Arch festoon
-  { x: 1665, y: 598, col: '#EF4444' },
-  { x: 1678, y: 578, col: '#FBBF24' },
-  { x: 1695, y: 562, col: '#10B981' },
-  { x: 1720, y: 556, col: '#FFFFFF' },
-  { x: 1745, y: 562, col: '#06B6D4' },
-  { x: 1762, y: 578, col: '#EC4899' },
-  { x: 1775, y: 598, col: '#F59E0B' },
+  // Entrance Porch archway
+  { x: 1665, y: 596, col: '#EA580C' },
+  { x: 1678, y: 578, col: '#F97316' },
+  { x: 1695, y: 562, col: '#22C55E' },
+  { x: 1720, y: 556, col: '#FEF08A' },
+  { x: 1745, y: 562, col: '#A855F7' },
+  { x: 1762, y: 578, col: '#7E22CE' },
+  { x: 1775, y: 596, col: '#F97316' },
 ];
 
-const FESTIVE_COLORS = ['#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#EC4899', '#8B5CF6', '#FBBF24'];
+const PANDAL_LIGHTS = BARN_LIGHTS; // Backwards compatibility alias
+const FESTIVE_COLORS = ['#F97316', '#A855F7', '#22C55E', '#FBBF24', '#EA580C', '#7E22CE', '#10B981', '#FFFFFF'];
 
 export const points = (ps: any[]) => (ps || []).map(p => {
   if (Array.isArray(p)) return `${p[0] || 0},${p[1] || 0}`;
@@ -235,32 +236,32 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
     })}
     {/* Static Railway Tracks Layered ABOVE Roads and Bridges */}
     <StaticRailwayTracks />
-    {/* Durga Puja Festive Ground & Fuchka Stall across Pine Trail (Frustum Culled) */}
+    {/* Whispering Pines Halloween Event Ground: The Haunted Barn & Cider Shack (Frustum Culled) */}
     {(cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1200 && Math.abs(cy - 560) < 1250)) && (
-    <G testID="durga-puja-festival-ground">
-      {/* Nighttime Radiant Floodlight & Golden Illumination across Durga Pandal Grounds */}
+    <G testID="halloween-event-ground">
+      {/* Nighttime Eerie Illumination & Spooky Mist across Barn Grounds */}
       {isNight && (
-        <G testID="pandal-night-illumination">
-          {/* Broad golden festival ambient ground aura */}
-          <Ellipse cx={1720} cy={575} rx={165} ry={75} fill="#F59E0B" opacity={0.34} />
-          {/* Intense warm amber mid illumination */}
-          <Ellipse cx={1720} cy={580} rx={110} ry={48} fill="#FDE047" opacity={0.46} />
-          {/* Brilliant white-gold central entrance hotspot */}
-          <Ellipse cx={1720} cy={585} rx={60} ry={26} fill="#FEF08A" opacity={0.62} />
-          <Ellipse cx={1720} cy={590} rx={28} ry={14} fill="#FFFFFF" opacity={0.75} />
-          {/* Pandal Apex Halo */}
-          <Circle cx={1720} cy={422} r={36} fill="#FBBF24" opacity={0.40} />
-          <Circle cx={1720} cy={422} r={20} fill="#FEF08A" opacity={0.60} />
-          <Circle cx={1720} cy={422} r={8} fill="#FFFFFF" opacity={0.85} />
+        <G testID="barn-night-illumination">
+          {/* Broad spooky purple mist aura */}
+          <Ellipse cx={1720} cy={575} rx={175} ry={80} fill="#7E22CE" opacity={0.32} />
+          {/* Intense warm pumpkin orange mid ground aura */}
+          <Ellipse cx={1720} cy={580} rx={120} ry={52} fill="#EA580C" opacity={0.42} />
+          {/* Warm candlelit entrance hotspot */}
+          <Ellipse cx={1720} cy={585} rx={65} ry={28} fill="#FEF08A" opacity={0.62} />
+          <Ellipse cx={1720} cy={590} rx={30} ry={15} fill="#FFFFFF" opacity={0.78} />
+          {/* Barn Gable Apex Halo */}
+          <Circle cx={1720} cy={424} r={36} fill="#A855F7" opacity={0.38} />
+          <Circle cx={1720} cy={424} r={20} fill="#F97316" opacity={0.58} />
+          <Circle cx={1720} cy={424} r={8} fill="#FEF08A" opacity={0.85} />
         </G>
       )}
 
       {/* Paved approach apron connecting from Pine Trail footpath */}
       <Rect x="1650" y="630" width="40" height="32" rx="4" fill={c.pavement} />
 
-      {/* Durga Puja Pandal Building Asset */}
+      {/* Haunted Barn & Pumpkin Patch Building Asset */}
       <SvgImage
-        href={DURGA_PANDAL_IMG}
+        href={HAUNTED_BARN_IMG}
         x="1580"
         y="420"
         width="280"
@@ -268,10 +269,10 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         preserveAspectRatio="xMidYMid meet"
       />
 
-      {/* Chandannagar-Style Radiant Festive LED Rice Lights along Pandal Facade */}
-      <G testID="pandal-facade-fairy-lights">
-        {PANDAL_LIGHTS.map((b, idx) => (
-          <G key={`pandal-bulb-${idx}`}>
+      {/* Spooky Radiant Fairy Lights along Barn Facade */}
+      <G testID="barn-facade-fairy-lights">
+        {BARN_LIGHTS.map((b, idx) => (
+          <G key={`barn-bulb-${idx}`}>
             {isNight && (
               <>
                 {/* Large vibrant outer bloom halo */}
@@ -284,7 +285,7 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
                 {idx % 3 === 0 && (
                   <>
                     <Line x1={b.x - 6} y1={b.y} x2={b.x + 6} y2={b.y} stroke="#FFFFFF" strokeWidth={1.2} opacity={0.9} />
-                    <Line x1={b.x} y1={b.y - 6} x2={b.x} y2={b.y + 6} stroke="#FFFFFF" strokeWidth={1.2} opacity={0.9} />
+                    <Line x1={b.x} y1={b.y - 6} x2={b.x + 6} y2={b.y + 6} stroke="#FFFFFF" strokeWidth={1.2} opacity={0.9} />
                   </>
                 )}
               </>
@@ -301,20 +302,20 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         ))}
       </G>
 
-      {/* Illuminated Pandal Title with Golden Glow Aura at Night */}
+      {/* Illuminated Haunted Barn Title with Pumpkin Glow Aura at Night */}
       {isNight && (
-        <T x={1720} y={620} textAnchor="middle" fontSize={11} fontWeight="bold" fill="#FEF08A" opacity={0.85} stroke="#F59E0B" strokeWidth={3}>
-          DURGA PUJA PANDAL
+        <T x={1720} y={620} textAnchor="middle" fontSize={10.5} fontWeight="bold" fill="#FEF08A" opacity={0.90} stroke="#EA580C" strokeWidth={3}>
+          THE HAUNTED BARN & PUMPKIN PATCH
         </T>
       )}
-      <T x={1720} y={620} textAnchor="middle" fontSize={11} fontWeight="bold" fill={isNight ? '#FFFFFF' : c.teal}>
-        DURGA PUJA PANDAL
+      <T x={1720} y={620} textAnchor="middle" fontSize={10.5} fontWeight="bold" fill={isNight ? '#FFFFFF' : '#D97706'}>
+        THE HAUNTED BARN & PUMPKIN PATCH
       </T>
 
-      {/* Shifted Fuchka Stall Asset along Pine Trail road curve (Marked roadside lawn) */}
+      {/* Cider & Candy Shack Asset along Pine Trail road curve */}
       <Rect x="1898" y="767" width="40" height="20" rx="3" fill={c.pavement} />
       <SvgImage
-        href={FUCHKA_STALL_IMG}
+        href={CIDER_SHACK_IMG}
         x="1860"
         y="665"
         width="116"
@@ -323,28 +324,41 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
       />
       {isNight && (
         <>
-          <Circle cx={1918} cy={710} r={20} fill="#F59E0B" opacity={0.35} />
-          <Circle cx={1918} cy={710} r={10} fill="#FEF08A" opacity={0.75} />
-          <Circle cx={1918} cy={710} r={3.5} fill="#FFFFFF" opacity={1.0} />
+          <Circle cx={1918} cy={710} r={22} fill="#EA580C" opacity={0.38} />
+          <Circle cx={1918} cy={710} r={12} fill="#A855F7" opacity={0.65} />
+          <Circle cx={1918} cy={710} r={4.5} fill="#FEF08A" opacity={0.95} />
         </>
       )}
-      <T x="1918" y={776} textAnchor="middle" fontSize={9} fontWeight="bold" fill={c.onSurface}>
-        FUCHKA STALL
+      <T x="1918" y={776} textAnchor="middle" fontSize={8.5} fontWeight="bold" fill={c.onSurface}>
+        CIDER & CANDY SHACK
       </T>
 
-      {/* Roadside Bamboo Poles / Sticks along the Pine Trail curb (Following blue lines) */}
-      <G testID="roadside-festive-poles">
+      {/* Roadside Weathered Timber Posts with Carved Jack-o'-Lanterns along the Pine Trail curb */}
+      <G testID="roadside-halloween-poles">
         {FESTIVE_POLES.map((p, idx) => (
-          <G key={`festive-pole-${idx}`}>
-            <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3} ry={1.5} fill={c.shadow} />
-            <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#92400E" strokeWidth={3} strokeLinecap="round" />
-            <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#D97706" strokeWidth={1.3} />
-            <Circle cx={p.x} cy={p.y - 30} r={2.5} fill="#B45309" stroke="#78350F" strokeWidth={0.8} />
+          <G key={`halloween-pole-${idx}`}>
+            <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3.5} ry={1.8} fill={c.shadow} />
+            {/* Weathered dark timber post */}
+            <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#374151" strokeWidth={3.2} strokeLinecap="round" />
+            <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#4B5563" strokeWidth={1.2} />
+            {/* Carved Jack-o'-Lantern on post */}
+            <Circle cx={p.x} cy={p.y - 33} r={4.5} fill="#EA580C" stroke="#7C2D12" strokeWidth={0.8} />
+            {/* Green pumpkin stem */}
+            <Line x1={p.x} y1={p.y - 37} x2={p.x + 0.8} y2={p.y - 39} stroke="#15803D" strokeWidth={1.2} strokeLinecap="round" />
+            {/* Fiery carved Jack-o'-Lantern eyes & mouth glowing at night */}
+            {isNight && (
+              <>
+                <Circle cx={p.x} cy={p.y - 33} r={9} fill="#F97316" opacity={0.42} />
+                <Circle cx={p.x - 1.2} cy={p.y - 34} r={0.7} fill="#FEF08A" />
+                <Circle cx={p.x + 1.2} cy={p.y - 34} r={0.7} fill="#FEF08A" />
+                <Line x1={p.x - 1.5} y1={p.y - 31.8} x2={p.x + 1.5} y2={p.y - 31.8} stroke="#FEF08A" strokeWidth={0.8} />
+              </>
+            )}
           </G>
         ))}
       </G>
 
-      {/* Nighttime Ground Glow Spill along Pine Trail Roadside */}
+      {/* Nighttime Ground Glow Spill along Pine Trail Roadside (Alternating Pumpkin & Spooky Purple) */}
       {isNight && (
         <G testID="festive-roadside-light-spill">
           {FESTIVE_POLES.map((p, idx) => (
@@ -354,8 +368,8 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
               cy={p.y}
               rx={32}
               ry={16}
-              fill={idx % 2 === 0 ? '#F59E0B' : '#EC4899'}
-              opacity={0.22}
+              fill={idx % 2 === 0 ? '#EA580C' : '#7E22CE'}
+              opacity={0.24}
             />
           ))}
         </G>
@@ -413,15 +427,15 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
             {/* In Night Time: Radiant Light Coming Out onto Road & Pavement */}
             {isNight && (
               <G testID={`archway-light-pool-${idx}`}>
-                {/* Wide golden ambient light spread across the road */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={74} ry={42} fill="#F59E0B" opacity={0.36} />
-                {/* Bright yellow mid-zone illuminating road asphalt */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={50} ry={28} fill="#FDE047" opacity={0.50} />
+                {/* Wide pumpkin ambient light spread across the road */}
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={74} ry={42} fill="#EA580C" opacity={0.36} />
+                {/* Spooky purple mid-zone illuminating road asphalt */}
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={50} ry={28} fill="#A855F7" opacity={0.45} />
                 {/* Core bright hotspot directly below lamp */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={26} ry={15} fill="#FEF08A" opacity={0.68} />
-                {/* Festive neon tint spill on roadside pavement */}
-                <Ellipse cx={a.x + 36} cy={a.lightY} rx={36} ry={20} fill="#EC4899" opacity={0.24} />
-                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={30} ry={18} fill="#06B6D4" opacity={0.26} />
+                <Ellipse cx={a.lightX} cy={a.lightY} rx={26} ry={15} fill="#FEF08A" opacity={0.65} />
+                {/* Slime green / violet festive tint spill on roadside pavement */}
+                <Ellipse cx={a.x + 36} cy={a.lightY} rx={36} ry={20} fill="#22C55E" opacity={0.22} />
+                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={30} ry={18} fill="#7E22CE" opacity={0.28} />
               </G>
             )}
           </G>
@@ -572,7 +586,7 @@ function getTrees() {
     if(p.x>1730&&p.x<1990&&p.y>710&&p.y<880)continue;
     if(p.x>1440&&p.x<1770&&p.y>760&&p.y<1000)continue;
     if(p.x>1460&&p.x<1790&&p.y>980&&p.y<1160)continue; // Clear Whispering Pines Viper RR billboard
-    if(p.x>1540&&p.x<1890&&p.y>380&&p.y<720)continue; // Clear Durga Puja festival ground & fuchka stall
+    if(p.x>1540&&p.x<1890&&p.y>380&&p.y<720)continue; // Clear Haunted Barn & pumpkin patch ground
     if(p.x>1410&&p.x<1510&&p.y>500&&p.y<650)continue; // Clear Archway 1
     if(p.x>1820&&p.x<1980&&p.y>780&&p.y<940)continue; // Clear Archway 4
     scenery.push(p);
@@ -930,9 +944,9 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
                 {/* Radiant Neon Aura Halos around structure when lit at night */}
                 {isNight && (
                   <G testID={`archway-aura-${idx}`}>
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.72} ry={a.h * 0.6} fill="#F59E0B" opacity={0.32} />
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.52} ry={a.h * 0.46} fill="#EC4899" opacity={0.28} />
-                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#06B6D4" opacity={0.30} />
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.72} ry={a.h * 0.6} fill="#EA580C" opacity={0.32} />
+                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.52} ry={a.h * 0.46} fill="#A855F7" opacity={0.30} />
+                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#22C55E" opacity={0.25} />
                   </G>
                 )}
 
@@ -949,25 +963,25 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
                 {/* Nighttime Light Beams & Lamp Corona Shining Down onto Road */}
                 {isNight && (
                   <G testID={`archway-beam-${idx}`}>
-                    {/* Downward light cone shining from hanging diya lamp to ground */}
+                    {/* Downward light cone shining from hanging lantern to ground */}
                     <Path
                       d={`M${diyaX - 5} ${diyaY + 6} L${a.lightX - 34} ${a.lightY - 6} L${a.lightX + 34} ${a.lightY - 6} L${diyaX + 5} ${diyaY + 6} Z`}
                       fill="#FEF08A"
-                      opacity={0.32}
+                      opacity={0.30}
                     />
                     <Path
                       d={`M${diyaX - 2.5} ${diyaY + 6} L${a.lightX - 18} ${a.lightY - 6} L${a.lightX + 18} ${a.lightY - 6} L${diyaX + 2.5} ${diyaY + 6} Z`}
-                      fill="#FFFFFF"
-                      opacity={0.44}
+                      fill="#F97316"
+                      opacity={0.38}
                     />
-                    {/* Hanging Diya Lamp Multi-tier Glow */}
-                    <Circle cx={diyaX} cy={diyaY} r={28} fill="#F59E0B" opacity={0.42} />
-                    <Circle cx={diyaX} cy={diyaY} r={17} fill="#FDE047" opacity={0.72} />
+                    {/* Hanging Lantern Multi-tier Glow */}
+                    <Circle cx={diyaX} cy={diyaY} r={28} fill="#EA580C" opacity={0.42} />
+                    <Circle cx={diyaX} cy={diyaY} r={17} fill="#F97316" opacity={0.72} />
                     <Circle cx={diyaX} cy={diyaY} r={9} fill="#FEF08A" opacity={0.92} />
                     <Circle cx={diyaX} cy={diyaY} r={4.5} fill="#FFFFFF" opacity={1.0} />
-                    {/* Sparkle flare on diya core */}
+                    {/* Sparkle flare on lantern core */}
                     <Line x1={diyaX - 10} y1={diyaY} x2={diyaX + 10} y2={diyaY} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
-                    <Line x1={diyaX} y1={diyaY - 10} x2={diyaX} y2={diyaY + 10} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
+                    <Line x1={diyaX} y1={diyaY - 10} x2={diyaX + 10} y2={diyaY + 10} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
                   </G>
                 )}
               </G>

@@ -104,53 +104,53 @@ export function MilestonesView() {
         )}
       </View>
     </View>
-    {/* Durga Puja Festive Event Milestone Card */}
+    {/* Halloween Spooky Treat Rush Event Milestone Card */}
     {(() => {
-      const fuchkas = p.fuchkas_delivered || 0;
-      const m1Claimed = !!p.fuchka_milestone_100_claimed;
-      const m2Claimed = !!p.fuchka_milestone_200_claimed;
+      const treats = p.halloween_treats_delivered || p.fuchkas_delivered || 0;
+      const m1Claimed = !!(p.halloween_milestone_100_claimed || p.fuchka_milestone_100_claimed);
+      const m2Claimed = !!(p.halloween_milestone_200_claimed || p.fuchka_milestone_200_claimed);
       const allDone = m1Claimed && m2Claimed;
-      const pct = Math.min(100, Math.round((fuchkas / 200) * 100));
+      const pct = Math.min(100, Math.round((treats / 200) * 100));
 
       return (
-        <View testID="fuchka-event-goal-card" style={s.card}>
+        <View testID="halloween-event-goal-card" style={s.card}>
           <View style={s.row}>
-            <View style={[s.art, { backgroundColor: c.mint }]}>
-              <Icon name={allDone ? 'checkmark-done' : 'restaurant-outline'} color={c.teal} size={28} />
+            <View style={[s.art, { backgroundColor: '#FFEDD5' }]}>
+              <Icon name={allDone ? 'checkmark-done' : 'flame-outline'} color="#EA580C" size={28} />
             </View>
             <View style={s.grow}>
-              <Label display style={s.cardTitle}>Durga Puja Fuchka Rush</Label>
+              <Label display style={s.cardTitle}>🎃 Spooky Treat Rush</Label>
               <Label style={s.tiny}>
                 {allDone
-                  ? 'All event milestones completed'
-                  : `${fuchkas}/200 fuchkas delivered across towns`}
+                  ? 'All Halloween milestones completed'
+                  : `${treats}/200 treats delivered across towns`}
               </Label>
             </View>
           </View>
 
           <View style={s.progressTrack}>
-            <View style={[s.progressFill, { width: `${pct}%` }]} />
+            <View style={[s.progressFill, { width: `${pct}%`, backgroundColor: '#EA580C' }]} />
           </View>
 
           <View style={[s.rewardRow, { marginVertical: 10 }]}>
             <View style={{ gap: 2 }}>
               <Label style={s.tiny}>
-                {m1Claimed ? '100 Fuchkas: +200 coins claimed' : '100 Fuchkas: +200 coins'}
+                {m1Claimed ? '100 Treats: +200 coins claimed' : '100 Treats: +200 coins'}
               </Label>
               <Label style={s.tiny}>
-                {m2Claimed ? '200 Fuchkas: +300 coins claimed' : '200 Fuchkas: +300 coins more'}
+                {m2Claimed ? '200 Treats: +300 coins claimed' : '200 Treats: +300 coins more'}
               </Label>
             </View>
             <Coin amount={allDone ? '+500' : m1Claimed ? '+300' : '+200'} small />
           </View>
 
           <Button
-            testID="fuchka-event-navigate-button"
-            title="RIDE TO FUCHKA STALL"
+            testID="halloween-event-navigate-button"
+            title="RIDE TO CIDER & CANDY SHACK"
             onPress={() => {
               g.navigateTo({
-                id: 'fuchka_stall',
-                name: 'Festive Fuchka Stall',
+                id: 'cider_shack',
+                name: 'Cider & Candy Shack',
                 x: 1918,
                 y: 810,
                 kind: 'stall' as any,

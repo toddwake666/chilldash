@@ -75,12 +75,13 @@ let offeredOrders: Order[] = [];
 let orderCooldownUntil = 0;
 const shopCooldowns: Record<string, number> = {};
 
-export const FUCHKA_STALL_LOCATION: Place = {
+export const CIDER_SHACK_LOCATION: Place = {
   x: 1918,
   y: 810,
-  name: 'Festive Fuchka Stall',
-  address: 'Pine Trail · Whispering Pines Pandal Ground',
+  name: 'Cider & Candy Shack',
+  address: 'Pine Trail · Whispering Pines Pumpkin Patch Ground',
 };
+export const FUCHKA_STALL_LOCATION = CIDER_SHACK_LOCATION; // Backwards compatibility alias
 
 let isInitialCloudCheckDone = false;
 
@@ -412,49 +413,52 @@ export async function getLocalDispatch(): Promise<Dispatch> {
     pickup_seconds: seconds,
   };
 
-  // Generate Durga Puja Festive Fuchka Order across all 5 towns
-  const fuchkaCounts = [10, 20, 30, 40, 50];
-  const fuchkaCount = fuchkaCounts[Math.floor(Math.random() * fuchkaCounts.length)];
-  const fuchkaBaseFees: Record<number, number> = { 10: 25, 20: 35, 30: 45, 40: 55, 50: 65 };
-  const fuchkaDropoffs = worldData.dropoffs.filter(d => distance(FUCHKA_STALL_LOCATION, d) > 250);
-  const rawFuchkaDropoff = fuchkaDropoffs[Math.floor(Math.random() * fuchkaDropoffs.length)] || worldData.dropoffs[0];
-  const snappedFuchkaPickup: Place = { ...FUCHKA_STALL_LOCATION, ...snapToFootpath(FUCHKA_STALL_LOCATION) };
-  const snappedFuchkaDropoff: Place = { ...rawFuchkaDropoff, ...snapToFootpath(rawFuchkaDropoff) };
-  const fuchkaDistance = calculateRouteDistance(snappedFuchkaPickup, snappedFuchkaDropoff);
-  const fuchkaDistFee = Math.floor(fuchkaDistance / 30);
-  const riderToStall = calculateRouteDistance(p.position, snappedFuchkaPickup);
-  const fuchkaPickupSeconds = Math.max(90, Math.min(600, Math.floor(riderToStall / 24) + 110));
-  const fuchkaCustomers = ['Sourav', 'Debolina', 'Subhas', 'Poulami', 'Ananya', 'Rupam', 'Tanmoy', 'Moumita', 'Abhirup', 'Shreya', 'Indranil'];
-  const fuchkaTitles = [
-    `${fuchkaCount} Crispy Kolkata Fuchkas with Spicy Tok Jol`,
-    `${fuchkaCount} Tangy Festive Fuchkas with Masala Aloo`,
-    `${fuchkaCount} Special Durga Puja Fuchka Platter`,
-    `${fuchkaCount} Royal Kolkata Fuchkas with Sweet-Tangy Chutney`,
-    `${fuchkaCount} Street-Style Kolkata Fuchkas with Tok Jol`,
+  // Generate Halloween Spooky Cider & Candy Treats Order across all 5 towns
+  const treatCounts = [10, 20, 30, 40, 50];
+  const treatCount = treatCounts[Math.floor(Math.random() * treatCounts.length)];
+  const treatBaseFees: Record<number, number> = { 10: 28, 20: 38, 30: 48, 40: 60, 50: 72 };
+  const halloweenDropoffs = worldData.dropoffs.filter(d => distance(CIDER_SHACK_LOCATION, d) > 250);
+  const rawHalloweenDropoff = halloweenDropoffs[Math.floor(Math.random() * halloweenDropoffs.length)] || worldData.dropoffs[0];
+  const snappedHalloweenPickup: Place = { ...CIDER_SHACK_LOCATION, ...snapToFootpath(CIDER_SHACK_LOCATION) };
+  const snappedHalloweenDropoff: Place = { ...rawHalloweenDropoff, ...snapToFootpath(rawHalloweenDropoff) };
+  const halloweenDistance = calculateRouteDistance(snappedHalloweenPickup, snappedHalloweenDropoff);
+  const halloweenDistFee = Math.floor(halloweenDistance / 30);
+  const riderToStall = calculateRouteDistance(p.position, snappedHalloweenPickup);
+  const halloweenPickupSeconds = Math.max(90, Math.min(600, Math.floor(riderToStall / 24) + 110));
+  const halloweenCustomers = ['Casper', 'Wednesday', 'Jack Skellington', 'Luna', 'Autumn Sam', 'Camp Counselor Zoe', 'Professor Raven', 'Morticia'];
+  const halloweenTitles = [
+    `${treatCount} Warm Spiced Apple Ciders with Cinnamon Sticks`,
+    `${treatCount} Ghostly Candied Apples & Pumpkin Cookies`,
+    `${treatCount} Jack-o'-Lantern Trick-or-Treat Candy Baskets`,
+    `${treatCount} Witch's Cauldron Caramel treats & Cider Jugs`,
+    `${treatCount} Spooky Autumn Pumpkin Spice Lattes`,
   ];
 
-  const fuchkaOrder: Order = {
-    id: `fuchka-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    pickup: snappedFuchkaPickup,
-    dropoff: snappedFuchkaDropoff,
-    item: fuchkaTitles[Math.floor(Math.random() * fuchkaTitles.length)],
-    customer: fuchkaCustomers[Math.floor(Math.random() * fuchkaCustomers.length)],
-    reward: (fuchkaBaseFees[fuchkaCount] || 35) + fuchkaDistFee,
-    xp: 32 + Math.floor(fuchkaCount / 2),
+  const halloweenOrder: Order = {
+    id: `halloween-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    pickup: snappedHalloweenPickup,
+    dropoff: snappedHalloweenDropoff,
+    item: halloweenTitles[Math.floor(Math.random() * halloweenTitles.length)],
+    customer: halloweenCustomers[Math.floor(Math.random() * halloweenCustomers.length)],
+    reward: (treatBaseFees[treatCount] || 38) + halloweenDistFee,
+    xp: 35 + Math.floor(treatCount / 2),
     status: 'offered',
     created_at: new Date().toISOString(),
     pickup_deadline: null,
-    pickup_seconds: fuchkaPickupSeconds,
+    pickup_seconds: halloweenPickupSeconds,
+    is_halloween_order: true,
+    halloween_treat_count: treatCount,
+    // Keep backwards compatibility for any legacy readers
     is_fuchka_order: true,
-    fuchka_count: fuchkaCount,
+    fuchka_count: treatCount,
   };
 
   shopCooldowns[selected.idx] = now + 180;
 
-  // Fuchka orders spawn randomly (~35% chance), not always
-  const spawnFuchka = Math.random() < 0.35;
-  if (spawnFuchka) {
-    offeredOrders = [fuchkaOrder, regularOrder];
+  // Halloween special orders spawn randomly (~35% chance), not always
+  const spawnHalloween = Math.random() < 0.35;
+  if (spawnHalloween) {
+    offeredOrders = [halloweenOrder, regularOrder];
     activeOrder = regularOrder;
   } else {
     offeredOrders = [regularOrder];
@@ -783,16 +787,20 @@ export async function localApi<T>(path: string, method = 'GET', body?: unknown):
         p.deliveries += 1;
         p.xp += deliveredOrder.xp + (p.is_pro ? 25 : 0);
 
-        // Durga Puja Festive Fuchka Milestones:
-        // 100 fuchkas delivered = 200 coins, 200 delivered = 300 more (500 total)
-        if (deliveredOrder.fuchka_count) {
-          p.fuchkas_delivered = (p.fuchkas_delivered || 0) + deliveredOrder.fuchka_count;
-          if (p.fuchkas_delivered >= 100 && !p.fuchka_milestone_100_claimed) {
+        // Halloween Festive Spooky Treat Milestones:
+        // 100 treats delivered = 200 coins, 200 delivered = 300 more (500 total)
+        const treatsDeliveredCount = deliveredOrder.halloween_treat_count || deliveredOrder.fuchka_count;
+        if (treatsDeliveredCount) {
+          p.halloween_treats_delivered = (p.halloween_treats_delivered || 0) + treatsDeliveredCount;
+          p.fuchkas_delivered = (p.fuchkas_delivered || 0) + treatsDeliveredCount; // backward compatibility
+          if (p.halloween_treats_delivered >= 100 && !p.halloween_milestone_100_claimed) {
+            p.halloween_milestone_100_claimed = true;
             p.fuchka_milestone_100_claimed = true;
             p.balance += 200;
             p.earned += 200;
           }
-          if (p.fuchkas_delivered >= 200 && !p.fuchka_milestone_200_claimed) {
+          if (p.halloween_treats_delivered >= 200 && !p.halloween_milestone_200_claimed) {
+            p.halloween_milestone_200_claimed = true;
             p.fuchka_milestone_200_claimed = true;
             p.balance += 300;
             p.earned += 300;

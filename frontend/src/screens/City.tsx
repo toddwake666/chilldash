@@ -210,15 +210,16 @@ export function City() {
       {(() => {
         const offeredOrder = g.order?.status === 'offered' ? g.order : (g.dispatch?.orders?.find(o => o.status === 'offered') || null);
         if (!offeredOrder) return null;
-        const isFuchka = !!offeredOrder.is_fuchka_order;
+        const isSpecial = !!(offeredOrder.is_halloween_order || offeredOrder.is_fuchka_order);
+        const treatCount = offeredOrder.halloween_treat_count || offeredOrder.fuchka_count || 10;
         return (
           <Pressable testID="new-order-notification" onPress={() => g.openPhone('orders')} style={s.notification}>
             <View style={s.notificationIcon}>
-              <Icon name={isFuchka ? 'restaurant-outline' : 'bag-handle-outline'} size={22} color={c.teal} />
+              <Icon name={isSpecial ? 'flame-outline' : 'bag-handle-outline'} size={22} color={isSpecial ? '#EA580C' : c.teal} />
             </View>
             <View style={s.notificationCopy}>
               <Label style={s.notificationTitle}>
-                {isFuchka ? `Fuchka Order (${offeredOrder.fuchka_count || 10} pcs)` : 'A little delivery, a little adventure.'}
+                {isSpecial ? `🎃 Halloween Treats (${treatCount} pcs)` : 'A little delivery, a little adventure.'}
               </Label>
               <Label style={s.notificationSub}>{offeredOrder.pickup.name} · {offeredOrder.reward} coins</Label>
             </View>

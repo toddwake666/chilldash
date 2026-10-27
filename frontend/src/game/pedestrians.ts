@@ -51,7 +51,7 @@ interface FootpathRouteDef {
 // 25 verified non-intersecting footpath routes across all 5 towns.
 // All paths strictly follow the front sidewalks of blocks, parks, and waterfront boulevards at distance ~65.0px - 66.0px from road centerlines:
 // exactly 3.3% - 10.0% of pedestrian body touches the white footpath section, with 90.0% - 96.7% in the front green zone.
-// ZERO contact with road asphalt (buffer > 20px everywhere), ZERO intersection crossings, and ZERO building/pandal overlap.
+// ZERO contact with road asphalt (buffer > 20px everywhere), ZERO intersection crossings, and ZERO building/stall overlap.
 const FOOTPATH_ROUTES: FootpathRouteDef[] = [
   // --- Sunnyvale Footpaths (Park circuit loop, waterfront boulevard, and block front sidewalks) ---
   {

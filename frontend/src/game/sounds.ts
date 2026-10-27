@@ -31,7 +31,8 @@ let isSubsystemLoaded = false;
 
 const sfxListeners = new Set<(enabled: boolean) => void>();
 const musicListeners = new Set<(enabled: boolean) => void>();
-const zoneListeners = new Set<(zone: 'valley' | 'dhak' | 'none') => void>();
+export type MusicZone = 'valley' | 'spooky' | 'dhak' | 'none';
+const zoneListeners = new Set<(zone: MusicZone) => void>();
 
 // Preloaded SFX Audio Players
 let tapPlayer: any = null;
@@ -46,19 +47,20 @@ let whooshPlayer: any = null;
 
 // Background Music Players
 let valleyPlayer: any = null;
-let dhakPlayer: any = null;
-let currentZone: 'valley' | 'dhak' | 'none' = 'none';
+let spookyPlayer: any = null;
+let currentZone: MusicZone = 'none';
 let lastKnownPos: { x: number; y: number } | null = null;
 let appActive = true;
 
 /**
  * Checks whether the rider is on the Whispering Pines festival road
- * stretch approaching the Durga Puja Pandal & Fuchka Stall.
+ * stretch approaching the Haunted Barn & Pumpkin Patch and Cider Shack.
  */
 export function isFestivePandalRoad(x?: number, y?: number): boolean {
   if (x === undefined || y === undefined) return false;
   return x >= 1380 && x <= 2080 && y >= 430 && y <= 940;
 }
+export const isSpookyRoad = isFestivePandalRoad;
 
 async function initSoundSubsystem() {
   if (isSubsystemLoaded) return;
@@ -113,10 +115,10 @@ async function initSoundSubsystem() {
       }
     } catch {}
     try {
-      dhakPlayer = createAudioPlayer(require('../../assets/sounds/dhak.mp3'));
-      if (dhakPlayer) {
-        dhakPlayer.loop = true;
-        dhakPlayer.volume = 0.65;
+      spookyPlayer = createAudioPlayer(require('../../assets/sounds/spooky.wav'));
+      if (spookyPlayer) {
+        spookyPlayer.loop = true;
+        spookyPlayer.volume = 0.60;
       }
     } catch {}
   }
@@ -202,7 +204,7 @@ function pauseAllMusic() {
     if (valleyPlayer && valleyPlayer.playing) valleyPlayer.pause();
   } catch {}
   try {
-    if (dhakPlayer && dhakPlayer.playing) dhakPlayer.pause();
+    if (spookyPlayer && spookyPlayer.playing) spookyPlayer.pause();
   } catch {}
   currentZone = 'none';
   notifyZoneListeners();
@@ -214,28 +216,28 @@ function applyMusicPlayback() {
     return;
   }
 
-  const isDhakZone = lastKnownPos ? isFestivePandalRoad(lastKnownPos.x, lastKnownPos.y) : false;
-  const targetZone: 'valley' | 'dhak' = isDhakZone ? 'dhak' : 'valley';
+  const isHalloweenZone = lastKnownPos ? isSpookyRoad(lastKnownPos.x, lastKnownPos.y) : false;
+  const targetZone: 'valley' | 'spooky' = isHalloweenZone ? 'spooky' : 'valley';
 
-  if (targetZone === 'dhak') {
-    if (currentZone !== 'dhak') {
+  if (targetZone === 'spooky') {
+    if (currentZone !== 'spooky') {
       try {
         if (valleyPlayer && valleyPlayer.playing) valleyPlayer.pause();
       } catch {}
       try {
-        if (dhakPlayer) {
-          dhakPlayer.loop = true;
-          dhakPlayer.volume = 0.65;
-          if (!dhakPlayer.playing) dhakPlayer.play();
+        if (spookyPlayer) {
+          spookyPlayer.loop = true;
+          spookyPlayer.volume = 0.60;
+          if (!spookyPlayer.playing) spookyPlayer.play();
         }
       } catch {}
-      currentZone = 'dhak';
+      currentZone = 'spooky';
       notifyZoneListeners();
     }
   } else {
     if (currentZone !== 'valley') {
       try {
-        if (dhakPlayer && dhakPlayer.playing) dhakPlayer.pause();
+        if (spookyPlayer && spookyPlayer.playing) spookyPlayer.pause();
       } catch {}
       try {
         if (valleyPlayer) {
@@ -253,7 +255,7 @@ function applyMusicPlayback() {
 /**
  * Updates the music zone based on the rider's position in the world.
  * Automatically crossfades/switches between Midday in the Valley BGM
- * and the Durga Puja Dhak drums when riding on the festive road!
+ * and the Halloween Spooky Organ BGM when riding on Pine Trail!
  */
 export function updateMusicPosition(x?: number, y?: number): void {
   if (x !== undefined && y !== undefined) {
@@ -271,20 +273,20 @@ export function stopAllMusic(): void {
 /**
  * Preview playback for the Settings audio tile
  */
-export function playMusicPreview(track: 'valley' | 'dhak'): void {
+export function playMusicPreview(track: 'valley' | 'spooky' | 'dhak'): void {
   if (!isMusicState) return;
   try {
-    if (track === 'dhak') {
+    if (track === 'spooky' || track === 'dhak') {
       if (valleyPlayer && valleyPlayer.playing) valleyPlayer.pause();
-      if (dhakPlayer) {
-        dhakPlayer.loop = true;
-        dhakPlayer.volume = 0.7;
-        dhakPlayer.play();
-        currentZone = 'dhak';
+      if (spookyPlayer) {
+        spookyPlayer.loop = true;
+        spookyPlayer.volume = 0.65;
+        spookyPlayer.play();
+        currentZone = 'spooky';
         notifyZoneListeners();
       }
     } else {
-      if (dhakPlayer && dhakPlayer.playing) dhakPlayer.pause();
+      if (spookyPlayer && spookyPlayer.playing) spookyPlayer.pause();
       if (valleyPlayer) {
         valleyPlayer.loop = true;
         valleyPlayer.volume = 0.6;
@@ -307,7 +309,7 @@ export function useSoundFX() {
   useEffect(() => {
     const sfxHandler = (val: boolean) => setSfx(val);
     const musicHandler = (val: boolean) => setMusic(val);
-    const zoneHandler = (val: 'valley' | 'dhak' | 'none') => setZone(val);
+    const zoneHandler = (val: MusicZone) => setZone(val);
 
     sfxListeners.add(sfxHandler);
     musicListeners.add(musicHandler);
