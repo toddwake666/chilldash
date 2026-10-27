@@ -7,20 +7,11 @@ const RC_LOGO = require('@/assets/images/rclogo.webp');
 const AKASH_WHEELS_IMG = require('@/assets/images/akash_wheels.png');
 const HAUNTED_BARN_IMG = require('@/assets/images/haunted_barn.png');
 const CIDER_SHACK_IMG = require('@/assets/images/cider_shack.png');
-const NEON_ARCHWAY_DAY = require('@/assets/images/neon_archway_day.png');
-const NEON_ARCHWAY_NIGHT = require('@/assets/images/neon_archway_night.png');
 import type { Point } from '@/src/game/api';
 import { AdScreen, LandmarkArt } from './LandmarkArt';
 import { StaticRailwayTracks } from './RailwayArt';
 
-export const FESTIVE_ARCHWAYS = [
-  { id: 'arch-1', x: 1440, y: 530, w: 68, h: 102, lightX: 1478, lightY: 575 },
-  { id: 'arch-2', x: 1535, y: 645, w: 68, h: 102, lightX: 1578, lightY: 690 },
-  { id: 'arch-3', x: 1690, y: 785, w: 68, h: 102, lightX: 1735, lightY: 825 },
-  { id: 'arch-4', x: 1855, y: 810, w: 68, h: 102, lightX: 1900, lightY: 845 },
-];
-
-const FESTIVE_POLES = [
+export const PUMPKIN_POLES = [
   { x: 1477, y: 514 },
   { x: 1531, y: 535 },
   { x: 1583, y: 571 },
@@ -34,48 +25,10 @@ const FESTIVE_POLES = [
   { x: 1881, y: 790 },
   { x: 1930, y: 787 },
   { x: 1980, y: 778 },
+  { x: 1635, y: 642 },
+  { x: 1695, y: 642 },
 ];
-
-const FESTIVE_CABLE_PATH_D = "M1477 484Q1504 502 1531 505 M1531 505Q1557 530.5 1583 541 M1583 541Q1604 574 1625 592 M1625 592Q1642.5 627 1660 647 M1660 647Q1675.5 679 1691 696 M1691 696Q1705.5 720 1720 729 M1720 729Q1735 744.5 1750 745 M1750 745Q1769.5 758 1789 756 M1789 756Q1811.5 765.5 1834 760 M1834 760Q1857.5 767.5 1881 760 M1881 760Q1905.5 766 1930 757 M1930 757Q1955 760 1980 748";
-
-const FESTIVE_BULBS = [
-  { x: 1490.5, y: 492.1, col: "#F97316" },
-  { x: 1504, y: 498.3, col: "#A855F7" },
-  { x: 1517.5, y: 502.6, col: "#22C55E" },
-  { x: 1544, y: 516.8, col: "#FBBF24" },
-  { x: 1557, y: 526.8, col: "#EA580C" },
-  { x: 1570, y: 534.8, col: "#7E22CE" },
-  { x: 1593.5, y: 556.6, col: "#10B981" },
-  { x: 1604, y: 570.3, col: "#F97316" },
-  { x: 1614.5, y: 582.1, col: "#A855F7" },
-  { x: 1633.8, y: 608.6, col: "#22C55E" },
-  { x: 1642.5, y: 623.3, col: "#FBBF24" },
-  { x: 1651.3, y: 636.1, col: "#EA580C" },
-  { x: 1667.8, y: 662.1, col: "#7E22CE" },
-  { x: 1675.5, y: 675.3, col: "#10B981" },
-  { x: 1683.3, y: 686.6, col: "#F97316" },
-  { x: 1698.3, y: 707.1, col: "#A855F7" },
-  { x: 1705.5, y: 716.3, col: "#22C55E" },
-  { x: 1712.8, y: 723.6, col: "#FBBF24" },
-  { x: 1727.5, y: 735.8, col: "#EA580C" },
-  { x: 1735, y: 740.8, col: "#7E22CE" },
-  { x: 1742.5, y: 743.8, col: "#10B981" },
-  { x: 1759.8, y: 750.6, col: "#F97316" },
-  { x: 1769.5, y: 754.3, col: "#A855F7" },
-  { x: 1779.3, y: 756.1, col: "#22C55E" },
-  { x: 1800.3, y: 759.8, col: "#FBBF24" },
-  { x: 1811.5, y: 761.8, col: "#EA580C" },
-  { x: 1822.8, y: 761.8, col: "#7E22CE" },
-  { x: 1845.8, y: 762.8, col: "#10B981" },
-  { x: 1857.5, y: 763.8, col: "#F97316" },
-  { x: 1869.3, y: 762.8, col: "#A855F7" },
-  { x: 1893.3, y: 762.1, col: "#22C55E" },
-  { x: 1905.5, y: 762.3, col: "#FBBF24" },
-  { x: 1917.8, y: 760.6, col: "#EA580C" },
-  { x: 1942.5, y: 757.6, col: "#7E22CE" },
-  { x: 1955, y: 756.3, col: "#10B981" },
-  { x: 1967.5, y: 753.1, col: "#F97316" },
-];
+export const FESTIVE_POLES = PUMPKIN_POLES;
 
 const BARN_LIGHTS = [
   // Barn Gable Peak & Spire
@@ -333,110 +286,90 @@ export const RegionGround=memo(function RegionGround({chunkX, chunkY, cx: propCx
         CIDER & CANDY SHACK
       </T>
 
-      {/* Roadside Weathered Timber Posts with Carved Jack-o'-Lanterns along the Pine Trail curb */}
-      <G testID="roadside-halloween-poles">
-        {FESTIVE_POLES.map((p, idx) => (
-          <G key={`halloween-pole-${idx}`}>
-            <Ellipse cx={p.x + 1} cy={p.y + 1} rx={3.5} ry={1.8} fill={c.shadow} />
-            {/* Weathered dark timber post */}
-            <Line x1={p.x} y1={p.y} x2={p.x} y2={p.y - 30} stroke="#374151" strokeWidth={3.2} strokeLinecap="round" />
-            <Line x1={p.x + 0.6} y1={p.y - 2} x2={p.x + 0.6} y2={p.y - 28} stroke="#4B5563" strokeWidth={1.2} />
-            {/* Carved Jack-o'-Lantern on post */}
-            <Circle cx={p.x} cy={p.y - 33} r={4.5} fill="#EA580C" stroke="#7C2D12" strokeWidth={0.8} />
-            {/* Green pumpkin stem */}
-            <Line x1={p.x} y1={p.y - 37} x2={p.x + 0.8} y2={p.y - 39} stroke="#15803D" strokeWidth={1.2} strokeLinecap="round" />
-            {/* Fiery carved Jack-o'-Lantern eyes & mouth glowing at night */}
-            {isNight && (
-              <>
-                <Circle cx={p.x} cy={p.y - 33} r={9} fill="#F97316" opacity={0.42} />
-                <Circle cx={p.x - 1.2} cy={p.y - 34} r={0.7} fill="#FEF08A" />
-                <Circle cx={p.x + 1.2} cy={p.y - 34} r={0.7} fill="#FEF08A" />
-                <Line x1={p.x - 1.5} y1={p.y - 31.8} x2={p.x + 1.5} y2={p.y - 31.8} stroke="#FEF08A" strokeWidth={0.8} />
-              </>
-            )}
-          </G>
-        ))}
-      </G>
-
-      {/* Nighttime Ground Glow Spill along Pine Trail Roadside (Alternating Pumpkin & Spooky Purple) */}
-      {isNight && (
-        <G testID="festive-roadside-light-spill">
-          {FESTIVE_POLES.map((p, idx) => (
-            <Ellipse
-              key={`pole-glow-${idx}`}
-              cx={p.x}
-              cy={p.y}
-              rx={32}
-              ry={16}
-              fill={idx % 2 === 0 ? '#EA580C' : '#7E22CE'}
-              opacity={0.24}
-            />
-          ))}
-        </G>
-      )}
-
-      {/* Hanging Wire / Cable between the Bamboo Poles */}
-      <Path
-        d={FESTIVE_CABLE_PATH_D}
-        fill="none"
-        stroke="#1F2937"
-        strokeWidth={1.5}
-      />
-
-      {/* Hanging Festive LED Strips strung along the wire - Dazzling Multi-Tiered Bloom */}
-      <G testID="hanging-festive-led-strips">
-        {FESTIVE_BULBS.map((b, idx) => (
-          <G key={`festive-bulb-${idx}`}>
-            {isNight && (
-              <>
-                {/* Wide outer radiant bloom aura */}
-                <Circle cx={b.x} cy={b.y} r={17} fill={b.col} opacity={0.36} />
-                {/* Mid intense colorful corona */}
-                <Circle cx={b.x} cy={b.y} r={9.5} fill={b.col} opacity={0.70} />
-                {/* Inner saturated brilliant glow */}
-                <Circle cx={b.x} cy={b.y} r={5.2} fill={b.col} opacity={0.95} />
-                {/* Dazzling 4-point sparkle cross flare on alternating bulbs */}
-                {idx % 2 === 0 && (
-                  <>
-                    <Line x1={b.x - 7.5} y1={b.y} x2={b.x + 7.5} y2={b.y} stroke="#FFFFFF" strokeWidth={1.3} opacity={0.9} />
-                    <Line x1={b.x} y1={b.y - 7.5} x2={b.x} y2={b.y + 7.5} stroke="#FFFFFF" strokeWidth={1.3} opacity={0.9} />
-                  </>
-                )}
-              </>
-            )}
-            {/* Hot white central diode core */}
-            <Circle
-              cx={b.x}
-              cy={b.y}
-              r={isNight ? 2.6 : 1.8}
-              fill={isNight ? '#FFFFFF' : b.col}
-              opacity={isNight ? 1 : 0.55}
-            />
-          </G>
-        ))}
-      </G>
-
-      {/* Roadside Neon Goddess Festive Light Gates - Ground Footings & Night Light Pools */}
-      <G testID="festive-archway-ground-lighting">
-        {FESTIVE_ARCHWAYS.map((a, idx) => (
-          <G key={`arch-ground-${idx}`}>
+      {/* Roadside Lamp Posts with Glowing Carved Pumpkin Heads */}
+      <G testID="roadside-pumpkin-head-poles">
+        {PUMPKIN_POLES.map((p, idx) => (
+          <G key={`pumpkin-pole-${idx}`}>
             {/* Ground Base Footing & Shadow */}
-            <Ellipse cx={a.x + 20} cy={a.y + a.h + 2} rx={18} ry={5} fill={c.shadow} />
-            <Rect x={a.x + 6} y={a.y + a.h - 6} width={28} height={10} rx={2} fill={c.wood} stroke={c.onSurface} strokeWidth={0.8} />
+            <Ellipse cx={p.x + 1} cy={p.y + 1} rx={5} ry={2.2} fill={c.shadow} />
+            <Rect x={p.x - 3.5} y={p.y - 3} width={7} height={3} rx={1} fill="#1E293B" stroke="#0F172A" strokeWidth={0.8} />
 
-            {/* In Night Time: Radiant Light Coming Out onto Road & Pavement */}
+            {/* Sturdy Wrought-Iron Post Shaft */}
+            <Line x1={p.x} y1={p.y - 2} x2={p.x} y2={p.y - 32} stroke="#1E293B" strokeWidth={4} strokeLinecap="round" />
+            <Line x1={p.x + 0.8} y1={p.y - 2} x2={p.x + 0.8} y2={p.y - 32} stroke="#475569" strokeWidth={1.2} />
+
+            {/* Post Top Mounting Collar */}
+            <Rect x={p.x - 5} y={p.y - 34} width={10} height={2.5} rx={1} fill="#0F172A" />
+            <Ellipse cx={p.x} cy={p.y - 34} rx={5} ry={1.8} fill="#334155" />
+
+            {/* Nighttime Warm Light Pool on Ground & Pumpkin Head Glow Halo */}
             {isNight && (
-              <G testID={`archway-light-pool-${idx}`}>
-                {/* Wide pumpkin ambient light spread across the road */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={74} ry={42} fill="#EA580C" opacity={0.36} />
-                {/* Spooky purple mid-zone illuminating road asphalt */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={50} ry={28} fill="#A855F7" opacity={0.45} />
-                {/* Core bright hotspot directly below lamp */}
-                <Ellipse cx={a.lightX} cy={a.lightY} rx={26} ry={15} fill="#FEF08A" opacity={0.65} />
-                {/* Slime green / violet festive tint spill on roadside pavement */}
-                <Ellipse cx={a.x + 36} cy={a.lightY} rx={36} ry={20} fill="#22C55E" opacity={0.22} />
-                <Ellipse cx={a.x + 20} cy={a.lightY - 12} rx={30} ry={18} fill="#7E22CE" opacity={0.28} />
-              </G>
+              <>
+                {/* Projected warm lantern pool on sidewalk/road below */}
+                <Ellipse cx={p.x} cy={p.y + 2} rx={28} ry={14} fill="#EA580C" opacity={0.30} />
+                <Ellipse cx={p.x} cy={p.y + 2} rx={16} ry={8} fill="#F59E0B" opacity={0.42} />
+                <Ellipse cx={p.x} cy={p.y + 2} rx={8} ry={4} fill="#FEF08A" opacity={0.60} />
+
+                {/* Glowing radiant fire aura around the pumpkin head */}
+                <Circle cx={p.x} cy={p.y - 42} r={24} fill="#EA580C" opacity={0.32} />
+                <Circle cx={p.x} cy={p.y - 42} r={15} fill="#F97316" opacity={0.50} />
+                <Circle cx={p.x} cy={p.y - 42} r={8} fill="#FEF08A" opacity={0.72} />
+              </>
+            )}
+
+            {/* Carved Jack-o'-Lantern Pumpkin Head */}
+            {/* Dark back outline / shadow */}
+            <Ellipse cx={p.x} cy={p.y - 42} rx={9} ry={7.5} fill="#9A3412" stroke="#7C2D12" strokeWidth={0.8} />
+            {/* Outer Lobes */}
+            <Ellipse cx={p.x - 4.5} cy={p.y - 42} rx={4.8} ry={7} fill="#EA580C" />
+            <Ellipse cx={p.x + 4.5} cy={p.y - 42} rx={4.8} ry={7} fill="#EA580C" />
+            {/* Center Lobe */}
+            <Ellipse cx={p.x} cy={p.y - 42} rx={5.2} ry={7.4} fill="#F97316" />
+            {/* Pumpkin Rib Highlights */}
+            <Path d={`M${p.x - 2.8} ${p.y - 48} Q${p.x - 3.8} ${p.y - 42} ${p.x - 2.8} ${p.y - 36}`} stroke="#FB923C" strokeWidth={0.8} fill="none" opacity={0.75} />
+            <Path d={`M${p.x + 2.8} ${p.y - 48} Q${p.x + 3.8} ${p.y - 42} ${p.x + 2.8} ${p.y - 36}`} stroke="#FB923C" strokeWidth={0.8} fill="none" opacity={0.75} />
+
+            {/* Twisted Green Pumpkin Stem */}
+            <Path d={`M${p.x - 0.5} ${p.y - 48.5} Q${p.x + 1.5} ${p.y - 51.5} ${p.x + 2.8} ${p.y - 53.5}`} stroke="#15803D" strokeWidth={2} strokeLinecap="round" fill="none" />
+            <Path d={`M${p.x} ${p.y - 48.5} Q${p.x + 1.6} ${p.y - 51} ${p.x + 2.5} ${p.y - 53}`} stroke="#4ADE80" strokeWidth={0.8} strokeLinecap="round" fill="none" />
+
+            {/* Carved Glowing Face */}
+            {/* Left Eye Triangle */}
+            <Path
+              d={`M${p.x - 4.8} ${p.y - 44} L${p.x - 2} ${p.y - 44} L${p.x - 3.4} ${p.y - 46.8} Z`}
+              fill={isNight ? '#FEF08A' : '#451A03'}
+              stroke={isNight ? '#EA580C' : '#290E02'}
+              strokeWidth={0.4}
+            />
+            {/* Right Eye Triangle */}
+            <Path
+              d={`M${p.x + 2} ${p.y - 44} L${p.x + 4.8} ${p.y - 44} L${p.x + 3.4} ${p.y - 46.8} Z`}
+              fill={isNight ? '#FEF08A' : '#451A03'}
+              stroke={isNight ? '#EA580C' : '#290E02'}
+              strokeWidth={0.4}
+            />
+            {/* Center Nose Triangle */}
+            <Path
+              d={`M${p.x - 1} ${p.y - 42.4} L${p.x + 1} ${p.y - 42.4} L${p.x} ${p.y - 44.2} Z`}
+              fill={isNight ? '#FEF08A' : '#451A03'}
+            />
+            {/* Jagged Grinning Mouth */}
+            <Path
+              d={`M${p.x - 5} ${p.y - 39.8} L${p.x - 3.2} ${p.y - 38.4} L${p.x - 1.8} ${p.y - 39.8} L${p.x} ${p.y - 38} L${p.x + 1.8} ${p.y - 39.8} L${p.x + 3.2} ${p.y - 38.4} L${p.x + 5} ${p.y - 39.8}`}
+              stroke={isNight ? '#FEF08A' : '#451A03'}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+
+            {/* Inner Fire Sparkle Cores at Night */}
+            {isNight && (
+              <>
+                <Circle cx={p.x - 3.4} cy={p.y - 44.8} r={0.8} fill="#FFFFFF" />
+                <Circle cx={p.x + 3.4} cy={p.y - 44.8} r={0.8} fill="#FFFFFF" />
+                <Circle cx={p.x} cy={p.y - 38.8} r={0.8} fill="#FFFFFF" />
+              </>
             )}
           </G>
         ))}
@@ -839,9 +772,7 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
   // Viewport frustum culling: only render bridges or festive structures if camera is in proximity
   const nearRC = cx === undefined || cy === undefined || (Math.abs(cx - 3700) < 1400 && Math.abs(cy - 1160) < 1300);
   const nearRay = cx === undefined || cy === undefined || (Math.abs(cx - 3630) < 1400 && Math.abs(cy - 400) < 1300);
-  const nearFestive = cx === undefined || cy === undefined || (Math.abs(cx - 1710) < 1300 && Math.abs(cy - 680) < 1300);
-
-  if (!nearRC && !nearRay && !nearFestive) return null;
+  if (!nearRC && !nearRay) return null;
 
   const rcBridge = MAP?.bridges?.find(b => b.id === 'revenuecat-bridge');
   const rayBridge = MAP?.bridges?.find(b => b.id === 'ray-bridge');
@@ -933,62 +864,6 @@ export const OverheadBridges = memo(function OverheadBridges({ cx, cy, isNight }
         );
       })()}
 
-      {/* 4 Neon Goddess Festival Archway Lightings along Pine Trail Roadside */}
-      {nearFestive && (
-        <G testID="overhead-festive-archways">
-          {FESTIVE_ARCHWAYS.map((a, idx) => {
-            const diyaX = a.x + a.w * 0.78;
-            const diyaY = a.y + a.h * 0.22;
-            return (
-              <G key={`overhead-arch-${idx}`} testID={`festive-archway-${idx}`}>
-                {/* Radiant Neon Aura Halos around structure when lit at night */}
-                {isNight && (
-                  <G testID={`archway-aura-${idx}`}>
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.72} ry={a.h * 0.6} fill="#EA580C" opacity={0.32} />
-                    <Ellipse cx={a.x + a.w * 0.4} cy={a.y + a.h * 0.5} rx={a.w * 0.52} ry={a.h * 0.46} fill="#A855F7" opacity={0.30} />
-                    <Ellipse cx={a.x + a.w * 0.35} cy={a.y + a.h * 0.45} rx={a.w * 0.38} ry={a.h * 0.35} fill="#22C55E" opacity={0.25} />
-                  </G>
-                )}
-
-                {/* Archway Image Asset (Daylight: Lights OFF / Night: Lights ON) */}
-                <SvgImage
-                  href={isNight ? NEON_ARCHWAY_NIGHT : NEON_ARCHWAY_DAY}
-                  x={a.x}
-                  y={a.y}
-                  width={a.w}
-                  height={a.h}
-                  preserveAspectRatio="xMidYMid meet"
-                />
-
-                {/* Nighttime Light Beams & Lamp Corona Shining Down onto Road */}
-                {isNight && (
-                  <G testID={`archway-beam-${idx}`}>
-                    {/* Downward light cone shining from hanging lantern to ground */}
-                    <Path
-                      d={`M${diyaX - 5} ${diyaY + 6} L${a.lightX - 34} ${a.lightY - 6} L${a.lightX + 34} ${a.lightY - 6} L${diyaX + 5} ${diyaY + 6} Z`}
-                      fill="#FEF08A"
-                      opacity={0.30}
-                    />
-                    <Path
-                      d={`M${diyaX - 2.5} ${diyaY + 6} L${a.lightX - 18} ${a.lightY - 6} L${a.lightX + 18} ${a.lightY - 6} L${diyaX + 2.5} ${diyaY + 6} Z`}
-                      fill="#F97316"
-                      opacity={0.38}
-                    />
-                    {/* Hanging Lantern Multi-tier Glow */}
-                    <Circle cx={diyaX} cy={diyaY} r={28} fill="#EA580C" opacity={0.42} />
-                    <Circle cx={diyaX} cy={diyaY} r={17} fill="#F97316" opacity={0.72} />
-                    <Circle cx={diyaX} cy={diyaY} r={9} fill="#FEF08A" opacity={0.92} />
-                    <Circle cx={diyaX} cy={diyaY} r={4.5} fill="#FFFFFF" opacity={1.0} />
-                    {/* Sparkle flare on lantern core */}
-                    <Line x1={diyaX - 10} y1={diyaY} x2={diyaX + 10} y2={diyaY} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
-                    <Line x1={diyaX} y1={diyaY - 10} x2={diyaX + 10} y2={diyaY + 10} stroke="#FFFFFF" strokeWidth={1.5} opacity={0.95} />
-                  </G>
-                )}
-              </G>
-            );
-          })}
-        </G>
-      )}
     </G>
   );
 });
